@@ -1,15 +1,31 @@
-import NextAuth from "next-auth";
+import type { BetterAuthOptions } from "better-auth";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
+import { oAuthProxy } from "better-auth/plugins";
 
-import { authConfig } from "./config";
+import { db } from "@repo/database/client";
 
-export type { Session } from "next-auth";
+export function initAuth(options: {
+  baseUrl: string;
+  secret: string | undefined;
+}) {
+  const config = {
 
-const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+    database: drizzleAdapter(db, {
+      provider: "pg",
+    }),
+    baseURL: options.baseUrl,
+    secret: options.secret,
+    plugins: [nextCookies(), oAuthProxy()],
+    emailAndPassword: {
+      enabled: true,
+    },
+    trustedOrigins: ["expo://"],
+  } satisfies BetterAuthOptions;
 
-export { handlers, auth, signIn, signOut };
+  return betterAuth(config);
+}
 
-export {
-  invalidateSessionToken,
-  validateToken,
-  isSecureContext,
-} from "./config";
+export type Auth = ReturnType<typeof initAuth>;
+export type Session = Auth["$Infer"]["Session"];

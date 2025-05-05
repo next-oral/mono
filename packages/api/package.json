@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@repo/auth": "workspace:*",
-    "@repo/db": "workspace:*",
+    "@repo/database": "workspace:*",
     "@repo/validators": "workspace:*",
     "@trpc/server": "catalog:",
     "superjson": "2.2.2",

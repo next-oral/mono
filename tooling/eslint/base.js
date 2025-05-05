@@ -82,7 +82,7 @@ export default tseslint.config(
         {
           case: "kebabCase",
         },
-      ],
+      ], 
     },
   },
   {
