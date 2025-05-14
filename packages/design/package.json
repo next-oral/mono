@@ -24,6 +24,7 @@
     "@repo/tsconfig": "workspace:*",
     "@tailwindcss/postcss": "^4.1.6",
     "eslint": "catalog:",
+    "postcss-load-config": "^6.0.1",
     "prettier": "catalog:",
     "typescript": "catalog:"
   },
