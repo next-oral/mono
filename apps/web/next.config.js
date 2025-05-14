@@ -10,7 +10,7 @@ const config = {
   transpilePackages: [
     "@repo/api",
     "@repo/auth",
-    "@repo/db",
+    "@repo/database",
     "@repo/ui",
     "@repo/validators",
   ],
