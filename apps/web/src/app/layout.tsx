@@ -4,11 +4,11 @@ import { GeistSans } from "geist/font/sans";
 
 import { cn } from "@repo/ui";
 import { ThemeProvider, ThemeToggle } from "@repo/ui/theme";
+import "~/app/globals.css";
 import { Toaster } from "@repo/ui/toast";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
-import "~/app/globals.css";
 
 import { env } from "~/env";
 
@@ -23,7 +23,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Create T3 Turbo",
     description: "Simple monorepo with shared backend for web & mobile apps",
-    url: "https://create-t3-turbo.vercel.app",
     siteName: "Create T3 Turbo",
   },
   twitter: {

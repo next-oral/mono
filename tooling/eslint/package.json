@@ -27,6 +27,7 @@
     "@repo/prettier-config": "workspace:*",
     "@repo/tsconfig": "workspace:*",
     "eslint": "catalog:",
+    "eslint-plugin-unicorn": "^59.0.0",
     "prettier": "catalog:",
     "typescript": "catalog:"
   },
