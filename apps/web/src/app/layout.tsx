@@ -5,6 +5,8 @@ import { GeistSans } from "geist/font/sans";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
+import {Toaster} from "@repo/design/components/ui/sonner"
+
 import "@repo/design/globals.css"
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
@@ -46,6 +48,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           GeistMono.variable,
         )}
       >
+        <Toaster richColors position="top-center"/>
           <TRPCReactProvider>{props.children}</TRPCReactProvider>
           <div className="absolute bottom-4 right-4">
           </div>

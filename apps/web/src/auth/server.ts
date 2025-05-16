@@ -6,7 +6,7 @@ import { env } from "~/env";
 
 import { initAuth } from "@repo/auth";
 
-const baseUrl = env.VERCEL_PROJECT_PRODUCTION_URL
+export const baseUrl = env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`
   : env.VERCEL_URL
     ? `https://${env.VERCEL_URL}`

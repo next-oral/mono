@@ -1,7 +1,27 @@
+"use client"
+
 import { LoginForm } from "@repo/design/src/components/login-form"
+import { toast } from "@repo/design/src/components/ui/sonner"
 import Image from "next/image"
+import { authClient } from "~/auth/client"
+
 
 export default function LoginPage() {
+
+  const handleSubmit = async ({ email }: { email: string }) => {
+
+    const {error} = await authClient.emailOtp.sendVerificationOtp({
+      email,
+      type : "sign-in"
+    })
+
+    if (error) {
+       
+      toast.error(error.message)
+      
+    }
+  }
+
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
@@ -15,7 +35,7 @@ export default function LoginPage() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <LoginForm />
+            <LoginForm handleSubmit={handleSubmit} />
           </div>
         </div>
       </div>
