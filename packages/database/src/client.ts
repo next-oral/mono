@@ -12,8 +12,6 @@ export const db = drizzle({
 
 
 export const redis = new Redis({
-  // eslint-disable-next-line turbo/no-undeclared-env-vars
   url: process.env.KV_REST_API_URL,
-  // eslint-disable-next-line turbo/no-undeclared-env-vars
   token: process.env.KV_REST_API_TOKEN
 });

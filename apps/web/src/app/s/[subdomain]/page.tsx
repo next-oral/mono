@@ -1,7 +1,7 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { getQueryClient, trpc } from '~/trpc/server';
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getQueryClient, trpc } from "~/trpc/server";
 
 export async function GenerateMetadata({
   params

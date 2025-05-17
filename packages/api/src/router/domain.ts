@@ -18,7 +18,7 @@ export const domainRouter = {
     domain: z.string()
   })).query(async ({ input, ctx }) => {
 
-    const sanitizedSubdomain = input.domain.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    const sanitizedSubdomain = input.domain.toLowerCase().replace(/[^a-z0-9-]/g, "");
 
     const data = await ctx.redis.get<Subdomain>(`subdomain:${sanitizedSubdomain}`);
 
@@ -78,14 +78,14 @@ export const domainRouter = {
     }),
 
   getAllSubdomains: protectedProcedure.query(async ({ ctx }) => {
-    const keys = await ctx.redis.keys('subdomain:*');
+    const keys = await ctx.redis.keys("subdomain:*");
     if (!keys.length) {
       return [];
     }
     const values = await ctx.redis.mget<Subdomain[]>(...keys);
 
     return keys.map((key, index) => {
-      const subdomain = key.replace('subdomain:', '');
+      const subdomain = key.replace("subdomain:", "");
       const data = values[index];
 
       return {

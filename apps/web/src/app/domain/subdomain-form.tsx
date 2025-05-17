@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { Button } from '@repo/design/src/components/ui/button';
-import { Input } from '@repo/design/src/components/ui/input';
-import { Label } from '@repo/design/src/components/ui/label';
-import { useMutation } from '@tanstack/react-query';
-import { useTRPC } from '~/trpc/react';
+import { Button } from "@repo/design/src/components/ui/button";
+import { Input } from "@repo/design/src/components/ui/input";
+import { Label } from "@repo/design/src/components/ui/label";
+import { useMutation } from "@tanstack/react-query";
+import { useTRPC } from "~/trpc/react";
 
 
 function SubdomainInput({ defaultValue, rootDomain }: { defaultValue?: string, rootDomain: string }) {
@@ -49,7 +49,7 @@ export function SubdomainForm({ domain }: { domain: { root: string, protocol: st
       <SubdomainInput rootDomain={domain.root} />
 
       <Button type="submit" className="w-full" disabled={createDomain.isPending}>
-        {createDomain.isPending ? 'Creating...' : 'Create Subdomain'}
+        {createDomain.isPending ? "Creating..." : "Create Subdomain"}
       </Button>
     </form>
   );

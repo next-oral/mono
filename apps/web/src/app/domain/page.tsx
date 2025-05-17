@@ -1,6 +1,6 @@
-import Link from 'next/link';
-import { getQueryClient, trpc } from '~/trpc/server';
-import { SubdomainForm } from './subdomain-form';
+import Link from "next/link";
+import { getQueryClient, trpc } from "~/trpc/server";
+import { SubdomainForm } from "./subdomain-form";
 
 export default async  function HomePage() {
 

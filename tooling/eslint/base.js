@@ -83,6 +83,7 @@ export default tseslint.config(
           case: "kebabCase",
         },
       ], 
+      "quotes": ["error", "double", { avoidEscape: true }],
     },
   },
   {

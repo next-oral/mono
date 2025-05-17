@@ -1,7 +1,6 @@
 "use client"
 
-import { LoginForm } from "@repo/design/src/components/login-form"
-import { toast } from "@repo/design/src/components/ui/sonner"
+import { LoginForm } from "@repo/design/components/login-form"
 import Image from "next/image"
 import { authClient } from "~/auth/client"
 
@@ -10,15 +9,20 @@ export default function LoginPage() {
 
   const handleSubmit = async ({ email }: { email: string }) => {
 
-    const {error} = await authClient.emailOtp.sendVerificationOtp({
-      email,
-      type : "sign-in"
-    })
-
-    if (error) {
-       
-      toast.error(error.message)
+    try {
       
+     const {error} = await authClient.emailOtp.sendVerificationOtp({
+        email,
+        type : "sign-in"
+      })
+  
+      if (error) {
+         
+       throw new Error(error.message)
+        
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 

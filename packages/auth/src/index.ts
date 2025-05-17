@@ -2,10 +2,12 @@ import type { BetterAuthOptions } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { oAuthProxy, emailOTP, admin as adminPlugin, organization } from "better-auth/plugins";
+import { admin as adminPlugin, emailOTP, oAuthProxy, organization } from "better-auth/plugins";
 
 import { db } from "@repo/database/client";
 import { ac, admin, user } from "./lib/permission";
+// import { resend } from "@repo/email";
+import { actions } from "../../email/src";
 
 export function initAuth(options: {
   baseUrl: string;
@@ -21,11 +23,20 @@ export function initAuth(options: {
       nextCookies(),
       oAuthProxy(),
       emailOTP({
-        // eslint-disable-next-line @typescript-eslint/require-await
         async sendVerificationOTP({ email, otp }) {
-          console.log(email, otp);
+          await actions.auth({
+            template: "sign-up",
+            data: {
+              email,
+              otp,
+              name: "sfsd",
+              message: "dfsdfs"
+            }
+          })
           // Implement the sendVerificationOTP method to send the OTP to the user's email address
         },
+
+
       }),
       adminPlugin({
         ac,
@@ -47,7 +58,7 @@ export function initAuth(options: {
       microsoft: {
         clientId: "env.MICROSOFT_CLIENT_ID",
         clientSecret: "env.MICROSOFT_CLIENT_SECRET",
-        tenantId: 'common',
+        tenantId: "common",
       },
     },
     trustedOrigins: ["expo://"],

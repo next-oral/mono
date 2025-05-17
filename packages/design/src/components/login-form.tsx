@@ -1,7 +1,8 @@
 import { Button } from "@repo/design/components/ui/button"
 import { Input } from "@repo/design/components/ui/input"
 import { cn } from "@repo/design/lib/utils"
-import { SubmitHandler, useForm } from "react-hook-form"
+import type { SubmitHandler} from "react-hook-form";
+import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
