@@ -48,7 +48,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           GeistMono.variable,
         )}
       >
-        <Toaster richColors position="top-center"/>
+        <Toaster theme="light" richColors position="top-center"/>
           <TRPCReactProvider>{props.children}</TRPCReactProvider>
           <div className="absolute bottom-4 right-4">
           </div>

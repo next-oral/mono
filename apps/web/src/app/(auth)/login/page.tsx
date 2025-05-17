@@ -1,56 +1,32 @@
 "use client"
 
 import { LoginForm } from "@repo/design/components/login-form"
-import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useState } from "react";
 import { authClient } from "~/auth/client"
-
 
 export default function LoginPage() {
 
-  const handleSubmit = async ({ email }: { email: string }) => {
+  const router = useRouter();
 
+  const [isPending, setIsPending] = useState(false);
+
+  const handleSubmit = async ({ email }: { email: string }) => {
     try {
-      
-     const {error} = await authClient.emailOtp.sendVerificationOtp({
+      setIsPending(true)
+      const { error } = await authClient.emailOtp.sendVerificationOtp({
         email,
-        type : "sign-in"
+        type: "sign-in"
       })
-  
-      if (error) {
-         
-       throw new Error(error.message)
-        
-      }
+      if (error) throw new Error(error.message)
+
+      return router.push(`/verify?email=${email}`);
     } catch (error) {
       console.log(error)
     }
+    finally{
+      setIsPending(false)
+    }
   }
-
-  return (
-    <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex justify-center gap-2 md:justify-start">
-          <a href="#" className="flex items-center gap-2 font-medium">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              {/* <GalleryVerticalEnd className="size-4" /> */}
-            </div>
-            Next Oral Inc.
-          </a>
-        </div>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
-            <LoginForm handleSubmit={handleSubmit} />
-          </div>
-        </div>
-      </div>
-      <div className="relative hidden bg-muted lg:block">
-        <Image
-          src="/placeholder.svg"
-          alt="Image"
-          fill
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        />
-      </div>
-    </div>
-  )
+  return <LoginForm isPending={isPending} handleSubmit={handleSubmit} />
 }

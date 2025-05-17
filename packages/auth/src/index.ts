@@ -6,7 +6,7 @@ import { admin as adminPlugin, emailOTP, oAuthProxy, organization } from "better
 
 import { db } from "@repo/database/client";
 import { ac, admin, user } from "./lib/permission";
-// import { resend } from "@repo/email";
+
 import { actions } from "../../email/src";
 
 export function initAuth(options: {
