@@ -5,7 +5,12 @@ import {
   organizationClient,
 } from "better-auth/client/plugins";
 
-const baseUrl = "http://localhost:3000";
+import { env } from "~/env";
+
+const baseUrl =
+  env.NODE_ENV === "development"
+    ? "http://localhost:3000"
+    : "https://nextoral.com";
 
 export const authClient = createAuthClient({
   baseURL: baseUrl,
