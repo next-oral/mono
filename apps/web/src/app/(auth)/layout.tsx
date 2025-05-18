@@ -1,10 +1,17 @@
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
-export default function AuthLayout({
+import { getSession } from "~/auth/server";
+
+export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getSession();
+
+  if (session) return redirect("/onboarding");
+
   return (
     <div className="grid min-h-svh overflow-hidden lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
