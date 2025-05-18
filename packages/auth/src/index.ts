@@ -10,8 +10,8 @@ import {
 } from "better-auth/plugins";
 
 import { db } from "@repo/database/client";
+import { actions } from "@repo/email";
 
-// import { actions } from "../../email/src";
 import { ac, admin, user } from "./lib/permission";
 
 export function initAuth(options: {
@@ -28,16 +28,16 @@ export function initAuth(options: {
       nextCookies(),
       oAuthProxy(),
       emailOTP({
-        async sendVerificationOTP() {
-          // await actions.auth({
-          //   template: "sign-up",
-          //   data: {
-          //     email,
-          //     otp,
-          //     name: "sfsd",
-          //     message: "dfsdfs",
-          //   },
-          // });
+        async sendVerificationOTP({ email, otp }) {
+          await actions.auth({
+            template: "sign-up",
+            data: {
+              email,
+              otp,
+              name: "sfsd",
+              message: "dfsdfs",
+            },
+          });
           // Implement the sendVerificationOTP method to send the OTP to the user's email address
         },
       }),
