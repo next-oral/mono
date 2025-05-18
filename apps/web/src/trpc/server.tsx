@@ -4,7 +4,6 @@ import { headers } from "next/headers";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 
-
 import type { AppRouter } from "@repo/api";
 import { appRouter, createTRPCContext } from "@repo/api";
 
@@ -32,8 +31,6 @@ export const trpc = createTRPCOptionsProxy<AppRouter>({
   ctx: createContext,
   queryClient: getQueryClient,
 });
-
-
 
 export function HydrateClient(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();

@@ -4,7 +4,7 @@ import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
   auth: authRouter,
-  domain: domainRouter
+  domain: domainRouter,
 });
 
 // export type definition of API

@@ -1,34 +1,38 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
 import { getQueryClient, trpc } from "~/trpc/server";
 
 export async function GenerateMetadata({
-  params
+  params,
 }: {
   params: Promise<{ subdomain: string }>;
 }): Promise<Metadata> {
   const { subdomain } = await params;
 
   const queryClient = getQueryClient();
-  const domain = await queryClient.ensureQueryData(trpc.domain.getDomainConfig.queryOptions())
-  const sub = await queryClient.ensureQueryData(trpc.domain.getDomain.queryOptions({domain: subdomain}))
-
+  const domain = await queryClient.ensureQueryData(
+    trpc.domain.getDomainConfig.queryOptions(),
+  );
+  const sub = await queryClient.ensureQueryData(
+    trpc.domain.getDomain.queryOptions({ domain: subdomain }),
+  );
 
   if (!sub) {
     return {
-      title: domain.root
+      title: domain.root,
     };
   }
 
   return {
     title: `${subdomain}.${domain.root}`,
-    description: `Subdomain page for ${subdomain}.${domain.root}`
+    description: `Subdomain page for ${subdomain}.${domain.root}`,
   };
 }
 
 export default async function SubdomainPage({
-  params
+  params,
 }: {
   params: Promise<{ subdomain: string }>;
 }) {
@@ -36,8 +40,12 @@ export default async function SubdomainPage({
 
   const queryClient = getQueryClient();
 
-  const domain = await queryClient.ensureQueryData(trpc.domain.getDomainConfig.queryOptions())
-  const sub = await queryClient.ensureQueryData(trpc.domain.getDomain.queryOptions({domain: subdomain}))
+  const domain = await queryClient.ensureQueryData(
+    trpc.domain.getDomainConfig.queryOptions(),
+  );
+  const sub = await queryClient.ensureQueryData(
+    trpc.domain.getDomain.queryOptions({ domain: subdomain }),
+  );
 
   if (!sub) {
     notFound();
@@ -48,15 +56,15 @@ export default async function SubdomainPage({
       <div className="absolute top-4 right-4">
         <Link
           href={`${domain.protocol}://${domain.root}`}
-          className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          className="text-sm text-gray-500 transition-colors hover:text-gray-700"
         >
           {domain.root}
         </Link>
       </div>
 
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex flex-1 items-center justify-center">
         <div className="text-center">
-          <div className="text-9xl mb-6">{}</div>
+          <div className="mb-6 text-9xl">{}</div>
           <h1 className="text-4xl font-bold tracking-tight text-gray-900">
             Welcome to {subdomain}.{domain.root}
           </h1>

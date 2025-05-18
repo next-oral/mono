@@ -1,10 +1,10 @@
+import type { Redis } from "@upstash/redis";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import type { Auth } from "@repo/auth";
 import { db, redis } from "@repo/database/client";
-import type { Redis } from "@upstash/redis";
 
 /**
  * 1. CONTEXT

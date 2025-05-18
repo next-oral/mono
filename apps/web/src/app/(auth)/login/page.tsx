@@ -1,35 +1,35 @@
-"use client"
+"use client";
 
-import { LoginForm } from "@repo/design/components/login-form"
-import { AnimatePresence, motion } from "motion/react";
-import { useRouter } from "next/navigation"
 import { useState } from "react";
-import { authClient } from "~/auth/client"
+import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
+
+import { LoginForm } from "@repo/design/components/login-form";
+
+import { authClient } from "~/auth/client";
 
 export default function LoginPage() {
-
   const router = useRouter();
 
   const [isPending, setIsPending] = useState(false);
 
   const handleSubmit = async ({ email }: { email: string }) => {
     try {
-      setIsPending(true)
+      setIsPending(true);
 
       const { error } = await authClient.emailOtp.sendVerificationOtp({
         email,
-        type: "sign-in"
-      })
-      if (error) throw new Error(error.message)
+        type: "sign-in",
+      });
+      if (error) throw new Error(error.message);
 
       return router.push(`/verify?email=${email}`);
     } catch (error) {
-      console.log(error)
+      console.log(error);
+    } finally {
+      setIsPending(false);
     }
-    finally {
-      setIsPending(false)
-    }
-  }
+  };
   return (
     <AnimatePresence>
       <motion.div
@@ -45,6 +45,6 @@ export default function LoginPage() {
       >
         <LoginForm isPending={isPending} handleSubmit={handleSubmit} />
       </motion.div>
-    </AnimatePresence>)
-
+    </AnimatePresence>
+  );
 }

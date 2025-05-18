@@ -1,175 +1,187 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@repo/design/components/ui/button"
-import { AnimatePresence, motion } from "motion/react"
+import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+
+import { Button } from "@repo/design/components/ui/button";
 
 const Page = () => {
-    const [showSecondScreen, setShowSecondScreen] = useState(false)
-    
-    const handleGetStarted = () => {
-        setShowSecondScreen(true)
-    }
-    
-    return (
-        <div className="relative w-full h-screen overflow-hidden bg-gradient-to-b from-white to-blue-50">
-            <AnimatePresence mode="wait">
-                {!showSecondScreen ? (
-                    <motion.div 
-                        key="welcome" 
-                        className="absolute w-full h-screen flex flex-col items-center justify-center"
-                        initial={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        {/* Background elements for parallax effect */}
-                        <motion.div 
-                            className="absolute top-10 right-20 w-32 h-32 rounded-full bg-blue-100 opacity-40 blur-xl"
-                            initial={{ y: 0 }}
-                            animate={{ y: [0, -15, 0] }}
-                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                        />
-                        <motion.div 
-                            className="absolute bottom-20 left-20 w-48 h-48 rounded-full bg-indigo-100 opacity-40 blur-xl"
-                            initial={{ y: 0 }}
-                            animate={{ y: [0, 20, 0] }}
-                            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                        />
-                        
-                        {/* Content with staggered animation */}
-                        <motion.div className="flex flex-col items-center z-10 px-6">
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6 }}
-                            >
-                                <motion.div 
-                                    className="w-16 h-16 mb-6 rounded-full bg-blue-500 flex items-center justify-center"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.98 }}
-                                >
-                                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                    </svg>
-                                </motion.div>
-                            </motion.div>
-                            
-                            <motion.h3 
-                                className="font-medium text-4xl text-blue-900 mb-4"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: 0.2 }}
-                            >
-                                Welcome to NextOral
-                            </motion.h3>
-                            
-                            <motion.p 
-                                className="max-w-md text-center text-blue-700 text-lg mb-8"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: 0.4 }}
-                            >
-                                NextOral is a purpose-built system for managing and running your clinic. 
-                                Streamline issues, bookings, and consultations.
-                            </motion.p>
-                            
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: 0.6 }}
-                            >
-                                <Button 
-                                    className="w-52 h-10 text-white font-medium shadow-lg"
-                                    onClick={handleGetStarted}
-                                >
-                                    Get Started
-                                </Button>
-                            </motion.div>
-                        </motion.div>
-                    </motion.div>
-                ) : (
-                    <motion.div 
-                        key="second-screen" 
-                        className="absolute w-full h-screen flex items-center justify-center"
-                        initial={{ y: "100%" }}
-                        animate={{ y: 0 }}
-                        transition={{ 
-                            type: "spring", 
-                            stiffness: 100, 
-                            damping: 20 
-                        }}
-                    >
-                        {/* Background pattern */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-blue-50 to-blue-100">
-                            <div className="absolute inset-0 opacity-10">
-                                <div className="absolute h-full w-full bg-[radial-gradient(circle_500px_at_50%_200px,#4F46E5,transparent)]" />
-                            </div>
-                        </div>
-                        
-                        <div className="relative z-10 flex flex-col items-center max-w-lg mx-auto px-6">
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.3, duration: 0.5 }}
-                                className="mb-8 p-4 bg-white rounded-xl shadow-xl"
-                            >
-                                <svg className="w-12 h-12 mx-auto text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                            </motion.div>
-                            
-                            <motion.h3 
-                                className="font-medium text-3xl text-blue-900 mb-4 text-center"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4, duration: 0.5 }}
-                            >
-                                Let's set up your clinic
-                            </motion.h3>
-                            
-                            <motion.p 
-                                className="text-center text-blue-700 mb-8"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5, duration: 0.5 }}
-                            >
-                                We'll guide you through the steps to get your clinic management system up and running in minutes.
-                            </motion.p>
-                            
-                            <motion.div 
-                                className="flex gap-4"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.6, duration: 0.5 }}
-                            >
-                                <Button 
-                                    variant="outline"
-                                    className="px-6 border-blue-300 text-blue-700"
-                                    onClick={() => setShowSecondScreen(false)}
-                                >
-                                    Go Back
-                                </Button>
-                                
-                                <Button 
-                                    className="px-6 bg-blue-600 hover:bg-blue-700 text-white"
-                                >
-                                    Continue
-                                </Button>
-                            </motion.div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
-    )
-}
+  const [showSecondScreen, setShowSecondScreen] = useState(false);
 
-export default Page
+  const handleGetStarted = () => {
+    setShowSecondScreen(true);
+  };
 
+  return (
+    <div className="relative h-screen w-full overflow-hidden bg-gradient-to-b from-white to-blue-50">
+      <AnimatePresence mode="wait">
+        {!showSecondScreen ? (
+          <motion.div
+            key="welcome"
+            className="absolute flex h-screen w-full flex-col items-center justify-center"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* Background elements for parallax effect */}
+            <motion.div
+              className="absolute top-10 right-20 h-32 w-32 rounded-full bg-blue-100 opacity-40 blur-xl"
+              initial={{ y: 0 }}
+              animate={{ y: [0, -15, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute bottom-20 left-20 h-48 w-48 rounded-full bg-indigo-100 opacity-40 blur-xl"
+              initial={{ y: 0 }}
+              animate={{ y: [0, 20, 0] }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 1,
+              }}
+            />
 
+            {/* Content with staggered animation */}
+            <motion.div className="z-10 flex flex-col items-center px-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <motion.div
+                  className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-blue-500"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <svg
+                    className="h-8 w-8 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  </svg>
+                </motion.div>
+              </motion.div>
 
+              <motion.h3
+                className="mb-4 text-4xl font-medium text-blue-900"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                Welcome to NextOral
+              </motion.h3>
 
+              <motion.p
+                className="mb-8 max-w-md text-center text-lg text-blue-700"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+              >
+                NextOral is a purpose-built system for managing and running your
+                clinic. Streamline issues, bookings, and consultations.
+              </motion.p>
 
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+              >
+                <Button
+                  className="h-10 w-52 font-medium text-white shadow-lg"
+                  onClick={handleGetStarted}
+                >
+                  Get Started
+                </Button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="second-screen"
+            className="absolute flex h-screen w-full items-center justify-center"
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 100,
+              damping: 20,
+            }}
+          >
+            {/* Background pattern */}
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-50 to-blue-100">
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute h-full w-full bg-[radial-gradient(circle_500px_at_50%_200px,#4F46E5,transparent)]" />
+              </div>
+            </div>
+
+            <div className="relative z-10 mx-auto flex max-w-lg flex-col items-center px-6">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="mb-8 rounded-xl bg-white p-4 shadow-xl"
+              >
+                <svg
+                  className="mx-auto h-12 w-12 text-blue-500"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </motion.div>
+
+              <motion.h3
+                className="mb-4 text-center text-3xl font-medium text-blue-900"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+              >
+                Let's set up your clinic
+              </motion.h3>
+
+              <motion.p
+                className="mb-8 text-center text-blue-700"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+              >
+                We'll guide you through the steps to get your clinic management
+                system up and running in minutes.
+              </motion.p>
+
+              <motion.div
+                className="flex gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+              >
+                <Button
+                  variant="outline"
+                  className="border-blue-300 px-6 text-blue-700"
+                  onClick={() => setShowSecondScreen(false)}
+                >
+                  Go Back
+                </Button>
+
+                <Button className="bg-blue-600 px-6 text-white hover:bg-blue-700">
+                  Continue
+                </Button>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default Page;
 
 // import { useState } from "react"
 // import { Button } from "@repo/design/components/ui/button"
@@ -179,7 +191,7 @@ export default Page
 // const Page = () => {
 //     // Track the current step in the onboarding process
 //     const [currentStep, setCurrentStep] = useState(0)
-    
+
 //     // Track form data (simplified for this example)
 //     const [formData, setFormData] = useState({
 //         profile: {
@@ -197,7 +209,7 @@ export default Page
 //             specialization: "",
 //         }
 //     })
-    
+
 //     // Define the steps in the onboarding process
 //     const steps = [
 //         { id: 0, title: "Welcome", icon: "🏠" },
@@ -206,20 +218,20 @@ export default Page
 //         { id: 3, title: "Clinic Setup", icon: "🏥" },
 //         { id: 4, title: "Complete", icon: "✅" }
 //     ]
-    
+
 //     // Handle navigation between steps
 //     const nextStep = () => {
 //         if (currentStep < steps.length - 1) {
 //             setCurrentStep(currentStep + 1)
 //         }
 //     }
-    
+
 //     const prevStep = () => {
 //         if (currentStep > 0) {
 //             setCurrentStep(currentStep - 1)
 //         }
 //     }
-    
+
 //     // Render the appropriate step content
 //     const renderStepContent = () => {
 //         switch (currentStep) {
@@ -229,7 +241,7 @@ export default Page
 //                 return <ProfileSetup onNext={nextStep} onBack={prevStep} />
 //             case 2:
 //                 return <OrganizationSetup onNext={nextStep} onBack={prevStep} />
-//             case 3: 
+//             case 3:
 //                 return <ClinicSetup onNext={nextStep} onBack={prevStep} formData={formData} />
 //             case 4:
 //                 return <CompletionScreen />
@@ -237,7 +249,7 @@ export default Page
 //                 return <WelcomeScreen onNext={nextStep} />
 //         }
 //     }
-    
+
 //     return (
 //         <div className="relative w-full h-screen overflow-hidden bg-gradient-to-b from-white to-blue-50">
 //             {/* Progress indicator - Fixed at the top */}
@@ -247,7 +259,7 @@ export default Page
 //                         <div className="flex items-center justify-between w-full">
 //                             {steps.slice(1, 4).map((step) => (
 //                                 <div key={step.id} className="flex flex-col items-center">
-//                                     <div 
+//                                     <div
 //                                         className={`w-10 h-10 rounded-full flex items-center justify-center mb-1
 //                                         ${currentStep >= step.id ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'}`}
 //                                     >
@@ -264,7 +276,7 @@ export default Page
 //                             ))}
 //                         </div>
 //                         <div className="mt-2 h-1 bg-gray-200 rounded-full">
-//                             <motion.div 
+//                             <motion.div
 //                                 className="h-full bg-blue-600 rounded-full"
 //                                 initial={{ width: "0%" }}
 //                                 animate={{ width: `${((currentStep - 1) / 2) * 100}%` }}
@@ -274,7 +286,7 @@ export default Page
 //                     </div>
 //                 </div>
 //             )}
-            
+
 //             {/* Content area with page transitions */}
 //             <AnimatePresence mode="wait">
 //                 <motion.div
@@ -282,7 +294,7 @@ export default Page
 //                     initial={{ opacity: 0, x: 100 }}
 //                     animate={{ opacity: 1, x: 0 }}
 //                     exit={{ opacity: 0, x: -100 }}
-//                     transition={{ 
+//                     transition={{
 //                         type: "spring",
 //                         stiffness: 300,
 //                         damping: 30
@@ -301,19 +313,19 @@ export default Page
 //     return (
 //         <div className="flex flex-col items-center text-center max-w-lg mx-auto px-6">
 //             {/* Background elements */}
-//             <motion.div 
+//             <motion.div
 //                 className="absolute top-10 right-20 w-32 h-32 rounded-full bg-blue-100 opacity-40 blur-xl"
 //                 animate={{ y: [0, -15, 0] }}
 //                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
 //             />
-//             <motion.div 
+//             <motion.div
 //                 className="absolute bottom-20 left-20 w-48 h-48 rounded-full bg-indigo-100 opacity-40 blur-xl"
 //                 animate={{ y: [0, 20, 0] }}
 //                 transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
 //             />
-            
+
 //             {/* Content with staggered animation */}
-//             <motion.div 
+//             <motion.div
 //                 className="w-20 h-20 mb-8 rounded-full bg-blue-600 flex items-center justify-center shadow-lg"
 //                 initial={{ scale: 0.8, opacity: 0 }}
 //                 animate={{ scale: 1, opacity: 1 }}
@@ -323,8 +335,8 @@ export default Page
 //                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
 //                 </svg>
 //             </motion.div>
-            
-//             <motion.h1 
+
+//             <motion.h1
 //                 className="text-4xl font-bold text-blue-900 mb-4"
 //                 initial={{ y: 20, opacity: 0 }}
 //                 animate={{ y: 0, opacity: 1 }}
@@ -332,8 +344,8 @@ export default Page
 //             >
 //                 Welcome to NextOral
 //             </motion.h1>
-            
-//             <motion.p 
+
+//             <motion.p
 //                 className="text-xl text-blue-700 mb-8"
 //                 initial={{ y: 20, opacity: 0 }}
 //                 animate={{ y: 0, opacity: 1 }}
@@ -341,8 +353,8 @@ export default Page
 //             >
 //                 Let's set up your dental clinic management system
 //             </motion.p>
-            
-//             <motion.p 
+
+//             <motion.p
 //                 className="text-gray-600 mb-10"
 //                 initial={{ y: 20, opacity: 0 }}
 //                 animate={{ y: 0, opacity: 1 }}
@@ -364,13 +376,13 @@ export default Page
 //                     </div>
 //                 </div>
 //             </motion.p>
-            
+
 //             <motion.div
 //                 initial={{ y: 20, opacity: 0 }}
 //                 animate={{ y: 0, opacity: 1 }}
 //                 transition={{ delay: 0.4, duration: 0.5 }}
 //             >
-//                 <Button 
+//                 <Button
 //                     onClick={onNext}
 //                     className="px-8 py-6 text-lg bg-blue-600 hover:bg-blue-700"
 //                     whileHover={{ scale: 1.03 }}
@@ -387,7 +399,7 @@ export default Page
 // const ProfileSetup = ({ onNext, onBack }) => {
 //     return (
 //         <div className="w-full max-w-lg mx-auto px-6 pt-20">
-//             <motion.div 
+//             <motion.div
 //                 className="bg-white rounded-xl shadow-lg p-8"
 //                 initial={{ y: 20, opacity: 0 }}
 //                 animate={{ y: 0, opacity: 1 }}
@@ -395,26 +407,26 @@ export default Page
 //             >
 //                 <h2 className="text-2xl font-bold text-blue-900 mb-6">Create Your Profile</h2>
 //                 <p className="text-gray-600 mb-6">Tell us about yourself so we can personalize your experience.</p>
-                
+
 //                 <div className="space-y-4 mb-8">
 //                     <div>
 //                         <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-//                         <input 
-//                             type="text" 
+//                         <input
+//                             type="text"
 //                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
 //                             placeholder="Dr. John Smith"
 //                         />
 //                     </div>
-                    
+
 //                     <div>
 //                         <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-//                         <input 
-//                             type="email" 
+//                         <input
+//                             type="email"
 //                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
 //                             placeholder="john@example.com"
 //                         />
 //                     </div>
-                    
+
 //                     <div>
 //                         <label className="block text-sm font-medium text-gray-700 mb-1">Professional Role</label>
 //                         <select className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
@@ -427,18 +439,18 @@ export default Page
 //                         </select>
 //                     </div>
 //                 </div>
-                
+
 //                 <div className="flex justify-between">
-//                     <Button 
-//                         variant="outline" 
+//                     <Button
+//                         variant="outline"
 //                         onClick={onBack}
 //                         className="px-4 py-2"
 //                     >
 //                         <ArrowLeftIcon className="w-4 h-4 mr-2" />
 //                         Back
 //                     </Button>
-                    
-//                     <Button 
+
+//                     <Button
 //                         onClick={onNext}
 //                         className="px-4 py-2 bg-blue-600 hover:bg-blue-700"
 //                     >
@@ -454,10 +466,10 @@ export default Page
 // // Step 3: Organization Setup
 // const OrganizationSetup = ({ onNext, onBack }) => {
 //     const [orgType, setOrgType] = useState("")
-    
+
 //     return (
 //         <div className="w-full max-w-lg mx-auto px-6 pt-20">
-//             <motion.div 
+//             <motion.div
 //                 className="bg-white rounded-xl shadow-lg p-8"
 //                 initial={{ y: 20, opacity: 0 }}
 //                 animate={{ y: 0, opacity: 1 }}
@@ -465,21 +477,21 @@ export default Page
 //             >
 //                 <h2 className="text-2xl font-bold text-blue-900 mb-6">Create Your Organization</h2>
 //                 <p className="text-gray-600 mb-6">Tell us about your dental practice organization.</p>
-                
+
 //                 <div className="space-y-4 mb-8">
 //                     <div>
 //                         <label className="block text-sm font-medium text-gray-700 mb-1">Organization Name</label>
-//                         <input 
-//                             type="text" 
+//                         <input
+//                             type="text"
 //                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
 //                             placeholder="Smile Bright Dental"
 //                         />
 //                     </div>
-                    
+
 //                     <div>
 //                         <label className="block text-sm font-medium text-gray-700 mb-3">Organization Type</label>
 //                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-//                             <div 
+//                             <div
 //                                 className={`border rounded-lg p-4 cursor-pointer transition-all ${orgType === "single" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-blue-200"}`}
 //                                 onClick={() => setOrgType("single")}
 //                             >
@@ -491,8 +503,8 @@ export default Page
 //                                 </div>
 //                                 <p className="text-sm text-gray-500">I have one location where I provide services</p>
 //                             </div>
-                            
-//                             <div 
+
+//                             <div
 //                                 className={`border rounded-lg p-4 cursor-pointer transition-all ${orgType === "multi" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-blue-200"}`}
 //                                 onClick={() => setOrgType("multi")}
 //                             >
@@ -507,18 +519,18 @@ export default Page
 //                         </div>
 //                     </div>
 //                 </div>
-                
+
 //                 <div className="flex justify-between">
-//                     <Button 
-//                         variant="outline" 
+//                     <Button
+//                         variant="outline"
 //                         onClick={onBack}
 //                         className="px-4 py-2"
 //                     >
 //                         <ArrowLeftIcon className="w-4 h-4 mr-2" />
 //                         Back
 //                     </Button>
-                    
-//                     <Button 
+
+//                     <Button
 //                         onClick={onNext}
 //                         className="px-4 py-2 bg-blue-600 hover:bg-blue-700"
 //                         disabled={!orgType}
@@ -536,7 +548,7 @@ export default Page
 // const ClinicSetup = ({ onNext, onBack, formData }) => {
 //     return (
 //         <div className="w-full max-w-lg mx-auto px-6 pt-20">
-//             <motion.div 
+//             <motion.div
 //                 className="bg-white rounded-xl shadow-lg p-8"
 //                 initial={{ y: 20, opacity: 0 }}
 //                 animate={{ y: 0, opacity: 1 }}
@@ -544,38 +556,38 @@ export default Page
 //             >
 //                 <h2 className="text-2xl font-bold text-blue-900 mb-6">Set Up Your Clinic</h2>
 //                 <p className="text-gray-600 mb-6">Provide details about your primary clinic location.</p>
-                
+
 //                 <div className="space-y-4 mb-8">
 //                     <div>
 //                         <label className="block text-sm font-medium text-gray-700 mb-1">Clinic Name</label>
-//                         <input 
-//                             type="text" 
+//                         <input
+//                             type="text"
 //                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
 //                             placeholder="Downtown Dental Center"
 //                         />
 //                     </div>
-                    
+
 //                     <div>
 //                         <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-//                         <input 
-//                             type="text" 
+//                         <input
+//                             type="text"
 //                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 mb-2"
 //                             placeholder="Street Address"
 //                         />
 //                         <div className="grid grid-cols-2 gap-2">
-//                             <input 
-//                                 type="text" 
+//                             <input
+//                                 type="text"
 //                                 className="px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
 //                                 placeholder="City"
 //                             />
-//                             <input 
-//                                 type="text" 
+//                             <input
+//                                 type="text"
 //                                 className="px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
 //                                 placeholder="Postal Code"
 //                             />
 //                         </div>
 //                     </div>
-                    
+
 //                     <div>
 //                         <label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
 //                         <select className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
@@ -590,18 +602,18 @@ export default Page
 //                         </select>
 //                     </div>
 //                 </div>
-                
+
 //                 <div className="flex justify-between">
-//                     <Button 
-//                         variant="outline" 
+//                     <Button
+//                         variant="outline"
 //                         onClick={onBack}
 //                         className="px-4 py-2"
 //                     >
 //                         <ArrowLeftIcon className="w-4 h-4 mr-2" />
 //                         Back
 //                     </Button>
-                    
-//                     <Button 
+
+//                     <Button
 //                         onClick={onNext}
 //                         className="px-4 py-2 bg-blue-600 hover:bg-blue-700"
 //                     >
@@ -618,7 +630,7 @@ export default Page
 // const CompletionScreen = () => {
 //     return (
 //         <div className="flex flex-col items-center text-center max-w-lg mx-auto px-6">
-//             <motion.div 
+//             <motion.div
 //                 className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-8"
 //                 initial={{ scale: 0, opacity: 0 }}
 //                 animate={{ scale: 1, opacity: 1 }}
@@ -628,7 +640,7 @@ export default Page
 //                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 //                 </svg>
 //             </motion.div>
-            
+
 //             <motion.div
 //                 initial={{ opacity: 0, y: 20 }}
 //                 animate={{ opacity: 1, y: 0 }}
@@ -636,7 +648,7 @@ export default Page
 //             >
 //                 <h1 className="text-3xl font-bold text-gray-900 mb-4">Setup Complete!</h1>
 //                 <p className="text-xl text-gray-600 mb-8">Your NextOral system is ready to use</p>
-                
+
 //                 <div className="bg-blue-50 rounded-lg p-6 mb-8">
 //                     <h3 className="font-medium text-blue-800 mb-3">What's Next?</h3>
 //                     <ul className="text-left space-y-3">
@@ -666,7 +678,7 @@ export default Page
 //                         </li>
 //                     </ul>
 //                 </div>
-                
+
 //                 <Button className="px-8 py-3 bg-blue-600 hover:bg-blue-700">
 //                     Go to Dashboard
 //                 </Button>

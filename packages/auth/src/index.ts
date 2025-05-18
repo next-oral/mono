@@ -2,12 +2,17 @@ import type { BetterAuthOptions } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { admin as adminPlugin, emailOTP, oAuthProxy, organization } from "better-auth/plugins";
+import {
+  admin as adminPlugin,
+  emailOTP,
+  oAuthProxy,
+  organization,
+} from "better-auth/plugins";
 
 import { db } from "@repo/database/client";
-import { ac, admin, user } from "./lib/permission";
 
 import { actions } from "../../email/src";
+import { ac, admin, user } from "./lib/permission";
 
 export function initAuth(options: {
   baseUrl: string;
@@ -30,22 +35,20 @@ export function initAuth(options: {
               email,
               otp,
               name: "sfsd",
-              message: "dfsdfs"
-            }
-          })
+              message: "dfsdfs",
+            },
+          });
           // Implement the sendVerificationOTP method to send the OTP to the user's email address
         },
-
-
       }),
       adminPlugin({
         ac,
         roles: {
           admin,
           user,
-        }
+        },
       }),
-      organization()
+      organization(),
     ],
     emailAndPassword: {
       enabled: true,

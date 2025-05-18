@@ -2,12 +2,12 @@ import type { Metadata, Viewport } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 
+import { Toaster } from "@repo/design/components/ui/sonner";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
-import {Toaster} from "@repo/design/components/ui/sonner"
+import "@repo/design/globals.css";
 
-import "@repo/design/globals.css"
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
 
@@ -18,10 +18,12 @@ export const metadata: Metadata = {
       : "http://localhost:3000",
   ),
   title: "Next Oral - Modern Dental Management Software",
-  description: "Comprehensive dental practice management software by Norden, designed to streamline your dental operations and enhance patient care",
+  description:
+    "Comprehensive dental practice management software by Norden, designed to streamline your dental operations and enhance patient care",
   openGraph: {
     title: "Next Oral - Modern Dental Management Software",
-    description: "Comprehensive dental practice management software by Norden, designed to streamline your dental operations and enhance patient care",
+    description:
+      "Comprehensive dental practice management software by Norden, designed to streamline your dental operations and enhance patient care",
     siteName: "Next Oral",
   },
   twitter: {
@@ -43,15 +45,14 @@ export default function RootLayout(props: { children: React.ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          "min-h-screen bg-background font-sans text-foreground antialiased",
+          "bg-background text-foreground min-h-screen font-sans antialiased",
           GeistSans.variable,
           GeistMono.variable,
         )}
       >
-        <Toaster theme="light" richColors position="top-center"/>
-          <TRPCReactProvider>{props.children}</TRPCReactProvider>
-          <div className="absolute bottom-4 right-4">
-          </div>
+        <Toaster theme="light" richColors position="top-center" />
+        <TRPCReactProvider>{props.children}</TRPCReactProvider>
+        <div className="absolute right-4 bottom-4"></div>
       </body>
     </html>
   );

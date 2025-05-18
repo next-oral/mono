@@ -1,8 +1,8 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod";
 
-import { protectedProcedure, publicProcedure } from "../trpc";
 import { protocol, rootDomain } from "../lib/utils";
+import { protectedProcedure, publicProcedure } from "../trpc";
 
 export interface Subdomain {
   emoji: string;
@@ -14,42 +14,49 @@ export const domainRouter = {
     protocol,
     root: rootDomain,
   })),
-  getDomain: protectedProcedure.input(z.object({
-    domain: z.string()
-  })).query(async ({ input, ctx }) => {
+  getDomain: protectedProcedure
+    .input(
+      z.object({
+        domain: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const sanitizedSubdomain = input.domain
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "");
 
-    const sanitizedSubdomain = input.domain.toLowerCase().replace(/[^a-z0-9-]/g, "");
+      const data = await ctx.redis.get<Subdomain>(
+        `subdomain:${sanitizedSubdomain}`,
+      );
 
-    const data = await ctx.redis.get<Subdomain>(`subdomain:${sanitizedSubdomain}`);
-
-    return data;
-  }),
+      return data;
+    }),
 
   create: publicProcedure
     .input(
       z.object({
         subdomain: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
-
       const { subdomain } = input;
 
       if (!subdomain) {
         throw new Error("Subdomain and icon are required");
       }
 
-      const sanitizedSubdomain = subdomain.toLowerCase().replace(/[^a-z0-9-]/g, "");
+      const sanitizedSubdomain = subdomain
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "");
 
       if (sanitizedSubdomain !== subdomain) {
         throw new Error(
-          "Subdomain can only have lowercase letters, numbers, and hyphens. Please try again."
+          "Subdomain can only have lowercase letters, numbers, and hyphens. Please try again.",
         );
       }
 
-
       const subdomainAlreadyExists = await ctx.redis.get<Subdomain>(
-        `subdomain:${sanitizedSubdomain}`
+        `subdomain:${sanitizedSubdomain}`,
       );
       if (subdomainAlreadyExists) {
         throw new Error("This subdomain is already taken");
@@ -69,7 +76,7 @@ export const domainRouter = {
     .input(
       z.object({
         subdomain: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const { subdomain } = input;
@@ -90,7 +97,7 @@ export const domainRouter = {
 
       return {
         subdomain,
-        createdAt: data?.createdAt ?? Date.now()
+        createdAt: data?.createdAt ?? Date.now(),
       };
     });
   }),

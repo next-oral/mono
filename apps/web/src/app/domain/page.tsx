@@ -1,19 +1,20 @@
 import Link from "next/link";
+
 import { getQueryClient, trpc } from "~/trpc/server";
 import { SubdomainForm } from "./subdomain-form";
 
-export default async  function HomePage() {
+export default async function HomePage() {
+  const queryClient = getQueryClient();
 
-
-  const queryClient = getQueryClient()
-
-const data =  await queryClient.ensureQueryData(trpc.domain.getDomainConfig.queryOptions())
+  const data = await queryClient.ensureQueryData(
+    trpc.domain.getDomainConfig.queryOptions(),
+  );
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4 relative">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
       <div className="absolute top-4 right-4">
         <Link
           href="/admin"
-          className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          className="text-sm text-gray-500 transition-colors hover:text-gray-700"
         >
           Admin
         </Link>
@@ -29,8 +30,8 @@ const data =  await queryClient.ensureQueryData(trpc.domain.getDomainConfig.quer
           </p>
         </div>
 
-        <div className="mt-8 bg-white shadow-md rounded-lg p-6">
-          <SubdomainForm domain={data}/>
+        <div className="mt-8 rounded-lg bg-white p-6 shadow-md">
+          <SubdomainForm domain={data} />
         </div>
       </div>
     </div>

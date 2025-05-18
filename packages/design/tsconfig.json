@@ -4,16 +4,9 @@
     "baseUrl": ".",
     "jsx": "preserve",
     "paths": {
-      "@repo/design/*": [
-        "./src/*"
-      ]
+      "@repo/design/*": ["./src/*"]
     }
   },
-  "include": [
-    "*.ts",
-    "src"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["*.ts", "src"],
+  "exclude": ["node_modules"]
 }
