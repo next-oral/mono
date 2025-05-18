@@ -80,7 +80,7 @@ export function VerifyForm({
         </h2>
         <p className="mt-2 mb-8 text-center text-gray-600">
           We sent an email to
-          <span className="font-medium">{email}</span>.
+          <span className="font-medium">{` ${email}`}</span>
         </p>
         <FormField
           control={form.control}

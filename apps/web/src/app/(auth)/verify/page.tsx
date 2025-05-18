@@ -11,6 +11,7 @@ import { Button } from "@repo/design/src/components/ui/button";
 import { toast } from "@repo/design/src/components/ui/sonner";
 
 import { authClient } from "~/auth/client";
+import { useRouter } from "next/navigation";
 
 const emailSchema = z.string().email();
 
@@ -24,6 +25,7 @@ export default function VerifyPage() {
 
 // This is because useSearchParams has to be wrapped in suspense
 const Wrapper = () => {
+  const router = useRouter();
   const search = useSearchParams();
   const [isPending, setIsPending] = useState(false);
 
@@ -39,6 +41,7 @@ const Wrapper = () => {
           otp,
         },
         {
+          onSuccess: () => void router.push("/onboarding"),
           onError: (a) => {
             toast.error(a.error.message);
           },
