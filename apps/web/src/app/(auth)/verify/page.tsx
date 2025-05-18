@@ -9,7 +9,6 @@ import { z, ZodError } from "zod";
 import { VerifyForm } from "@repo/design/components/verify-form";
 import { Button } from "@repo/design/src/components/ui/button";
 import { toast } from "@repo/design/src/components/ui/sonner";
-import { Mail } from "@repo/design/src/icons";
 
 import { authClient } from "~/auth/client";
 

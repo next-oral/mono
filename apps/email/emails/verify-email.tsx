@@ -1,10 +1,7 @@
-import VerifyEmail from "@repo/email/src/templates/verify-email"
-
+import VerifyEmail from "@repo/email/templates/verify-email";
 
 const Verify = () => {
-  return (
-    <VerifyEmail/>
-  )
-}
+  return <VerifyEmail />;
+};
 
-export default Verify
+export default Verify;

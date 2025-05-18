@@ -14,7 +14,7 @@ export const domainRouter = {
     protocol,
     root: rootDomain,
   })),
-  getDomain: protectedProcedure
+  get: protectedProcedure
     .input(
       z.object({
         domain: z.string(),
@@ -72,7 +72,7 @@ export const domainRouter = {
       };
     }),
 
-  deleteSubdomain: protectedProcedure
+  delete: protectedProcedure
     .input(
       z.object({
         subdomain: z.string(),
@@ -84,7 +84,7 @@ export const domainRouter = {
       return { success: true, message: "Domain deleted successfully" };
     }),
 
-  getAllSubdomains: protectedProcedure.query(async ({ ctx }) => {
+  getAll: protectedProcedure.query(async ({ ctx }) => {
     const keys = await ctx.redis.keys("subdomain:*");
     if (!keys.length) {
       return [];

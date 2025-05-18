@@ -16,7 +16,7 @@ export async function GenerateMetadata({
     trpc.domain.getDomainConfig.queryOptions(),
   );
   const sub = await queryClient.ensureQueryData(
-    trpc.domain.getDomain.queryOptions({ domain: subdomain }),
+    trpc.domain.get.queryOptions({ domain: subdomain }),
   );
 
   if (!sub) {
@@ -44,7 +44,7 @@ export default async function SubdomainPage({
     trpc.domain.getDomainConfig.queryOptions(),
   );
   const sub = await queryClient.ensureQueryData(
-    trpc.domain.getDomain.queryOptions({ domain: subdomain }),
+    trpc.domain.get.queryOptions({ domain: subdomain }),
   );
 
   if (!sub) {

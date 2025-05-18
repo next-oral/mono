@@ -1,8 +1,7 @@
-import * as React from "react";
 import { Resend } from "resend";
 import { z } from "zod";
 
-import AWSVerifyEmail from "./templates/verify-email";
+import AWSVerifyEmail from "@repo/email/templates/verify-email";
 
 const key = process.env.RESEND_API_TOKEN ?? "";
 
@@ -26,7 +25,7 @@ export const actions = {
       from: "Next Oral <test@resend.artzkaizen.com>",
       to: [options.data.email],
       subject: "Your OTP",
-      react: React.createElement(AWSVerifyEmail, options.data),
+      react: AWSVerifyEmail(options.data),
     });
 
     return res;

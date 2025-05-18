@@ -1,4 +1,3 @@
-import type { Redis } from "@upstash/redis";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
@@ -22,7 +21,6 @@ import { db, redis } from "@repo/database/client";
 export const createTRPCContext = async (opts: {
   headers: Headers;
   auth: Auth;
-  redis: Redis;
 }) => {
   const authApi = opts.auth.api;
   const session = await authApi.getSession({
