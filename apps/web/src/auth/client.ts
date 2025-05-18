@@ -5,7 +5,7 @@ import {
   organizationClient,
 } from "better-auth/client/plugins";
 
-const baseUrl = "http://localhost:3000";
+const baseUrl = window.origin;
 
 export const authClient = createAuthClient({
   baseURL: baseUrl,
