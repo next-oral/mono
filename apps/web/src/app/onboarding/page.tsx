@@ -1,19 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 
+import { Avatar, AvatarFallback } from "@repo/design/components/ui/avatar";
 import { Button } from "@repo/design/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@repo/design/components/ui/dropdown-menu";
+import { ChevronDownIcon, LogOutIcon } from "@repo/design/icons";
+
+import { authClient } from "~/auth/client";
 
 const Page = () => {
+  const router = useRouter();
+  const { data, error } = authClient.useSession();
+  const handleGetStarted = () => setShowSecondScreen(true);
   const [showSecondScreen, setShowSecondScreen] = useState(false);
 
-  const handleGetStarted = () => {
-    setShowSecondScreen(true);
-  };
+  const handleInvaildSession = useCallback(async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/login");
+        },
+      },
+    });
+  }, [router]);
+
+  useEffect(() => {
+    if (error) void handleInvaildSession();
+  }, [data, error, handleInvaildSession]);
+
+  if (!data) return null;
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-gradient-to-b from-white to-blue-50">
+      <div className="absolute right-0 z-9999 p-2">
+        <UserAvatar email={data.user.email} onClick={handleInvaildSession} />
+      </div>
       <AnimatePresence mode="wait">
         {!showSecondScreen ? (
           <motion.div
@@ -182,6 +213,49 @@ const Page = () => {
 };
 
 export default Page;
+
+export function UserAvatar({
+  email,
+  onClick,
+}: {
+  email: string;
+  onClick: () => void;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-auto p-0 hover:bg-transparent">
+          <Avatar>
+            <AvatarFallback className="capitalize">
+              {email.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+          <ChevronDownIcon
+            size={16}
+            className="opacity-60"
+            aria-hidden="true"
+          />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="max-w-64">
+        <DropdownMenuLabel className="flex min-w-0 flex-col">
+          <span className="text-muted-foreground truncate text-xs font-normal">
+            {email}
+          </span>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={onClick}
+          variant="destructive"
+          className="cursor-pointer"
+        >
+          <LogOutIcon size={16} className="opacity-60" aria-hidden="true" />
+          <span>Logout</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 // import { useState } from "react"
 // import { Button } from "@repo/design/components/ui/button"

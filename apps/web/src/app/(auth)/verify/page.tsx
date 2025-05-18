@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { z, ZodError } from "zod";
 
@@ -24,6 +24,7 @@ export default function VerifyPage() {
 
 // This is because useSearchParams has to be wrapped in suspense
 const Wrapper = () => {
+  const router = useRouter();
   const search = useSearchParams();
   const [isPending, setIsPending] = useState(false);
 
@@ -39,6 +40,7 @@ const Wrapper = () => {
           otp,
         },
         {
+          onSuccess: () => void router.push("/onboarding"),
           onError: (a) => {
             toast.error(a.error.message);
           },
