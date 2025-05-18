@@ -1,0 +1,12 @@
+{
+  "extends": "@repo/tsconfig/internal-package.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    "jsx": "react-jsx", // for React 17+
+    "module": "ESNext", // or "commonjs", depending on your setup
+    "target": "ESNext",
+    "rootDir": "."
+  },
+  "include": ["*.ts", "*.tsx", "src"],
+  "exclude": ["node_modules"]
+}

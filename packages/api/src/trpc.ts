@@ -3,7 +3,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import type { Auth } from "@repo/auth";
-import { db } from "@repo/database/client";
+import { db, redis } from "@repo/database/client";
 
 /**
  * 1. CONTEXT
@@ -22,17 +22,15 @@ export const createTRPCContext = async (opts: {
   headers: Headers;
   auth: Auth;
 }) => {
-  const authApi = opts  .auth.api;
+  const authApi = opts.auth.api;
   const session = await authApi.getSession({
     headers: opts.headers,
   });
 
-  // console.log(session?.user);
-
   return {
-    authApi,
     session,
     db,
+    redis,
   };
 };
 /**

@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./env": "./env.ts"
+    "./env": "./env.ts",
+    "./client": "./src/lib/client.ts"
   },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -15,6 +16,7 @@
   },
   "dependencies": {
     "@repo/database": "workspace:*",
+    "@repo/email": "workspace:*",
     "@t3-oss/env-nextjs": "^0.13.4",
     "better-auth": "catalog:"
   },
