@@ -2,33 +2,34 @@ import type { Metadata, Viewport } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 
-import { cn } from "@repo/ui";
-import { ThemeProvider, ThemeToggle } from "@repo/ui/theme";
-import "~/app/globals.css";
-import { Toaster } from "@repo/ui/toast";
+import { Toaster } from "@repo/design/components/ui/sonner";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
+import "@repo/design/globals.css";
 
 import { env } from "~/env";
+import { cn } from "~/lib/utils";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
     env.VERCEL_ENV === "production"
-      ? "https://turbo.t3.gg"
+      ? "https://nextoral.com"
       : "http://localhost:3000",
   ),
-  title: "Create T3 Turbo",
-  description: "Simple monorepo with shared backend for web & mobile apps",
+  title: "Next Oral - Modern Dental Management Software",
+  description:
+    "Comprehensive dental practice management software by Norden, designed to streamline your dental operations and enhance patient care",
   openGraph: {
-    title: "Create T3 Turbo",
-    description: "Simple monorepo with shared backend for web & mobile apps",
-    siteName: "Create T3 Turbo",
+    title: "Next Oral - Modern Dental Management Software",
+    description:
+      "Comprehensive dental practice management software by Norden, designed to streamline your dental operations and enhance patient care",
+    siteName: "Next Oral",
   },
   twitter: {
     card: "summary_large_image",
-    site: "@jullerino",
-    creator: "@jullerino",
+    site: "@nextoral",
+    creator: "@nextoral",
   },
 };
 
@@ -44,18 +45,14 @@ export default function RootLayout(props: { children: React.ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          "min-h-screen bg-background font-sans text-foreground antialiased",
+          "bg-background text-foreground min-h-screen font-sans antialiased",
           GeistSans.variable,
           GeistMono.variable,
         )}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <TRPCReactProvider>{props.children}</TRPCReactProvider>
-          <div className="absolute bottom-4 right-4">
-            <ThemeToggle />
-          </div>
-          <Toaster />
-        </ThemeProvider>
+        <Toaster theme="light" richColors position="top-center" />
+        <TRPCReactProvider>{props.children}</TRPCReactProvider>
+        <div className="absolute right-4 bottom-4"></div>
       </body>
     </html>
   );

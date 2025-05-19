@@ -42,5 +42,8 @@ jobs:
       - name: Setup
         uses: ./tooling/github/setup
 
+      - name: Format
+        run: pnpm format
+
       - name: Typecheck
         run: pnpm typecheck
