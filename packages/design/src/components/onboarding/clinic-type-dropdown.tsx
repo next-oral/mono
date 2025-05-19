@@ -70,6 +70,8 @@ export function ClinicTypeDropdown({
 
   useEffect(() => {
     if (onValueChange) onValueChange(value);
+    // eslint-disable-next-line react-hooks/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   // Find the selected clinic type

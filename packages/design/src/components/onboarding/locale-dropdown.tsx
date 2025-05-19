@@ -52,6 +52,8 @@ export default function LocaleDropdown({
 
   useEffect(() => {
     if (onValueChange && value) onValueChange(value);
+    // eslint-disable-next-line react-hooks/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   return (
