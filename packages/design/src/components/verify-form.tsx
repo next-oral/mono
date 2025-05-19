@@ -11,7 +11,14 @@ import {
 } from "@repo/design/components/ui/input-otp";
 
 import { Button } from "./ui/button";
-import { Form, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "./ui/form";
 
 const REGEX_DIGITS = "^\\d+$";
 
@@ -88,21 +95,23 @@ export function VerifyForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Enter Code</FormLabel>
-              <InputOTP
-                maxLength={6}
-                pattern={REGEX_DIGITS}
-                autoComplete="one-time-code"
-                {...field}
-              >
-                <InputOTPGroup className="w-full justify-center">
-                  <InputOTPSlot className="h-10 w-13.25" index={0} />
-                  <InputOTPSlot className="h-10 w-13.25" index={1} />
-                  <InputOTPSlot className="h-10 w-13.25" index={2} />
-                  <InputOTPSlot className="h-10 w-13.25" index={3} />
-                  <InputOTPSlot className="h-10 w-13.25" index={4} />
-                  <InputOTPSlot className="h-10 w-13.25" index={5} />
-                </InputOTPGroup>
-              </InputOTP>
+              <FormControl>
+                <InputOTP
+                  maxLength={6}
+                  pattern={REGEX_DIGITS}
+                  autoComplete="one-time-code"
+                  {...field}
+                >
+                  <InputOTPGroup className="w-full justify-center">
+                    <InputOTPSlot className="h-10 w-13.25" index={0} />
+                    <InputOTPSlot className="h-10 w-13.25" index={1} />
+                    <InputOTPSlot className="h-10 w-13.25" index={2} />
+                    <InputOTPSlot className="h-10 w-13.25" index={3} />
+                    <InputOTPSlot className="h-10 w-13.25" index={4} />
+                    <InputOTPSlot className="h-10 w-13.25" index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

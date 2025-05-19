@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "preserve",
+    "lib": ["dom", "esnext"],
     "paths": {
       "@repo/design/*": ["./src/*"]
     }

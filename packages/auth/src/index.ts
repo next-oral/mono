@@ -48,7 +48,16 @@ export function initAuth(options: {
           user,
         },
       }),
-      organization(),
+      organization({
+        async sendInvitationEmail(data) {
+          const inviteLink = `http://localhost:3000/accept-invitation/${data.id}`;
+          await actions.invite({
+            inviteLink,
+            email: data.email,
+            inviterName: data.inviter.user.name,
+          });
+        },
+      }),
     ],
     emailAndPassword: {
       enabled: true,
