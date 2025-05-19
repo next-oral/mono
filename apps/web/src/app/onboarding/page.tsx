@@ -25,7 +25,7 @@ import { WelcomePage } from "./welcome-page";
 const Page = () => {
   const router = useRouter();
   const { data, error } = authClient.useSession();
-  const [step, setStep] = useState<OnboardingStep>("clinic");
+  const [step, setStep] = useState<OnboardingStep>("welcome");
 
   const session = authClient.useSession();
 
@@ -95,7 +95,7 @@ const Page = () => {
                 data={{ step }}
                 title="Invite teammates"
                 subtitle="NextOral makes it seamless to work with your teammates in one place. "
-                onClick={() => null}
+                onClick={() => router.push("/dashboard")}
               />
             )}
           </motion.div>
