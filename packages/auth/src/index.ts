@@ -116,7 +116,11 @@ export function initAuth(options: {
         },
         cancelPendingInvitationsOnReInvite: true,
         async sendInvitationEmail(data) {
-          const inviteLink = `http://localhost:3000/accept-invitation/${data.id}`;
+          const baseUrl =
+            env.NODE_ENV === "production"
+              ? "https://nextoral.com"
+              : "http://localhost:3000";
+          const inviteLink = `${baseUrl}/accept-invitation/${data.id}`;
           await actions.invite({
             inviteLink,
             email: data.email,
