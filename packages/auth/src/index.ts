@@ -17,6 +17,8 @@ import { ac, admin, user } from "./lib/permission";
 const domain =
   env.NODE_ENV === "development" ? ".localhost" : (".nextoral.com" as const);
 
+console.log(domain);
+
 export function initAuth(options: {
   baseUrl: string;
   secret: string | undefined;
