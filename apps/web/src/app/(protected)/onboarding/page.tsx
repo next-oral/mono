@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 import { useQueryState } from "nuqs";
 
@@ -55,6 +55,11 @@ const Page = () => {
 
   const trpc = useTRPC();
   const createDomainOptions = trpc.domain.create.mutationOptions();
+
+  const domainConfigOptions = trpc.domain.getDomainConfig.queryOptions();
+  const { data: domainConfig } = useQuery(domainConfigOptions);
+
+  console.log(domainConfig);
 
   const createDomain = useMutation(createDomainOptions);
   const checkSlug = async (slug: string) => {
