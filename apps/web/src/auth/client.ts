@@ -1,10 +1,12 @@
 import {
   adminClient,
   emailOTPClient,
+  inferAdditionalFields,
   organizationClient,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
+import type { auth } from "./server";
 import { env } from "~/env";
 
 const baseUrl =
@@ -14,5 +16,14 @@ const baseUrl =
 
 export const authClient = createAuthClient({
   baseURL: baseUrl,
-  plugins: [adminClient(), emailOTPClient(), organizationClient()],
+  plugins: [
+    inferAdditionalFields<typeof auth>(),
+    adminClient(),
+    emailOTPClient(),
+    organizationClient({
+      teams: {
+        enabled: true,
+      },
+    }),
+  ],
 });

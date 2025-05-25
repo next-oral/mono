@@ -23,12 +23,16 @@ type LoginForm = z.infer<typeof loginForm>;
 
 interface LoginFormProps extends React.ComponentProps<"form"> {
   isPending?: boolean;
+  provider: "google" | "microsoft" | null;
+  handleOAuthSignUp: (type: "google" | "microsoft") => Promise<void>;
   handleSubmit: SubmitHandler<LoginForm>;
 }
 export function LoginForm({
   className,
   handleSubmit,
+  handleOAuthSignUp,
   isPending,
+  provider,
   ...props
 }: LoginFormProps) {
   const form = useForm<LoginForm>({
@@ -48,7 +52,12 @@ export function LoginForm({
         </div>
         <div className="grid gap-6">
           <div className="flex flex-col gap-4">
-            <Button variant="outline" className="w-full">
+            <Button
+              isLoading={provider === "microsoft" && isPending}
+              onClick={() => handleOAuthSignUp("microsoft")}
+              variant="outline"
+              className="w-full"
+            >
               <svg
                 viewBox="0 0 256 256"
                 xmlns="http://www.w3.org/2000/svg"
@@ -63,7 +72,12 @@ export function LoginForm({
               </svg>
               Microsoft
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button
+              isLoading={provider === "google" && isPending}
+              onClick={() => handleOAuthSignUp("google")}
+              variant="outline"
+              className="w-full"
+            >
               <svg
                 width="256"
                 height="262"
@@ -123,7 +137,7 @@ export function LoginForm({
               />
             </div>
             <Button
-              isLoading={isPending}
+              isLoading={!provider && isPending}
               loadingMessage="Sending OTP...."
               type="submit"
               className="w-full"

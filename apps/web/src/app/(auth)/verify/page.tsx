@@ -11,6 +11,7 @@ import { Button } from "@repo/design/src/components/ui/button";
 import { toast } from "@repo/design/src/components/ui/sonner";
 
 import { authClient } from "~/auth/client";
+import { isSubdomain } from "~/lib/utils";
 
 const emailSchema = z.string().email();
 
@@ -40,7 +41,10 @@ const Wrapper = () => {
           otp,
         },
         {
-          onSuccess: () => void router.push("/onboarding"),
+          onSuccess: () =>
+            isSubdomain(window.location.hostname)
+              ? void router.push("/dashboard")
+              : void router.push("/onboarding"),
           onError: (a) => {
             toast.error(a.error.message);
           },

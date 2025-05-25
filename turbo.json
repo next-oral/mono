@@ -55,6 +55,10 @@
     "RESEND_API_TOKEN",
     "AUTH_SECRET",
     "PORT",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "MICROSOFT_CLIENT_ID",
+    "MICROSOFT_CLIENT_SECRET",
     "NEXT_PUBLIC_ROOT_DOMAIN"
   ],
   "globalPassThroughEnv": [
