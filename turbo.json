@@ -59,7 +59,8 @@
     "GOOGLE_CLIENT_SECRET",
     "MICROSOFT_CLIENT_ID",
     "MICROSOFT_CLIENT_SECRET",
-    "NEXT_PUBLIC_ROOT_DOMAIN"
+    "NEXT_PUBLIC_ROOT_DOMAIN",
+    "NODE_ENV"
   ],
   "globalPassThroughEnv": [
     "NODE_ENV",
