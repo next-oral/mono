@@ -68,6 +68,7 @@
     "VERCEL",
     "VERCEL_ENV",
     "VERCEL_URL",
+    "NEXT_PUBLIC_ROOT_DOMAIN",
     "npm_lifecycle_event"
   ]
 }
