@@ -9,6 +9,8 @@ export default async function HomePage() {
   const data = await queryClient.ensureQueryData(
     trpc.domain.getDomainConfig.queryOptions(),
   );
+
+  console.log(data);
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
       <div className="absolute top-4 right-4">
