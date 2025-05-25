@@ -116,7 +116,11 @@ export function initAuth(options: {
         },
         cancelPendingInvitationsOnReInvite: true,
         async sendInvitationEmail(data) {
-          const inviteLink = `http://localhost:3000/accept-invitation/${data.id}`;
+          const baseUrl =
+            env.NODE_ENV === "production"
+              ? "https://nextoral.com"
+              : "http://localhost:3000";
+          const inviteLink = `${baseUrl}/accept-invitation/${data.id}`;
           await actions.invite({
             inviteLink,
             email: data.email,
@@ -140,18 +144,3 @@ export function initAuth(options: {
 
 export type Auth = ReturnType<typeof initAuth>;
 export type Session = Auth["$Infer"]["Session"];
-
-export const auth = initAuth({
-  baseUrl: "http://localhost:3000",
-  secret: "TA9r9leBleRG6HbdqNjP1WKDdxWrTbPG",
-  google: {
-    clientId:
-      "416856524573-3h86eemob17q8ebllms0bbs34f2q2lbv.apps.googleusercontent.com",
-    clientSecret: "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",
-  },
-  microsoft: {
-    clientId: "asdaa",
-    clientSecret: "sadsadsa",
-    tenantId: "asdaa",
-  },
-});

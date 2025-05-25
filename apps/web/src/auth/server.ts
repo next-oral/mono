@@ -7,11 +7,16 @@ import { initAuth } from "@repo/auth";
 
 import { env } from "~/env";
 
-const baseUrl = env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : env.VERCEL_URL
-    ? `https://${env.VERCEL_URL}`
-    : "http://localhost:3000";
+const baseUrl =
+  env.NODE_ENV === "production"
+    ? "https://nextoral.com"
+    : env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : env.VERCEL_URL
+        ? `https://${env.VERCEL_URL}`
+        : "http://localhost:3000";
+
+console.log(baseUrl);
 
 export const auth = initAuth({
   baseUrl,
