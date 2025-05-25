@@ -25,7 +25,7 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
-    NEXT_PUBLIC_ROOT_DOMAIN: z.string().url().optional(),
+    NEXT_PUBLIC_ROOT_DOMAIN: z.string().optional(),
   },
   /**
    * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
