@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 
 import { CheckIcon, ChevronDownIcon } from "../../icons";
 import { Button } from "../ui/button";
@@ -60,21 +60,15 @@ const clinicTypes = [
 ] satisfies (ClinicType & { icon: string })[];
 
 export function ClinicTypeDropdown({
+  value,
   onValueChange,
 }: {
+  value: string;
   onValueChange?: (value: string) => void;
 }) {
   const id = useId();
   const [open, setOpen] = useState<boolean>(false);
-  const [value, setValue] = useState<string>("");
 
-  useEffect(() => {
-    if (onValueChange) onValueChange(value);
-    // eslint-disable-next-line react-hooks/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
-
-  // Find the selected clinic type
   const selectedType = clinicTypes.find((type) => type.name === value);
 
   return (
@@ -118,7 +112,7 @@ export function ClinicTypeDropdown({
                   key={type.name}
                   value={type.name}
                   onSelect={(currentValue: string) => {
-                    setValue(currentValue);
+                    onValueChange?.(currentValue);
                     setOpen(false);
                   }}
                 >

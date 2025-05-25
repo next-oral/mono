@@ -1,19 +1,73 @@
 import type { UseFormReturn } from "react-hook-form";
-import { useId } from "react";
+import { useEffect, useId, useState } from "react";
 
 import { cn } from "@repo/design/lib/utils";
 
 import type { OrgForm } from "./schema";
-import { Form, FormControl, FormField, FormItem } from "../ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "../ui/form";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 
-export function Organization({ form }: { form: UseFormReturn<OrgForm> }) {
+const useDebounce = (string: string, ms = 500) => {
+  const [value, setValue] = useState(string);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setValue(string);
+    }, ms);
+
+    return () => clearTimeout(timer);
+  }, [ms, string]);
+
+  return value;
+};
+
+export function Organization({
+  form,
+  checkSlug,
+}: {
+  form: UseFormReturn<OrgForm>;
+  checkSlug: (slug: string) => Promise<boolean>;
+}) {
   const radioId = useId();
   const organizationInputId = useId();
 
   const type = form.watch("type");
+  const name = form.watch("name");
+  const orgName = useDebounce(name);
+
+  useEffect(() => {
+    const checkAvailability = async () => {
+      try {
+        if (!orgName.length) return;
+        const isAvailable = await checkSlug(orgName);
+        if (!isAvailable) {
+          form.setError("name", {
+            message: "Organization name is already taken",
+          });
+        } else if (
+          form.formState.errors.name?.message ===
+          "Organization name is already taken"
+        ) {
+          form.clearErrors("name");
+        }
+      } catch (error) {
+        console.error("Error checking slug availability:", error);
+      }
+    };
+
+    void checkAvailability();
+
+    // eslint-disable-next-line react-hooks/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orgName]);
+
   return (
     <Form {...form}>
       <form>
@@ -30,7 +84,6 @@ export function Organization({ form }: { form: UseFormReturn<OrgForm> }) {
                 >
                   <div>
                     <div
-                      onClick={() => form.setFocus("name")}
                       className={cn(
                         "border-input data-[state=checked]:border-primary/50 relative flex w-full items-start gap-2 rounded-md border p-4 shadow-xs outline-none",
                         {
@@ -45,6 +98,7 @@ export function Organization({ form }: { form: UseFormReturn<OrgForm> }) {
                         aria-describedby={`${radioId}-1-description`}
                         aria-controls={organizationInputId}
                         className="order-1 after:absolute after:inset-0"
+                        onClick={() => form.setFocus("name")}
                       />
                       <div className="grid grow gap-2">
                         <Label htmlFor={`${radioId}-1`}>
@@ -93,6 +147,7 @@ export function Organization({ form }: { form: UseFormReturn<OrgForm> }) {
                                           {...nameField}
                                         />
                                       </FormControl>
+                                      <FormMessage />
                                     </FormItem>
                                   )}
                                 />
@@ -119,6 +174,7 @@ export function Organization({ form }: { form: UseFormReturn<OrgForm> }) {
                       <RadioGroupItem
                         value="single-clinic"
                         id={`${radioId}-2`}
+                        onClick={() => form.setFocus("name")}
                         aria-describedby={`${radioId}-2-description`}
                         aria-controls={organizationInputId + "-single"}
                         className="order-1 after:absolute after:inset-0"
@@ -170,6 +226,7 @@ export function Organization({ form }: { form: UseFormReturn<OrgForm> }) {
                                           {...nameField}
                                         />
                                       </FormControl>
+                                      <FormMessage />
                                     </FormItem>
                                   )}
                                 />

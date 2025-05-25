@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import type { InviteForm } from "./invite";
+
 const UserPostions = [
   "Dentist",
   "Dental Assistant",
@@ -71,6 +73,22 @@ export const locales = [
   { code: "tr-TR", name: "Turkish (Turkey)", flag: "🇹🇷" },
 ] as const satisfies readonly LocaleObject[];
 
+export const groupedLocales = locales.reduce(
+  (groups, locale) => {
+    const language = locale.code.split("-")[0];
+    const languageName = language
+      ? new Intl.DisplayNames(["en"], { type: "language" }).of(language)
+      : null;
+
+    if (!languageName) return {};
+
+    groups[languageName] ??= [];
+    groups[languageName].push(locale);
+    return groups;
+  },
+  {} as Record<string, (typeof locales)[number][]>,
+);
+
 export type Locale = LocaleObject["code"];
 
 export const profileFormSchema = z.object({
@@ -105,10 +123,46 @@ export type OnboardingStep =
 export interface ProfileData {
   step: "profile";
   email: string;
+  name: string;
 }
+export interface OrganizationData {
+  step: "organization";
+  checkSlug: (slug: string) => Promise<boolean>;
+}
+
+export interface BaseProps<T extends OnboardingStep> {
+  step: T;
+  title: string;
+  subtitle: string;
+  isPending?: boolean;
+}
+
+export type OrganizationProps<T extends OnboardingStep> =
+  T extends "organization"
+    ? BaseProps<T> & {
+        step: T;
+        checkSlug: (slug: string) => Promise<boolean>;
+        onClick: (value: OrgForm) => Promise<void> | void;
+      }
+    : T extends "profile"
+      ? BaseProps<T> & {
+          email: string;
+          name: string;
+          onClick: (value: ProfileForm) => Promise<void>;
+        }
+      : T extends "clinic"
+        ? BaseProps<T> & {
+            onClick: (value: ClinicForm) => Promise<void>;
+          }
+        : T extends "invite"
+          ? BaseProps<T> & {
+              onClick: (value: InviteForm) => Promise<void>;
+            }
+          : BaseProps<T>;
 export type OnboardingData =
   | ProfileData
-  | { step: Exclude<OnboardingStep, "profile"> };
+  | OrganizationData
+  | { step: Exclude<OnboardingStep, "profile" | "organization"> };
 
 export const organizations = ["multi-clinic", "single-clinic"] as const;
 export type OrganizationType = (typeof organizations)[number];
@@ -120,26 +174,26 @@ export type OrgForm = z.infer<typeof orgFormSchema>;
 
 const clincTypes = [
   // By Specialization
-  "General Dentistry Clinic",
-  "Pediatric Dentistry Clinic",
-  "Orthodontic Clinic",
-  "Periodontic Clinic",
-  "Endodontic Clinic",
-  "Prosthodontic Clinic",
-  "Oral and Maxillofacial Surgery Clinic",
-  "Cosmetic Dentistry Clinic",
-  "Geriatric Dentistry Clinic",
-  "Implant Dentistry Clinic",
+  "General",
+  "Pediatrics",
+  "Orthodontics",
+  "Periodontics",
+  "Endodontics",
+  "Prosthodontics",
+  "Oral and Maxillofacial Surgery",
+  "Cosmetic",
+  "Geriatric",
+  "Implant",
 
   // By Practice Model
-  "Private Dental Clinic",
+  "Private Dental",
   "Group Dental Practice",
-  "Corporate Dental Clinic",
-  "Hospital-Based Dental Clinic",
-  "University Dental Clinic",
-  "Mobile Dental Clinic",
-  "Community/Public Health Dental Clinic",
-  "Emergency Dental Clinic",
+  "Corporate Dental",
+  "Hospital-Based Dental",
+  "University Dental",
+  "Mobile Dental",
+  "Community/Public Health Dental",
+  "Emergency Dental",
 ] as const;
 
 export const clinicSchema = z.object({
@@ -149,8 +203,14 @@ export const clinicSchema = z.object({
       name: z.string().min(1, {
         message: "Clinic is required",
       }),
-      country: z.enum(["us", "germany", "austria"]),
-      speciality: z.enum(clincTypes),
+      country: z.enum(["us", "de", "au"], {
+        required_error: "Country is required",
+        message: "Country is required",
+      }),
+      speciality: z.enum(clincTypes, {
+        required_error: "Speciality is required",
+        message: "Speciality is required",
+      }),
     }),
   ),
 });

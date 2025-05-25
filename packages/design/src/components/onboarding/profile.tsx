@@ -1,9 +1,8 @@
 "use client";
 
 import type { SubmitHandler, UseFormReturn } from "react-hook-form";
-import { useState } from "react";
 
-import type { Locale, ProfileForm } from "./schema";
+import type { ProfileForm } from "./schema";
 import {
   Form,
   FormControl,
@@ -23,14 +22,6 @@ export const Profile = ({
   form: UseFormReturn<ProfileForm>;
   handleSubmit: SubmitHandler<ProfileForm>;
 }) => {
-  const [selectedLocale, setSelectedLocale] = useState<Locale>("en-US");
-
-  const handleLocaleChange = (locale: Locale) => {
-    setSelectedLocale(locale);
-    console.log("Selected locale:", locale);
-    // Here you would typically update your app's locale/language settings
-  };
-
   console.log(form.formState.errors);
 
   return (
@@ -73,28 +64,35 @@ export const Profile = ({
           <FormField
             name="position"
             control={form.control}
-            render={({ fieldState }) => (
+            render={({ field }) => (
               <FormItem>
                 <FormLabel>
                   Position<span className="text-destructive">*</span>
                 </FormLabel>
-                <PositionsDropdown
-                  onValueChange={(v) => {
-                    if (fieldState.error) form.clearErrors("position");
-                    form.setValue("position", v);
-                  }}
+                <PositionsDropdown onValueChange={field.onChange} />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            name="locale"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Preffered locale<span className="text-destructive">*</span>
+                </FormLabel>
+                <LocaleDropdown
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  showFlags
                 />
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <LocaleDropdown
-            label="Preffered locale"
-            defaultValue={selectedLocale}
-            onValueChange={handleLocaleChange}
-            showFlags={true}
-          />
           <FormField
             control={form.control}
             name="email"

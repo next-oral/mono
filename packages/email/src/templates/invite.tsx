@@ -5,7 +5,6 @@ import {
   Heading,
   Hr,
   Html,
-  Img,
   Link,
   Preview,
   Section,
@@ -19,7 +18,7 @@ interface OrgInviteEmailProps {
   inviteLink?: string;
 }
 
-export default function OrgInviteEmail({
+export function OrgInviteEmail({
   organizationName = "Next Dental",
   inviterName = "Dr. Jefferson",
   inviteLink = "https://yourapp.com/invite/accept?token=123",
@@ -28,16 +27,10 @@ export default function OrgInviteEmail({
     <Tailwind>
       <Html>
         <Head />
-        <Preview>You’ve been invited to join {organizationName}</Preview>
+        <Preview>You've been invited to join {organizationName}</Preview>
         <Body className="bg-gray-100 font-sans text-gray-800">
           <Container className="mx-auto max-w-[600px] rounded-md bg-white p-6 shadow-md">
             <Section className="text-center">
-              <Img
-                src="https://yourapp.com/logo.png"
-                alt="Organization Logo"
-                width="60"
-                className="mx-auto mb-4"
-              />
               <Heading className="text-2xl font-bold text-blue-600">
                 You're Invited!
               </Heading>

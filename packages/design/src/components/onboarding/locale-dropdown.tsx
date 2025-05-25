@@ -1,6 +1,7 @@
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 
-import type { Locale } from "./schema";
+import type { LocaleCode } from "@repo/validators";
+
 import { CheckIcon, ChevronDownIcon } from "../../icons";
 import { Button } from "../ui/button";
 import {
@@ -11,54 +12,26 @@ import {
   CommandItem,
   CommandList,
 } from "../ui/command";
-import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { locales } from "./schema";
-
-// Group locales by language
-const groupedLocales = locales.reduce(
-  (groups, locale) => {
-    const language = locale.code.split("-")[0];
-    const languageName = language
-      ? new Intl.DisplayNames(["en"], { type: "language" }).of(language)
-      : null;
-
-    if (!languageName) return {};
-
-    groups[languageName] ??= [];
-    groups[languageName].push(locale);
-    return groups;
-  },
-  {} as Record<string, (typeof locales)[number][]>,
-);
+import { groupedLocales, locales } from "./schema";
 
 export default function LocaleDropdown({
-  label = "Language",
   onValueChange,
-  defaultValue = "en-US",
+  value = "en-US",
   showFlags = true,
 }: {
-  label?: string;
-  onValueChange?: (value: Locale) => void;
-  defaultValue?: Locale | "";
+  onValueChange?: (value: LocaleCode) => void;
+  value?: LocaleCode;
   showFlags?: boolean;
 }) {
   const id = useId();
   const [open, setOpen] = useState<boolean>(false);
-  const [value, setValue] = useState<Locale | "">(defaultValue);
 
   // Find the selected locale object
   const selectedLocale = locales.find((locale) => locale.code === value);
 
-  useEffect(() => {
-    if (onValueChange && value) onValueChange(value);
-    // eslint-disable-next-line react-hooks/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
-
   return (
     <div className="*:not-first:mt-2">
-      <Label htmlFor={id}>{label}</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -102,7 +75,7 @@ export default function LocaleDropdown({
                       key={locale.code}
                       value={`${locale.name} ${locale.code}`}
                       onSelect={() => {
-                        setValue(locale.code);
+                        onValueChange?.(locale.code);
                         setOpen(false);
                       }}
                     >

@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useId, useState } from "react";
+import { Fragment, useId, useState } from "react";
 
 import { CheckIcon, ChevronDownIcon } from "../../icons";
 import { Button } from "../ui/button";
@@ -14,67 +14,66 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 interface Continents {
   name: string;
-  countries: { name: string; flag: string }[];
+  countries: { slug: string; name: string; flag: string }[];
 }
 
 const countries = [
   {
     name: "America",
     countries: [
-      { name: "United States", flag: "🇺🇸" },
-      { name: "Canada", flag: "🇨🇦" },
-      { name: "Mexico", flag: "🇲🇽" },
+      { slug: "us", name: "United States", flag: "🇺🇸" },
+      { slug: "ca", name: "Canada", flag: "🇨🇦" },
+      { slug: "mx", name: "Mexico", flag: "🇲🇽" },
     ],
   },
   {
     name: "Africa",
     countries: [
-      { name: "South Africa", flag: "🇿🇦" },
-      { name: "Nigeria", flag: "🇳🇬" },
-      { name: "Morocco", flag: "🇲🇦" },
+      { slug: "za", name: "South Africa", flag: "🇿🇦" },
+      { slug: "ng", name: "Nigeria", flag: "🇳🇬" },
+      { slug: "ma", name: "Morocco", flag: "🇲🇦" },
     ],
   },
   {
     name: "Asia",
     countries: [
-      { name: "China", flag: "🇨🇳" },
-      { name: "Japan", flag: "🇯🇵" },
-      { name: "India", flag: "🇮🇳" },
+      { slug: "cn", name: "China", flag: "🇨🇳" },
+      { slug: "jp", name: "Japan", flag: "🇯🇵" },
+      { slug: "in", name: "India", flag: "🇮🇳" },
     ],
   },
   {
     name: "Europe",
     countries: [
-      { name: "United Kingdom", flag: "🇬🇧" },
-      { name: "France", flag: "🇫🇷" },
-      { name: "Germany", flag: "🇩🇪" },
+      { slug: "gb", name: "United Kingdom", flag: "🇬🇧" },
+      { slug: "fr", name: "France", flag: "🇫🇷" },
+      { slug: "de", name: "Germany", flag: "🇩🇪" },
     ],
   },
   {
     name: "Oceania",
     countries: [
-      { name: "Australia", flag: "🇦🇺" },
-      { name: "New Zealand", flag: "🇳🇿" },
+      { slug: "au", name: "Australia", flag: "🇦🇺" },
+      { slug: "nz", name: "New Zealand", flag: "🇳🇿" },
     ],
   },
 ] satisfies Continents[];
 
 export function CountriesDropdown({
   continents = countries,
+  value,
   onValueChange = () => null,
 }: {
+  value: string;
   onValueChange?: (value: string) => void;
   continents?: Continents[];
 }) {
   const id = useId();
   const [open, setOpen] = useState<boolean>(false);
-  const [value, setValue] = useState<string>("");
 
-  useEffect(() => {
-    onValueChange(value);
-    // eslint-disable-next-line react-hooks/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  const currentCountry = continents
+    .map((group) => group.countries.find((item) => item.slug === value))
+    .find(Boolean);
 
   return (
     <div className="*:not-first:mt-2">
@@ -90,15 +89,9 @@ export function CountriesDropdown({
             {value ? (
               <span className="flex min-w-0 items-center gap-2">
                 <span className="text-lg leading-none">
-                  {
-                    continents
-                      .map((group) =>
-                        group.countries.find((item) => item.name === value),
-                      )
-                      .find(Boolean)?.flag
-                  }
+                  {currentCountry?.flag}
                 </span>
-                <span className="truncate">{value}</span>
+                <span className="truncate">{currentCountry?.name}</span>
               </span>
             ) : (
               <span className="text-muted-foreground">Select country</span>
@@ -124,9 +117,9 @@ export function CountriesDropdown({
                     {group.countries.map((country) => (
                       <CommandItem
                         key={country.name}
-                        value={country.name}
+                        value={country.slug}
                         onSelect={(currentValue: string) => {
-                          setValue(currentValue);
+                          onValueChange(currentValue);
                           setOpen(false);
                         }}
                       >

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { Toaster } from "@repo/design/components/ui/sonner";
 
@@ -42,7 +43,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
         {/* <script
           crossOrigin="anonymous"
@@ -57,8 +58,10 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         )}
       >
         <Toaster theme="light" richColors position="top-center" />
-        <TRPCReactProvider>{props.children}</TRPCReactProvider>
-        <div className="absolute right-4 bottom-4"></div>
+        <TRPCReactProvider>
+          <NuqsAdapter>{props.children}</NuqsAdapter>
+        </TRPCReactProvider>
+        {/* <div className="absolute right-4 bottom-4"></div> */}
       </body>
     </html>
   );

@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import AWSVerifyEmail from "@repo/email/templates/verify-email";
 
-import OrgInviteEmail from "./templates/invite";
+import { OrgInviteEmail } from "./templates/invite";
 
 const key = process.env.RESEND_API_TOKEN ?? "";
 
@@ -37,6 +37,7 @@ export const actions = {
     email: string;
     inviterName: string;
     inviteLink: string;
+    organizationName: string;
   }) => {
     const res = await resend.emails.send({
       from: "Next Oral <test@resend.artzkaizen.com>",
