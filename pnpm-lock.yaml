@@ -130,9 +130,6 @@ importers:
       '@tanstack/react-query':
         specifier: 'catalog:'
         version: 5.69.0(react@19.1.0)
-      '@tanstack/react-query-next-experimental':
-        specifier: ^5.79.0
-        version: 5.79.0(@tanstack/react-query@5.69.0(react@19.1.0))(next@15.3.1(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       '@trpc/client':
         specifier: 'catalog:'
         version: 11.1.1(@trpc/server@11.1.1(typescript@5.8.3))(typescript@5.8.3)
@@ -373,7 +370,7 @@ importers:
         version: 1.1.7(@types/react-dom@19.1.2(@types/react@19.1.2))(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-slot':
         specifier: ^1.2.2
-        version: 1.2.2(@types/react@19.1.2)(react@19.1.0)
+        version: 1.2.3(@types/react@19.1.2)(react@19.1.0)
       '@radix-ui/react-tooltip':
         specifier: ^1.2.7
         version: 1.2.7(@types/react-dom@19.1.2(@types/react@19.1.2))(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -2474,13 +2471,6 @@ packages:
     resolution: {integrity: sha512-YVRWxjxsWycWChjKxvaIAPdNC5LX0zpiHoNyTB8teDZpQstM1b7mCuAp3x60cjX1MhLoO3vbaeY29EKst4D4ug==}
     peerDependencies:
       '@tanstack/react-query': ^5.79.0
-      react: ^18 || ^19
-
-  '@tanstack/react-query-next-experimental@5.79.0':
-    resolution: {integrity: sha512-uzbLajqx8/j9k7P8aDXsLtdk4lPvG6mrWoANt/JhSyPWvBhW1RSgQFHcyk08Qe1jWrScmkkeuIJ1SmaC7Z+2Xg==}
-    peerDependencies:
-      '@tanstack/react-query': ^5.79.0
-      next: ^13 || ^14 || ^15
       react: ^18 || ^19
 
   '@tanstack/react-query@5.69.0':
@@ -7499,12 +7489,6 @@ snapshots:
     dependencies:
       '@tanstack/query-devtools': 5.76.0
       '@tanstack/react-query': 5.69.0(react@19.1.0)
-      react: 19.1.0
-
-  '@tanstack/react-query-next-experimental@5.79.0(@tanstack/react-query@5.69.0(react@19.1.0))(next@15.3.1(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@tanstack/react-query': 5.69.0(react@19.1.0)
-      next: 15.3.1(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
 
   '@tanstack/react-query@5.69.0(react@19.1.0)':
