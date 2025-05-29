@@ -75,10 +75,16 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at").$defaultFn(() => new Date()),
 });
 
+// const organizationTypeEnum = pgEnum("organization_type", [
+//   "Single Practice",
+//   "Multi Location Practice",
+// ]);
+
 export const organization = pgTable("organization", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").unique(),
+  // type: organizationTypeEnum("type").default("Single Practice"),
   logo: text("logo"),
   createdAt: timestamp("created_at").notNull(),
   metadata: text("metadata"),
