@@ -26,22 +26,23 @@ import { Onboarding } from "@repo/design/src/components/onboarding";
 import { toast } from "@repo/design/src/components/ui/sonner";
 
 import { authClient } from "~/auth/client";
-import { protocol, rootDomain, slugify } from "~/lib/utils";
+import { env } from "~/env";
+import { slugify } from "~/lib/utils";
 import { useTRPC } from "~/trpc/react";
 import { GettingStarted } from "./getting-started";
 import { WelcomePage } from "./welcome-page";
 
 const Page = () => {
   const router = useRouter();
-  const { data, error } = authClient.useSession();
 
-  const [step, setStep] = useState<OnboardingStep>("welcome");
   const [isPending, setIsPending] = useState(false);
-  const session = authClient.useSession();
+  const { data: session, error } = authClient.useSession();
+  const { data: activeOrg } = authClient.useActiveOrganization();
+  const [step, setStep] = useState<OnboardingStep>("welcome");
 
   const [slug, setQuerySlug] = useQueryState("id");
 
-  // const { data: organizations } = authClient.useListOrganizations();
+  const { data: organizations } = authClient.useListOrganizations();
 
   const handleInvaildSession = useCallback(async () => {
     await authClient.signOut({
@@ -55,13 +56,8 @@ const Page = () => {
 
   const trpc = useTRPC();
   const createDomainOptions = trpc.domain.create.mutationOptions();
-
-  const domainConfigOptions = trpc.domain.getDomainConfig.queryOptions();
-  const { data: domainConfig } = useQuery(domainConfigOptions);
-
-  console.log(domainConfig);
-
   const createDomain = useMutation(createDomainOptions);
+
   const checkSlug = async (slug: string) => {
     const slugString = slugify(slug);
 
@@ -73,24 +69,37 @@ const Page = () => {
   };
   if (error) void handleInvaildSession();
 
-  if (!data) return null;
+  if (!session) return null;
+
+  if (activeOrg) {
+    router.push(
+      `${env.NEXT_PUBLIC_PROTOCOL}://${activeOrg.slug}.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+    );
+  }
+
+  if (organizations && organizations.length > 0) {
+    const org = organizations[0];
+    if (!org) return;
+
+    router.push(
+      `${env.NEXT_PUBLIC_PROTOCOL}://${org.slug}.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+    );
+  }
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-gradient-to-b from-white to-blue-50">
       <div className="absolute right-0 z-9999 flex w-full items-center justify-center p-2">
         <div className="mx-auto"></div>
         <UserAvatar
-          email={data.user.email}
-          name={data.user.name}
-          image={data.user.image ?? ""}
+          email={session.user.email}
+          name={session.user.name}
+          image={session.user.image ?? ""}
           onClick={handleInvaildSession}
         />
       </div>
       <AnimatePresence mode={step === "clinic" ? "wait" : "popLayout"}>
         {step === "welcome" ? (
-          <WelcomePage
-            onClick={() => router.push(`${protocol}://clinic.${rootDomain}`)}
-          />
+          <WelcomePage onClick={() => setStep("started")} />
         ) : step === "started" ? (
           <GettingStarted
             onAbort={() => setStep("welcome")}
@@ -114,8 +123,8 @@ const Page = () => {
                 isPending={isPending}
                 title="Your profile"
                 subtitle="nice things here"
-                email={session.data?.user.email ?? ""}
-                name={session.data?.user.name ?? ""}
+                email={session.user.email}
+                name={session.user.name}
                 onClick={async (values) => {
                   setIsPending(true);
                   await authClient.updateUser({
@@ -162,9 +171,6 @@ const Page = () => {
                     await createDomain.mutateAsync({
                       subdomain: res.data.slug,
                     });
-
-                    // router.push(`${protocol}://${res.data.slug}.${rootDomain}`);
-
                     setStep("clinic");
                   } catch (error) {
                     toast.error("Error creating domain");
@@ -179,6 +185,7 @@ const Page = () => {
                 step="clinic"
                 title="Setup clinics"
                 isPending={isPending}
+                // defaultClinic={activeOrg}
                 subtitle="Add the details of the clinics you want to add."
                 onClick={async (values) => {
                   setIsPending(true);
@@ -214,7 +221,9 @@ const Page = () => {
                   setIsPending(false);
                   // router.push("/dashboard");
 
-                  router.push(`${protocol}://${slug}.${rootDomain}`);
+                  router.push(
+                    `${env.NEXT_PUBLIC_PROTOCOL}://${slug}.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+                  );
                 }}
               />
             )}

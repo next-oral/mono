@@ -7,9 +7,9 @@ import { initAuth } from "@repo/auth";
 
 import { env } from "~/env";
 
-const baseUrl = env.NEXT_PUBLIC_ROOT_DOMAIN
-  ? `https://${env.NEXT_PUBLIC_ROOT_DOMAIN}`
-  : "http://localhost:3000";
+const baseUrl = `${env.NEXT_PUBLIC_PROTOCOL}://${
+  env.NEXT_PUBLIC_SUBDOMAIN ? `${env.NEXT_PUBLIC_SUBDOMAIN}` : ""
+}${env.NEXT_PUBLIC_ROOT_DOMAIN}`;
 
 export const auth = initAuth({
   baseUrl,

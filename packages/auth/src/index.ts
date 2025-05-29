@@ -14,11 +14,6 @@ import { actions } from "@repo/email";
 import { env } from "../env";
 import { ac, admin, user } from "./lib/permission";
 
-const domain =
-  env.NODE_ENV === "development" ? ".localhost" : (".nextoral.com" as const);
-
-console.log(domain);
-
 export function initAuth(options: {
   baseUrl: string;
   secret: string | undefined;
@@ -52,42 +47,17 @@ export function initAuth(options: {
       },
     },
 
-    // advanced: {
-    //   crossSubDomainCookies: {
-    //     enabled: true,
-    //     domain, // Domain with a leading period
-    //   },
-    //   defaultCookieAttributes: {
-    //     secure: true,
-    //     httpOnly: true,
-    //     sameSite: "none", // Allows CORS-based cookie sharing across subdomains
-    //     partitioned: true, // New browser standards will mandate this for foreign cookies
-    //   },
-    // },
-
     advanced: {
-      // ipAddress: {
-      //   ipAddressHeaders: ["x-client-ip", "x-forwarded-for"],
-      //   disableIpTracking: false,
-      // },
       cookiePrefix: "nextoral",
       crossSubDomainCookies: {
         enabled: true,
-        domain,
-      },
-      defaultCookieAttributes: {
-        secure: true,
-        httpOnly: true,
-        sameSite: "none",
-        partitioned: true,
+        domain: `.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
       },
     },
     trustedOrigins: [
-      "https://*.nextoral.com",
+      `https://*.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
       "https://nextoral.com",
-      "http://*.localhost:3000",
-      "http://localhost:3000",
-      "http://clinic.localhost:3000",
+      "*.localhost:3000",
       "expo://",
     ],
     plugins: [
@@ -120,7 +90,7 @@ export function initAuth(options: {
         async sendInvitationEmail(data) {
           const baseUrl =
             env.NODE_ENV === "production"
-              ? "https://nextoral.com"
+              ? `https://${env.NEXT_PUBLIC_ROOT_DOMAIN}`
               : "http://localhost:3000";
           const inviteLink = `${baseUrl}/accept-invitation/${data.id}`;
           await actions.invite({
@@ -146,18 +116,3 @@ export function initAuth(options: {
 
 export type Auth = ReturnType<typeof initAuth>;
 export type Session = Auth["$Infer"]["Session"];
-
-export const auth = initAuth({
-  baseUrl: "http://localhost:3000",
-  secret: "TA9r9leBleRG6HbdqNjP1WKDdxWrTbPG",
-  google: {
-    clientId:
-      "416856524573-3h86eemob17q8ebllms0bbs34f2q2lbv.apps.googleusercontent.com",
-    clientSecret: "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",
-  },
-  microsoft: {
-    clientId: "asdaa",
-    clientSecret: "sadsadsa",
-    tenantId: "asdaa",
-  },
-});

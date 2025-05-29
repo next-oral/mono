@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { headers } from "next/headers";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AppSidebar } from "@repo/design/components/sidebar/app-sidebar";
@@ -21,6 +20,7 @@ import {
 } from "@repo/design/components/ui/sidebar";
 
 import { auth } from "~/auth/server";
+import { env } from "~/env";
 import { getQueryClient, trpc } from "~/trpc/server";
 
 export async function GenerateMetadata({
@@ -31,24 +31,19 @@ export async function GenerateMetadata({
   const { subdomain } = await params;
 
   const queryClient = getQueryClient();
-  const domain = await queryClient.ensureQueryData(
-    trpc.domain.getDomainConfig.queryOptions(),
-  );
   const sub = await queryClient.ensureQueryData(
     trpc.domain.get.queryOptions({ domain: subdomain }),
   );
 
   if (!sub) {
     return {
-      title: domain.root,
+      title: env.NEXT_PUBLIC_ROOT_DOMAIN,
     };
   }
 
-  console.log("subdomain", subdomain, domain);
-
   return {
-    title: `${subdomain}.${domain.root}`,
-    description: `Subdomain page for ${subdomain}.${domain.root}`,
+    title: `${subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+    description: `Subdomain page for ${subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
   };
 }
 
@@ -61,76 +56,35 @@ export default async function SubdomainPage({
 
   const queryClient = getQueryClient();
 
-  const domain = await queryClient.ensureQueryData(
-    trpc.domain.getDomainConfig.queryOptions(),
-  );
   const sub = await queryClient.ensureQueryData(
     trpc.domain.get.queryOptions({ domain: subdomain }),
   );
 
-  console.log(domain);
-
   if (!sub) return notFound();
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-blue-50 to-white p-4">
-      <div className="absolute top-4 right-4">
-        <Link
-          href={`${domain.protocol}://${domain.root}`}
-          className="text-sm text-gray-500 transition-colors hover:text-gray-700"
-        >
-          {domain.root}
-        </Link>
-      </div>
-
-      <div className="flex flex-1 items-center justify-center">
-        <div className="text-center">
-          <div className="mb-6 text-9xl">{}</div>
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-            Welcome to {subdomain}.{domain.root}
-          </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            This is your custom subdomain page
-          </p>
-        </div>
-      </div>
-
-      <Suspense fallback={<Loading />}>
-        <PageWithAuth />
-      </Suspense>
-    </div>
+    <Suspense fallback={<Loading />}>
+      <PageWithAuth />
+    </Suspense>
   );
 }
 
 const Loading = () => {
   return (
     <div className="flex h-screen w-screen items-center justify-center">
-      {/* <div className="h-10 w-10 animate-spin rounded-full border-t-2 border-b-2 border-gray-900" /> */}
       <span className="loader"></span>
     </div>
   );
 };
 
-// export default function Page() {
-//   return (
-//     <Suspense fallback={<Loading />}>
-//       <PageWithAuth />
-//     </Suspense>
-//   );
-// }
-
 export async function PageWithAuth() {
-  // const session = await getSession();
-
   const heads = await headers();
 
   const session = await auth.api.getSession({
     headers: heads,
   });
-  console.log("session", session);
-  if (!session) return null;
 
-  // const queryClient = getQueryClient();
+  if (!session) return null;
 
   const organization = await auth.api.getFullOrganization({
     headers: heads,
@@ -150,7 +104,7 @@ export async function PageWithAuth() {
         }}
       />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+        <header className="bg-background/50 sticky top-0 flex h-14 shrink-0 items-center gap-2 border-b px-4 backdrop-blur-sm">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator
@@ -172,13 +126,47 @@ export async function PageWithAuth() {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
+        <div className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+            </div>
+            <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
           </div>
-          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+            </div>
+            <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+          </div>
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+            </div>
+            <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+          </div>
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+            </div>
+            <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+          </div>
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+              <div className="bg-muted/50 aspect-video rounded-xl" />
+            </div>
+            <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>

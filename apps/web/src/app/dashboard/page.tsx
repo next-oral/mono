@@ -23,7 +23,6 @@ import { auth, getSession } from "~/auth/server";
 const Loading = () => {
   return (
     <div className="flex h-screen w-screen items-center justify-center">
-      {/* <div className="h-10 w-10 animate-spin rounded-full border-t-2 border-b-2 border-gray-900" /> */}
       <span className="loader"></span>
     </div>
   );
@@ -40,8 +39,6 @@ export default function Page() {
 export async function PageWithAuth() {
   const session = await getSession();
   if (!session) return redirect("/login");
-
-  // const queryClient = getQueryClient();
 
   const organization = await auth.api.getFullOrganization({
     headers: await headers(),

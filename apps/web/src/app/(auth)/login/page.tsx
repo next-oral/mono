@@ -22,7 +22,6 @@ export default function LoginPage() {
         type: "sign-in",
       });
       if (error) throw new Error(error.message);
-      console.log("first");
       return router.push(`/verify?email=${email}`);
     } catch (error) {
       console.log(error);
@@ -37,7 +36,7 @@ export default function LoginPage() {
       setProvider(provider);
       await authClient.signIn.social(
         {
-          callbackURL: "/onboarding",
+          callbackURL: "/verify",
           provider,
         },
         {

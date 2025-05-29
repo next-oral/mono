@@ -18,11 +18,8 @@ export function slugify(text: string): string {
     .replace(/-+/g, "-"); // Replace multiple hyphens with single hyphen
 }
 
-export const protocol = env.NODE_ENV === "production" ? "https" : "http";
-export const rootDomain = env.NEXT_PUBLIC_ROOT_DOMAIN ?? "localhost:3000";
-
 export function isSubdomain(hostname: string): boolean {
-  const rootDomainFormatted = rootDomain.split(":")[0];
+  const rootDomainFormatted = env.NEXT_PUBLIC_ROOT_DOMAIN.split(":")[0];
 
   // Handle local development
   if (hostname.includes("localhost") || hostname.includes("127.0.0.1")) {
@@ -40,4 +37,8 @@ export function isSubdomain(hostname: string): boolean {
     hostname !== `www.${rootDomainFormatted}` &&
     hostname.endsWith(`.${rootDomainFormatted}`)
   );
+}
+
+export function waitMs(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

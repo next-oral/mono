@@ -6,7 +6,7 @@
   "scripts": {
     "build": "pnpm with-env next build",
     "clean": "git clean -xdf .cache .next .turbo node_modules",
-    "dev": "pnpm with-env next start",
+    "dev": "pnpm with-env next dev --turbopack --hostname 0.0.0.0 ",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
     "start": "pnpm with-env next start",
@@ -43,6 +43,7 @@
     "@repo/eslint-config": "workspace:*",
     "@repo/prettier-config": "workspace:*",
     "@repo/tsconfig": "workspace:*",
+    "@tanstack/react-query-devtools": "^5.79.0",
     "@types/node": "^22.15.3",
     "@types/react": "catalog:react19",
     "@types/react-dom": "catalog:react19",
