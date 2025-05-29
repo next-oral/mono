@@ -9,12 +9,14 @@ export interface Subdomain {
   createdAt: number;
 }
 
+console.log({ rootDomain, protocol });
+
 export const domainRouter = {
   getDomainConfig: publicProcedure.query(() => ({
     protocol,
     root: rootDomain,
   })),
-  get: protectedProcedure
+  get: publicProcedure
     .input(
       z.object({
         domain: z.string(),
@@ -31,19 +33,14 @@ export const domainRouter = {
 
       return data;
     }),
-
   create: publicProcedure
     .input(
       z.object({
-        subdomain: z.string(),
+        subdomain: z.string().min(1),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const { subdomain } = input;
-
-      if (!subdomain) {
-        throw new Error("Subdomain and icon are required");
-      }
 
       const sanitizedSubdomain = subdomain
         .toLowerCase()

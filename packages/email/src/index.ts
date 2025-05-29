@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import AWSVerifyEmail from "@repo/email/templates/verify-email";
 
+import { OrgInviteEmail } from "./templates/invite";
+
 const key = process.env.RESEND_API_TOKEN ?? "";
 
 export const resend = new Resend(key);
@@ -29,6 +31,21 @@ export const actions = {
     });
 
     return res;
-    // <ContactTemplate {...options.data} />
+  },
+
+  invite: async (opts: {
+    email: string;
+    inviterName: string;
+    inviteLink: string;
+    organizationName: string;
+  }) => {
+    const res = await resend.emails.send({
+      from: "Next Oral <test@resend.artzkaizen.com>",
+      to: [opts.email],
+      subject: `${opts.inviterName} sent you an invite`,
+      react: OrgInviteEmail(opts),
+    });
+
+    return res;
   },
 };
