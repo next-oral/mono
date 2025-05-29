@@ -32,9 +32,6 @@ function extractSubdomain(request: NextRequest): string | null {
     hostname !== `www.${rootDomainFormatted}` &&
     hostname.endsWith(`.${rootDomainFormatted}`);
 
-  console.log("hostname", hostname);
-  console.log("rootDomainFormatted", rootDomainFormatted);
-
   return isSubdomain ? hostname.replace(`.${rootDomainFormatted}`, "") : null;
 }
 
