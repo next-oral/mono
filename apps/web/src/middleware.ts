@@ -53,11 +53,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Rewrite root path on subdomain to subdomain-specific page
-  if (subdomain && pathname === "/") {
-    console.log("[Rewriting] / to /s/${subdomain}");
-
-    return NextResponse.rewrite(new URL(`/s/${subdomain}`, request.url));
+  // Rewrite all paths on subdomain to subdomain-specific pages
+  if (subdomain) {
+    console.log(`[Rewriting] ${pathname} to /s/${subdomain}${pathname}`);
+    return NextResponse.rewrite(
+      new URL(`/s/${subdomain}${pathname}`, request.url),
+    );
   }
 
   return NextResponse.next();

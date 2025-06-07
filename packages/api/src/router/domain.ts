@@ -12,7 +12,7 @@ export interface Subdomain {
 export const domainRouter = {
   getDomainConfig: publicProcedure.query(() => ({
     protocol,
-    root: rootDomain,
+    root: rootDomain ?? "",
   })),
   get: publicProcedure
     .input(
