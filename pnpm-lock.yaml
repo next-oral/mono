@@ -50,6 +50,16 @@ catalogs:
 importers:
 
   .:
+    dependencies:
+      '@repo/design':
+        specifier: link:packages\design
+        version: link:packages/design
+      motion:
+        specifier: ^12.12.1
+        version: 12.12.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      next:
+        specifier: ^15.3.1
+        version: 15.3.1(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
     devDependencies:
       '@repo/prettier-config':
         specifier: workspace:*
@@ -62,7 +72,7 @@ importers:
         version: 3.5.3
       turbo:
         specifier: ^2.5.1
-        version: 2.5.2
+        version: 2.5.4
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -130,9 +140,6 @@ importers:
       '@tanstack/react-query':
         specifier: 'catalog:'
         version: 5.69.0(react@19.1.0)
-      '@tanstack/react-query-next-experimental':
-        specifier: ^5.79.0
-        version: 5.79.0(@tanstack/react-query@5.69.0(react@19.1.0))(next@15.3.1(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       '@trpc/client':
         specifier: 'catalog:'
         version: 11.1.1(@trpc/server@11.1.1(typescript@5.8.3))(typescript@5.8.3)
@@ -517,7 +524,7 @@ importers:
         version: 6.0.0(eslint@9.25.1(jiti@2.4.2))
       eslint-plugin-turbo:
         specifier: ^2.5.1
-        version: 2.5.2(eslint@9.25.1(jiti@2.4.2))(turbo@2.5.2)
+        version: 2.5.2(eslint@9.25.1(jiti@2.4.2))(turbo@2.5.4)
       typescript-eslint:
         specifier: ^8.31.1
         version: 8.31.1(eslint@9.25.1(jiti@2.4.2))(typescript@5.8.3)
@@ -2474,13 +2481,6 @@ packages:
     resolution: {integrity: sha512-YVRWxjxsWycWChjKxvaIAPdNC5LX0zpiHoNyTB8teDZpQstM1b7mCuAp3x60cjX1MhLoO3vbaeY29EKst4D4ug==}
     peerDependencies:
       '@tanstack/react-query': ^5.79.0
-      react: ^18 || ^19
-
-  '@tanstack/react-query-next-experimental@5.79.0':
-    resolution: {integrity: sha512-uzbLajqx8/j9k7P8aDXsLtdk4lPvG6mrWoANt/JhSyPWvBhW1RSgQFHcyk08Qe1jWrScmkkeuIJ1SmaC7Z+2Xg==}
-    peerDependencies:
-      '@tanstack/react-query': ^5.79.0
-      next: ^13 || ^14 || ^15
       react: ^18 || ^19
 
   '@tanstack/react-query@5.69.0':
@@ -5532,38 +5532,38 @@ packages:
     resolution: {integrity: sha512-LxhtAkPDTkVCMQjt2h6eBVY28KCjikZqZfMcC15YBeNjkgUpdCfBu5HoiOTDu86v6smE8yOjyEktJ8hlbANHQA==}
     engines: {node: '>=0.6.x'}
 
-  turbo-darwin-64@2.5.2:
-    resolution: {integrity: sha512-2aIl0Sx230nLk+Cg2qSVxvPOBWCZpwKNuAMKoROTvWKif6VMpkWWiR9XEPoz7sHeLmCOed4GYGMjL1bqAiIS/g==}
+  turbo-darwin-64@2.5.4:
+    resolution: {integrity: sha512-ah6YnH2dErojhFooxEzmvsoZQTMImaruZhFPfMKPBq8sb+hALRdvBNLqfc8NWlZq576FkfRZ/MSi4SHvVFT9PQ==}
     cpu: [x64]
     os: [darwin]
 
-  turbo-darwin-arm64@2.5.2:
-    resolution: {integrity: sha512-MrFYhK/jYu8N6QlqZtqSHi3e4QVxlzqU3ANHTKn3/tThuwTLbNHEvzBPWSj5W7nZcM58dCqi6gYrfRz6bJZyAA==}
+  turbo-darwin-arm64@2.5.4:
+    resolution: {integrity: sha512-2+Nx6LAyuXw2MdXb7pxqle3MYignLvS7OwtsP9SgtSBaMlnNlxl9BovzqdYAgkUW3AsYiQMJ/wBRb7d+xemM5A==}
     cpu: [arm64]
     os: [darwin]
 
-  turbo-linux-64@2.5.2:
-    resolution: {integrity: sha512-LxNqUE2HmAJQ/8deoLgMUDzKxd5bKxqH0UBogWa+DF+JcXhtze3UTMr6lEr0dEofdsEUYK1zg8FRjglmwlN5YA==}
+  turbo-linux-64@2.5.4:
+    resolution: {integrity: sha512-5May2kjWbc8w4XxswGAl74GZ5eM4Gr6IiroqdLhXeXyfvWEdm2mFYCSWOzz0/z5cAgqyGidF1jt1qzUR8hTmOA==}
     cpu: [x64]
     os: [linux]
 
-  turbo-linux-arm64@2.5.2:
-    resolution: {integrity: sha512-0MI1Ao1q8zhd+UUbIEsrM+yLq1BsrcJQRGZkxIsHFlGp7WQQH1oR3laBgfnUCNdCotCMD6w4moc9pUbXdOR3bg==}
+  turbo-linux-arm64@2.5.4:
+    resolution: {integrity: sha512-/2yqFaS3TbfxV3P5yG2JUI79P7OUQKOUvAnx4MV9Bdz6jqHsHwc9WZPpO4QseQm+NvmgY6ICORnoVPODxGUiJg==}
     cpu: [arm64]
     os: [linux]
 
-  turbo-windows-64@2.5.2:
-    resolution: {integrity: sha512-hOLcbgZzE5ttACHHyc1ajmWYq4zKT42IC3G6XqgiXxMbS+4eyVYTL+7UvCZBd3Kca1u4TLQdLQjeO76zyDJc2A==}
+  turbo-windows-64@2.5.4:
+    resolution: {integrity: sha512-EQUO4SmaCDhO6zYohxIjJpOKRN3wlfU7jMAj3CgcyTPvQR/UFLEKAYHqJOnJtymbQmiiM/ihX6c6W6Uq0yC7mA==}
     cpu: [x64]
     os: [win32]
 
-  turbo-windows-arm64@2.5.2:
-    resolution: {integrity: sha512-fMU41ABhSLa18H8V3Z7BMCGynQ8x+wj9WyBMvWm1jeyRKgkvUYJsO2vkIsy8m0vrwnIeVXKOIn6eSe1ddlBVqw==}
+  turbo-windows-arm64@2.5.4:
+    resolution: {integrity: sha512-oQ8RrK1VS8lrxkLriotFq+PiF7iiGgkZtfLKF4DDKsmdbPo0O9R2mQxm7jHLuXraRCuIQDWMIw6dpcr7Iykf4A==}
     cpu: [arm64]
     os: [win32]
 
-  turbo@2.5.2:
-    resolution: {integrity: sha512-Qo5lfuStr6LQh3sPQl7kIi243bGU4aHGDQJUf6ylAdGwks30jJFloc9NYHP7Y373+gGU9OS0faA4Mb5Sy8X9Xw==}
+  turbo@2.5.4:
+    resolution: {integrity: sha512-kc8ZibdRcuWUG1pbYSBFWqmIjynlD8Lp7IB6U3vIzvOv9VG+6Sp8bzyeBWE3Oi8XV5KsQrznyRTBPvrf99E4mA==}
     hasBin: true
 
   type-check@0.4.0:
@@ -7501,12 +7501,6 @@ snapshots:
       '@tanstack/react-query': 5.69.0(react@19.1.0)
       react: 19.1.0
 
-  '@tanstack/react-query-next-experimental@5.79.0(@tanstack/react-query@5.69.0(react@19.1.0))(next@15.3.1(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@tanstack/react-query': 5.69.0(react@19.1.0)
-      next: 15.3.1(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      react: 19.1.0
-
   '@tanstack/react-query@5.69.0(react@19.1.0)':
     dependencies:
       '@tanstack/query-core': 5.69.0
@@ -8781,11 +8775,11 @@ snapshots:
       string.prototype.matchall: 4.0.12
       string.prototype.repeat: 1.0.0
 
-  eslint-plugin-turbo@2.5.2(eslint@9.25.1(jiti@2.4.2))(turbo@2.5.2):
+  eslint-plugin-turbo@2.5.2(eslint@9.25.1(jiti@2.4.2))(turbo@2.5.4):
     dependencies:
       dotenv: 16.0.3
       eslint: 9.25.1(jiti@2.4.2)
-      turbo: 2.5.2
+      turbo: 2.5.4
 
   eslint-plugin-unicorn@59.0.0(eslint@9.25.1(jiti@2.4.2)):
     dependencies:
@@ -11045,32 +11039,32 @@ snapshots:
 
   tsscmp@1.0.6: {}
 
-  turbo-darwin-64@2.5.2:
+  turbo-darwin-64@2.5.4:
     optional: true
 
-  turbo-darwin-arm64@2.5.2:
+  turbo-darwin-arm64@2.5.4:
     optional: true
 
-  turbo-linux-64@2.5.2:
+  turbo-linux-64@2.5.4:
     optional: true
 
-  turbo-linux-arm64@2.5.2:
+  turbo-linux-arm64@2.5.4:
     optional: true
 
-  turbo-windows-64@2.5.2:
+  turbo-windows-64@2.5.4:
     optional: true
 
-  turbo-windows-arm64@2.5.2:
+  turbo-windows-arm64@2.5.4:
     optional: true
 
-  turbo@2.5.2:
+  turbo@2.5.4:
     optionalDependencies:
-      turbo-darwin-64: 2.5.2
-      turbo-darwin-arm64: 2.5.2
-      turbo-linux-64: 2.5.2
-      turbo-linux-arm64: 2.5.2
-      turbo-windows-64: 2.5.2
-      turbo-windows-arm64: 2.5.2
+      turbo-darwin-64: 2.5.4
+      turbo-darwin-arm64: 2.5.4
+      turbo-linux-64: 2.5.4
+      turbo-linux-arm64: 2.5.4
+      turbo-windows-64: 2.5.4
+      turbo-windows-arm64: 2.5.4
 
   type-check@0.4.0:
     dependencies:
