@@ -2,10 +2,10 @@
 
 import type { ClassValue } from "class-variance-authority/types";
 import type { Control, FieldValues, Path } from "react-hook-form";
-import React, { useState } from "react";
+import { useState } from "react";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 
-import { cn } from "@repo/design/lib/utils";
+import { cn, splitCamelCaseToWords } from "@repo/design/lib/utils";
 
 import {
   FormControl,
@@ -44,11 +44,6 @@ export default function CustomOtpField<T extends FieldValues>({
   labelClassName = "",
 }: CustomOtpFieldProps<T>) {
   const [inputLength, setInputLength] = useState(0);
-  const splitCamelCaseToWords = (str: string) => {
-    return str
-      .replace(/([A-Z])/g, " $1")
-      .replace(/^./, (str) => str.toUpperCase());
-  };
 
   return (
     <FormField
@@ -77,7 +72,7 @@ export default function CustomOtpField<T extends FieldValues>({
                 {...field}
                 readOnly={readOnly}
                 disabled={disabled}
-                value={value !== undefined ? String(value) : field.value}
+                value={value ? String(value) : field.value}
                 inputMode={inputMode}
                 className="flex w-full justify-center"
                 containerClassName="w-full"
@@ -87,7 +82,7 @@ export default function CustomOtpField<T extends FieldValues>({
               >
                 {/* TODO: Add feature to make border blue if filled */}
                 <InputOTPGroup className="flex w-full justify-between gap-[16px] ring-0 *:flex-grow *:rounded-xl *:py-8 data-[active=true]:ring-[0px]">
-                  {Array.from({length: 4}).map((_, index) => (
+                  {Array.from({ length: 4 }).map((_, index) => (
                     <InputOTPSlot
                       key={index}
                       index={index}

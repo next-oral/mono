@@ -53,12 +53,11 @@ type EmailForm = z.infer<typeof emailFormSchema>;
 type OtpForm = z.infer<typeof otpFormSchema>;
 type NewPasswordForm = z.infer<typeof newPasswordFormSchema>;
 
+const bodyCollection = ["email", "otp", "new-password", "completed"] as const;
+type FormStep = (typeof bodyCollection)[number];
+
 export function ResetPasswordForm() {
-  const bodyCollection = ["email", "otp", "new-password", "completed"] as const;
-  const [bodyState, setBodyState] = useState<
-    "email" | "otp" | "new-password" | "completed"
-  >(bodyCollection[0]);
-  const [userEmail, setUserEmail] = useState("");
+  const [step, setFormStep] = useState<FormStep>(bodyCollection[0]);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
@@ -85,7 +84,7 @@ export function ResetPasswordForm() {
   });
   return (
     <div className={"flex h-full w-full flex-col gap-4"}>
-      {bodyState === "email" && (
+      {step === "email" && (
         <AnimatePresence>
           <motion.div
             initial={{ x: -300, opacity: 0 }}
@@ -104,8 +103,7 @@ export function ResetPasswordForm() {
                   const { email } = data;
                   // Simulate sending an OTP
                   console.log("Sending OTP to:", email);
-                  setBodyState("otp");
-                  setUserEmail(email);
+                  setFormStep("otp");
                 })}
                 className="flex flex-col gap-6"
               >
@@ -139,7 +137,7 @@ export function ResetPasswordForm() {
           </motion.div>
         </AnimatePresence>
       )}
-      {bodyState === "otp" && (
+      {step === "otp" && (
         <AnimatePresence>
           <motion.div
             initial={{ x: -300, opacity: 0 }}
@@ -158,7 +156,7 @@ export function ResetPasswordForm() {
                   const { code } = data;
                   // Simulate verifying the OTP
                   console.log("Verifying OTP:", code);
-                  setBodyState("new-password");
+                  setFormStep("new-password");
                 })}
                 className="flex flex-col gap-6"
               >
@@ -172,7 +170,8 @@ export function ResetPasswordForm() {
                       Password Reset
                     </h2>
                     <p className="text-center text-sm sm:text-base">
-                      We sent a code to <strong>{userEmail}</strong>
+                      We sent a code to
+                      <strong>{emailForm.getValues("email")}</strong>
                     </p>
                   </div>
 
@@ -186,7 +185,7 @@ export function ResetPasswordForm() {
           </motion.div>
         </AnimatePresence>
       )}
-      {bodyState === "new-password" && (
+      {step === "new-password" && (
         <AnimatePresence>
           <motion.div
             initial={{ x: -300, opacity: 0 }}
@@ -210,7 +209,7 @@ export function ResetPasswordForm() {
                       password,
                       confirmPassword,
                     );
-                    setBodyState("completed");
+                    setFormStep("completed");
                   },
                 )}
                 className="flex flex-col gap-4"
@@ -259,7 +258,7 @@ export function ResetPasswordForm() {
         </AnimatePresence>
       )}
 
-      {bodyState === "completed" && (
+      {step === "completed" && (
         <AnimatePresence>
           <motion.div
             initial={{ x: -300, opacity: 0 }}
@@ -300,7 +299,7 @@ export function ResetPasswordForm() {
             className={cn(
               "bg-primary-foreground h-[4px] w-[15%] rounded-full p-1 transition-colors duration-500",
               {
-                "bg-primary": bodyState === bodyCollection[index],
+                "bg-primary": step === bodyCollection[index],
               },
             )}
           ></span>

@@ -2,10 +2,9 @@
 
 import type { ClassValue } from "class-variance-authority/types";
 import type { Control, FieldValues, Path } from "react-hook-form";
-import React from "react";
 import { Eye, EyeOff } from "lucide-react";
 
-import { cn } from "@repo/design/lib/utils";
+import { cn, splitCamelCaseToWords } from "@repo/design/lib/utils";
 
 import {
   FormControl,
@@ -38,12 +37,12 @@ interface CustomInputFieldProps<T extends FieldValues> {
   inputClassName?: ClassValue;
 }
 
-export default function CustomInputField <T extends FieldValues>({
+export default function CustomInputField<T extends FieldValues>({
   control,
   name,
   label = "",
   placeholder = "",
-  description="",
+  description = "",
   inputType = "text",
   inputMode = "text",
   isPasswordVisible,
@@ -68,12 +67,6 @@ export default function CustomInputField <T extends FieldValues>({
     }
   };
 
-  const splitCamelCaseToWords = (str: string) => {
-    return str
-      .replace(/([A-Z])/g, " $1")
-      .replace(/^./, (str) => str.toUpperCase());
-  };
-
   return (
     <FormField
       control={control}
@@ -81,7 +74,10 @@ export default function CustomInputField <T extends FieldValues>({
       defaultValue={defaultValue}
       disabled={disabled}
       render={({ field, fieldState }) => (
-        <FormItem className={cn("space-y-[0.2px]", fieldClassName)} hidden={hidden}>
+        <FormItem
+          className={cn("space-y-[0.2px]", fieldClassName)}
+          hidden={hidden}
+        >
           {!isNotLabeled && (
             <FormLabel
               className={cn(
@@ -97,10 +93,13 @@ export default function CustomInputField <T extends FieldValues>({
             <FormControl>
               <Input
                 className={cn(
-                  "w-full rounded-lg border bg-transparent border-secondary-foreground/30 px-3 py-5 transition-all duration-200 focus:border-transparent focus-visible:ring-0 shadow-none focus:ring-0 focus:outline-none",
+                  "border-secondary-foreground/30 w-full rounded-lg border bg-transparent px-3 py-5 shadow-none transition-all duration-200 focus:border-transparent focus:ring-0 focus:outline-none focus-visible:ring-0",
                   inputClassName,
-               { "border-destructive/5 focus:ring-destructive/10 bg-destructive/10":  fieldState.error,
-                  "pr-10": isPasswordField,}
+                  {
+                    "border-destructive/5 focus:ring-destructive/10 bg-destructive/10":
+                      fieldState.error,
+                    "pr-10": isPasswordField,
+                  },
                 )}
                 inputMode={inputMode}
                 placeholder={placeholder}
@@ -132,11 +131,13 @@ export default function CustomInputField <T extends FieldValues>({
               </button>
             )}
           </div>
-          {fieldState.error
-            ?<FormMessage className={cn("text-sm text-destructive")} />
-            :<FormDescription className="text-sm">{ description}</FormDescription>}
+          {fieldState.error ? (
+            <FormMessage className={cn("text-destructive text-sm")} />
+          ) : (
+            <FormDescription className="text-sm">{description}</FormDescription>
+          )}
         </FormItem>
       )}
     />
   );
-};
+}
