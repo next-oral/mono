@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { NavMain } from "@repo/design/components/sidebar/nav-main";
 import { TeamSwitcher } from "@repo/design/components/sidebar/team-switcher";
@@ -150,7 +150,7 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavHeader showInbox setShowInbox={() => {}} />
+        <NavHeader showInbox setShowInbox={() => null} />
         <Separator className={cn({ hidden: state === "expanded" })} />
         <NavMain label="Clinic" items={data.navMain} />
         <Separator className={cn({ hidden: state === "expanded" })} />
