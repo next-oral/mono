@@ -296,37 +296,6 @@ const activities: Activity[] = [
   },
 ];
 
-const useNotificationPanelState = () => {
-  const [state, setState] = useState("open");
-
-  useEffect(() => {
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "data-notification-panel-state"
-        ) {
-          const newState = (mutation.target as HTMLElement).getAttribute(
-            "data-notification-panel-state",
-          );
-          setState(newState ?? "open");
-        }
-      });
-    });
-
-    const panel = document.querySelector("[data-notification-panel-state]");
-    if (panel) {
-      observer.observe(panel, { attributes: true });
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
-  return { state };
-};
-
 export const NotificationPanel = () => {
   const [state, setState] = useState("open");
   // const { state } = useNotificationPanelState();
