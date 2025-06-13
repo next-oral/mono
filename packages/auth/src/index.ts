@@ -56,6 +56,7 @@ export function initAuth(options: {
     },
     trustedOrigins: [
       `https://*.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+      "https://*.nextoral.org",
       "https://nextoral.com",
       "*.localhost:3000",
       "expo://",
