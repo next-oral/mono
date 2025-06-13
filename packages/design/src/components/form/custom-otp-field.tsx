@@ -21,7 +21,7 @@ interface CustomOtpFieldProps<T extends FieldValues> {
   name: Path<T>;
   label?: string;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
-  defaultValue?: never;
+  defaultValue?: string | number;
   value?: number;
   disabled?: boolean;
   hidden?: boolean;
