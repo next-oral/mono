@@ -1,8 +1,10 @@
 {
   "extends": "@repo/tsconfig/internal-package.json",
   "compilerOptions": {
+    "strict": true,
     "baseUrl": ".",
     "jsx": "preserve",
+    "lib": ["dom", "esnext"],
     "paths": {
       "@repo/design/*": ["./src/*"]
     }

@@ -7,15 +7,22 @@ import { initAuth } from "@repo/auth";
 
 import { env } from "~/env";
 
-const baseUrl = env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : env.VERCEL_URL
-    ? `https://${env.VERCEL_URL}`
-    : "http://localhost:3000";
+const baseUrl = `${env.NEXT_PUBLIC_PROTOCOL}://${
+  env.NEXT_PUBLIC_SUBDOMAIN ? `${env.NEXT_PUBLIC_SUBDOMAIN}` : ""
+}${env.NEXT_PUBLIC_ROOT_DOMAIN}`;
 
 export const auth = initAuth({
   baseUrl,
   secret: env.AUTH_SECRET,
+  google: {
+    clientId: env.GOOGLE_CLIENT_ID,
+    clientSecret: env.GOOGLE_CLIENT_SECRET,
+  },
+  microsoft: {
+    clientId: env.MICROSOFT_CLIENT_ID,
+    clientSecret: env.MICROSOFT_CLIENT_SECRET,
+    tenantId: "common",
+  },
 });
 
 export const getSession = cache(async () =>

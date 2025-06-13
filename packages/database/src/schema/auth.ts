@@ -1,5 +1,18 @@
-import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
+const UserPostions = [
+  "Dentist",
+  "Dental Assistant",
+  "Receptionist",
+  "Hygienist",
+  "Practice Manager",
+  "Orthodontist",
+  "Oral Surgeon",
+  "Lab Technician",
+  "Other",
+] as const;
+
+export const userPositionEnum = pgEnum("position", UserPostions);
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -13,6 +26,8 @@ export const user = pgTable("user", {
     .$defaultFn(() => new Date())
     .notNull(),
   role: text("role"),
+  position: userPositionEnum("position"),
+  locale: text("locale"),
   banned: boolean("banned"),
   banReason: text("ban_reason"),
   banExpires: timestamp("ban_expires"),
@@ -60,10 +75,16 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at").$defaultFn(() => new Date()),
 });
 
+// const organizationTypeEnum = pgEnum("organization_type", [
+//   "Single Practice",
+//   "Multi Location Practice",
+// ]);
+
 export const organization = pgTable("organization", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").unique(),
+  // type: organizationTypeEnum("type").default("Single Practice"),
   logo: text("logo"),
   createdAt: timestamp("created_at").notNull(),
   metadata: text("metadata"),
@@ -78,6 +99,7 @@ export const member = pgTable("member", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   role: text("role").default("member").notNull(),
+  teamId: text("team_id"),
   createdAt: timestamp("created_at").notNull(),
 });
 
@@ -93,4 +115,14 @@ export const invitation = pgTable("invitation", {
   inviterId: text("inviter_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
+});
+
+export const team = pgTable("team", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  organizationId: text("organization_id")
+    .notNull()
+    .references(() => organization.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at"),
 });

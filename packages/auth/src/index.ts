@@ -5,18 +5,27 @@ import { nextCookies } from "better-auth/next-js";
 import {
   admin as adminPlugin,
   emailOTP,
-  oAuthProxy,
   organization,
 } from "better-auth/plugins";
 
 import { db } from "@repo/database/client";
 import { actions } from "@repo/email";
 
+import { env } from "../env";
 import { ac, admin, user } from "./lib/permission";
 
 export function initAuth(options: {
   baseUrl: string;
   secret: string | undefined;
+  google: {
+    clientId: string;
+    clientSecret: string;
+  };
+  microsoft: {
+    clientId: string;
+    clientSecret: string;
+    tenantId: string;
+  };
 }) {
   const config = {
     database: drizzleAdapter(db, {
@@ -24,9 +33,35 @@ export function initAuth(options: {
     }),
     baseURL: options.baseUrl,
     secret: options.secret,
+    user: {
+      additionalFields: {
+        position: {
+          type: "string",
+          required: false,
+        },
+        locale: {
+          type: "string",
+          required: false,
+          defaultValue: "EN",
+        },
+      },
+    },
+
+    advanced: {
+      cookiePrefix: "nextoral",
+      crossSubDomainCookies: {
+        enabled: true,
+        domain: `.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+      },
+    },
+    trustedOrigins: [
+      `https://*.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+      "https://nextoral.com",
+      "*.localhost:3000",
+      "expo://",
+    ],
     plugins: [
       nextCookies(),
-      oAuthProxy(),
       emailOTP({
         async sendVerificationOTP({ email, otp }) {
           await actions.auth({
@@ -38,7 +73,6 @@ export function initAuth(options: {
               message: "dfsdfs",
             },
           });
-          // Implement the sendVerificationOTP method to send the OTP to the user's email address
         },
       }),
       adminPlugin({
@@ -48,23 +82,33 @@ export function initAuth(options: {
           user,
         },
       }),
-      organization(),
+      organization({
+        teams: {
+          enabled: true,
+        },
+        cancelPendingInvitationsOnReInvite: true,
+        async sendInvitationEmail(data) {
+          const baseUrl =
+            env.NODE_ENV === "production"
+              ? `https://${env.NEXT_PUBLIC_ROOT_DOMAIN}`
+              : "http://localhost:3000";
+          const inviteLink = `${baseUrl}/accept-invitation/${data.id}`;
+          await actions.invite({
+            inviteLink,
+            email: data.email,
+            inviterName: data.inviter.user.name,
+            organizationName: data.organization.name,
+          });
+        },
+      }),
     ],
     emailAndPassword: {
       enabled: true,
     },
     socialProviders: {
-      google: {
-        clientId: "process.env.GOOGLE_CLIENT_ID!",
-        clientSecret: "process.env.GOOGLE_CLIENT_SECRET!",
-      },
-      microsoft: {
-        clientId: "env.MICROSOFT_CLIENT_ID",
-        clientSecret: "env.MICROSOFT_CLIENT_SECRET",
-        tenantId: "common",
-      },
+      google: options.google,
+      microsoft: options.microsoft,
     },
-    trustedOrigins: ["expo://"],
   } satisfies BetterAuthOptions;
 
   return betterAuth(config);
