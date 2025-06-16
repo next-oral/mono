@@ -57,7 +57,7 @@ export default function CustomInputField<T extends FieldValues>({
   labelClassName = "",
   inputClassName = "",
 }: CustomInputFieldProps<T>) {
-  //   Checks if input is a password by checking input tyoe or if name contains "PASSWORD"
+  //   Checks if input is a password by checking input type or if name contains "PASSWORD"
   const isPasswordField =
     inputType === "password" || name.toLowerCase().includes("password");
 
