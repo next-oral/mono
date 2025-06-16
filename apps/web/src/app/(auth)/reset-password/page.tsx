@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { ResetPasswordForm } from "@repo/design/components/reset-password-form";
 

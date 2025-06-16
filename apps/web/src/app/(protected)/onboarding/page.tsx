@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 import { useQueryState } from "nuqs";
 
@@ -24,6 +24,7 @@ import {
 import { ChevronDownIcon, LogOutIcon } from "@repo/design/icons";
 import { Onboarding } from "@repo/design/src/components/onboarding";
 import { toast } from "@repo/design/src/components/ui/sonner";
+import { INVALID_SLUGS_REGEX } from "@repo/validators";
 
 import { authClient } from "~/auth/client";
 import { env } from "~/env";
@@ -44,7 +45,7 @@ const Page = () => {
 
   const { data: organizations } = authClient.useListOrganizations();
 
-  const handleInvaildSession = useCallback(async () => {
+  const handleInvalidSession = useCallback(async () => {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
@@ -61,13 +62,13 @@ const Page = () => {
   const checkSlug = async (slug: string) => {
     const slugString = slugify(slug);
 
-    if (/^(www\.?|admin|api|app|application)$/.test(slugString)) return false;
+    if (INVALID_SLUGS_REGEX.test(slugString)) return false;
     const res = await authClient.organization.checkSlug({
       slug: slugString,
     });
     return !!res.data?.status;
   };
-  if (error) void handleInvaildSession();
+  if (error) void handleInvalidSession();
 
   if (!session) return null;
 
@@ -90,11 +91,12 @@ const Page = () => {
     <div className="relative h-screen w-full overflow-hidden bg-gradient-to-b from-white to-blue-50">
       <div className="absolute right-0 z-9999 flex w-full items-center justify-center p-2">
         <div className="mx-auto"></div>
+
         <UserAvatar
           email={session.user.email}
           name={session.user.name}
           image={session.user.image ?? ""}
-          onClick={handleInvaildSession}
+          onClick={handleInvalidSession}
         />
       </div>
       <AnimatePresence mode={step === "clinic" ? "wait" : "popLayout"}>

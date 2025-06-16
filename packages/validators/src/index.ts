@@ -185,3 +185,6 @@ export const clinicSchema = z.object({
 });
 
 export type ClinicForm = z.infer<typeof clinicSchema>;
+
+export const INVALID_SLUGS_REGEX =
+  /^(www|admin|api|auth|login|logout|signup|register|user|users|me|account|settings|dashboard|about|contact|support|help|privacy|terms|status|blog|faq|system|config|root|files|explore|search|feed|notifications|messages|inbox|home|app|application|client|server|backend|frontend|undefined|null|true|false|404|500)$/i;

@@ -9,12 +9,10 @@ export interface Subdomain {
   createdAt: number;
 }
 
-console.log({ rootDomain, protocol });
-
 export const domainRouter = {
   getDomainConfig: publicProcedure.query(() => ({
     protocol,
-    root: rootDomain,
+    root: rootDomain ?? "",
   })),
   get: publicProcedure
     .input(
