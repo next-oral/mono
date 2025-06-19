@@ -63,7 +63,6 @@ export default function LoginPage() {
           damping: 20,
         }}
       >
-        login
         <LoginForm
           provider={provider}
           isPending={isPending}
