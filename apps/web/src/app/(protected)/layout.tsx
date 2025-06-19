@@ -1,18 +1,19 @@
+import { redirect } from "next/navigation";
+
 import { getSession } from "~/auth/server";
+import { env } from "~/env";
 
 export default async function OnboardingLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  // const session = await getSession();
 
-  if (!session)
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        No session
-      </div>
-    );
+  // if (!session)
+  //   return redirect(
+  //     `${env.NEXT_PUBLIC_PROTOCOL}://www.${env.NEXT_PUBLIC_ROOT_DOMAIN}/login`,
+  //   );
 
   return children;
 }

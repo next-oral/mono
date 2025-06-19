@@ -5,7 +5,7 @@ export default function HomePage() {
     <HydrateClient>
       <main className="container m-auto h-screen py-16">
         <div className="flex flex-col items-center justify-center gap-4">
-          Welcome to Next Oral
+          Welcome to Next Oral 43
         </div>
       </main>
     </HydrateClient>

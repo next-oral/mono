@@ -11,10 +11,9 @@ import "@repo/design/globals.css";
 
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
-// import { ReactQueryStreamedHydration } from "@tanstack/react-query-next-experimental";
-
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
+import { ThemeProvider } from "./_providers/theme-provider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -64,7 +63,16 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         <Toaster theme="light" richColors position="top-center" />
         <TRPCReactProvider>
           <ReactQueryDevtools />
-          <NuqsAdapter>{props.children}</NuqsAdapter>
+          <NuqsAdapter>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {props.children}
+            </ThemeProvider>
+          </NuqsAdapter>
         </TRPCReactProvider>
       </body>
     </html>
