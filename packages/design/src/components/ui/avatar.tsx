@@ -3,7 +3,7 @@
 import * as React from "react";
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 
-import { cn } from "@repo/design/lib/utils";
+import { cn, generateAppleGradient } from "@repo/design/lib/utils";
 
 function Avatar({
   className,
@@ -38,11 +38,14 @@ function AvatarFallback({
   className,
   ...props
 }: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
+  const c = generateAppleGradient();
+
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
       className={cn(
-        "bg-muted flex size-full items-center justify-center rounded-full",
+        "flex size-full items-center justify-center rounded-full",
+        c,
         className,
       )}
       {...props}

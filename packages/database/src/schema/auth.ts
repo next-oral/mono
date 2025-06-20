@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import { boolean, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 const UserPostions = [
@@ -126,3 +127,65 @@ export const team = pgTable("team", {
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at"),
 });
+
+// Relations
+export const organizationRelations = relations(organization, ({ many }) => ({
+  teams: many(team),
+  members: many(member),
+  invitations: many(invitation),
+}));
+
+export const teamRelations = relations(team, ({ one, many }) => ({
+  organization: one(organization, {
+    fields: [team.organizationId],
+    references: [organization.id],
+  }),
+  members: many(member),
+}));
+
+export const memberRelations = relations(member, ({ one }) => ({
+  organization: one(organization, {
+    fields: [member.organizationId],
+    references: [organization.id],
+  }),
+  user: one(user, {
+    fields: [member.userId],
+    references: [user.id],
+  }),
+  team: one(team, {
+    fields: [member.teamId],
+    references: [team.id],
+  }),
+}));
+
+export const userRelations = relations(user, ({ many }) => ({
+  members: many(member),
+  sessions: many(session),
+  accounts: many(account),
+  invitations: many(invitation),
+}));
+
+export const sessionRelations = relations(session, ({ one }) => ({
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id],
+  }),
+}));
+
+export const accountRelations = relations(account, ({ one }) => ({
+  user: one(user, {
+    fields: [account.userId],
+    references: [user.id],
+  }),
+}));
+
+export const invitationRelations = relations(invitation, ({ one }) => ({
+  organization: one(organization, {
+    fields: [invitation.organizationId],
+    references: [organization.id],
+  }),
+  inviter: one(user, {
+    fields: [invitation.inviterId],
+    references: [user.id],
+  }),
+}));

@@ -12,7 +12,7 @@ import { cn } from "@repo/design/src/lib/utils";
 
 export const DateFilter = () => {
   const [active, setActive] = useState<"7" | "30" | "custom">("30");
-  const [date] = useState<DateRange | undefined>();
+  const [date, setDate] = useState<DateRange | undefined>();
 
   return (
     <div className="flex items-center gap-2">
@@ -46,7 +46,7 @@ export const DateFilter = () => {
       </Button>
 
       <div className="text-slate-200">|</div>
-      <Calender>
+      <Calender setDate={setDate} date={date}>
         <Button
           variant="outline"
           size="sm"

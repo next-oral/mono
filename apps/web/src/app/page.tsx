@@ -1,6 +1,9 @@
+import { redirect } from "next/navigation";
+
 import { HydrateClient } from "~/trpc/server";
 
 export default function HomePage() {
+  return redirect("/login");
   return (
     <HydrateClient>
       <main className="container m-auto h-screen py-16">

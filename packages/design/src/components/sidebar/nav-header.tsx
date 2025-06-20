@@ -3,13 +3,9 @@ import { Separator } from "@radix-ui/react-separator";
 import {
   ArrowDown,
   ArrowUp,
-  Calculator,
-  Calendar,
   CornerDownLeft,
-  CreditCard,
   Search,
   Settings,
-  Smile,
   User,
 } from "lucide-react";
 
@@ -91,35 +87,35 @@ export function NavHeader({
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Suggestions">
+          <CommandGroup heading="Quick Actions">
             <CommandItem>
-              <Calendar />
-              <span>Calendar</span>
+              <HugeIcons.Patients />
+              <span>New Patient</span>
             </CommandItem>
             <CommandItem>
-              <Smile />
-              <span>Search Emoji</span>
+              <HugeIcons.CalendarAdd />
+              <span>New Appointment</span>
             </CommandItem>
             <CommandItem>
-              <Calculator />
-              <span>Calculator</span>
+              <HugeIcons.Stethoscope />
+              <span>New Treatment</span>
             </CommandItem>
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Settings">
             <CommandItem>
               <User />
-              <span>Profile</span>
+              <span>Manage Staff Access</span>
               <CommandShortcut>⌘P</CommandShortcut>
             </CommandItem>
             <CommandItem>
-              <CreditCard />
-              <span>Billing</span>
+              <HugeIcons.Notifications />
+              <span>Notifications</span>
               <CommandShortcut>⌘B</CommandShortcut>
             </CommandItem>
             <CommandItem>
               <Settings />
-              <span>Settings</span>
+              <span>Update Profile Info</span>
               <CommandShortcut>⌘S</CommandShortcut>
             </CommandItem>
           </CommandGroup>

@@ -461,6 +461,73 @@ const CalendarAdd = createLucideIcon("huge-calendar-add", [
   ],
 ]);
 
+const Logout = createLucideIcon("huge-logout", [
+  [
+    "path",
+    {
+      key: "huge-logout-1",
+      d: "M14 3.09502C13.543 3.03241 13.0755 3 12.6 3C7.29807 3 3 7.02944 3 12C3 16.9706 7.29807 21 12.6 21C13.0755 21 13.543 20.9676 14 20.905",
+      stroke: "#18181B",
+      strokeWidth: "1.5",
+      strokeLinecap: "round",
+    },
+  ],
+  [
+    "path",
+    {
+      key: "huge-logout-2",
+      d: "M21 12L11 12M21 12C21 11.2998 19.0057 9.99153 18.5 9.5M21 12C21 12.7002 19.0057 14.0085 18.5 14.5",
+      stroke: "#18181B",
+      strokeWidth: "1.5",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+  ],
+]);
+
+const AddUserGroup = createLucideIcon("huge-add-user-group", [
+  [
+    "path",
+    {
+      key: "huge-add-user-group-1",
+      d: "M12 7.5C12 9.433 10.433 11 8.5 11C6.567 11 5 9.433 5 7.5C5 5.567 6.567 4 8.5 4C10.433 4 12 5.567 12 7.5Z",
+      stroke: "#18181B",
+      strokeWidth: "1.5",
+    },
+  ],
+  [
+    "path",
+    {
+      key: "huge-add-user-group-2",
+      d: "M13.5 11C15.433 11 17 9.433 17 7.5C17 5.567 15.433 4 13.5 4",
+      stroke: "#18181B",
+      strokeWidth: "1.5",
+      strokeLinecap: "round",
+    },
+  ],
+  [
+    "path",
+    {
+      key: "huge-add-user-group-3",
+      d: "M13.1429 20H3.85714C2.83147 20 2 19.2325 2 18.2857C2 15.9188 4.07868 14 6.64286 14H10.3571C11.4023 14 12.3669 14.3188 13.1429 14.8568",
+      stroke: "#18181B",
+      strokeWidth: "1.5",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+  ],
+  [
+    "path",
+    {
+      key: "huge-add-user-group-4",
+      d: "M19 14V20M22 17L16 17",
+      stroke: "#18181B",
+      strokeWidth: "1.5",
+      strokeLinecap: "round",
+    },
+  ],
+]);
+
 export const HugeIcons = {
   Dashboard,
   Patients,
@@ -473,4 +540,6 @@ export const HugeIcons = {
   CustomerSupport,
   Setting03,
   Calendar,
+  Logout,
+  AddUserGroup,
 };

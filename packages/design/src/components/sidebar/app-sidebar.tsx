@@ -3,8 +3,9 @@
 import * as React from "react";
 import { useState } from "react";
 
+import type { Clinic } from "@repo/design/components/sidebar/org-switcher";
 import { NavMain } from "@repo/design/components/sidebar/nav-main";
-import { TeamSwitcher } from "@repo/design/components/sidebar/team-switcher";
+import { OrgSwitcher } from "@repo/design/components/sidebar/org-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -102,16 +103,54 @@ const data = {
   ],
 };
 
+export interface User {
+  name: string;
+  email: string;
+  image: string;
+}
+
 export interface Team {
   id: string;
   name: string;
   createdAt: Date;
   organizationId: string;
-  updatedAt?: Date | undefined;
+  updatedAt?: Date | undefined | null;
 }
+
+export interface Organization {
+  id: string;
+  name: string;
+  createdAt: Date;
+  slug: string;
+  metadata?: Record<string, unknown>;
+  logo?: string | null | undefined;
+}
+
+const sampleUser = {
+  id: "1",
+  name: "Matt Derek",
+  email: "matt@example.com",
+  image: "/placeholder.svg?height=32&width=32",
+};
+
+const sampleOrganizations = [
+  { id: "1", name: "Golden Trust HQ", clinicCount: 3 },
+  { id: "2", name: "St Stephens Int'l", clinicCount: 6 },
+  { id: "3", name: "Liberty Lane", clinicCount: 2 },
+];
+
+const sampleClinics: Clinic[] = [
+  { id: "c1", name: "Golden Trust NG", organizationId: "1" },
+  { id: "c2", name: "Golden Trust US", organizationId: "1" },
+  { id: "c3", name: "Golden Trust UK", organizationId: "1" },
+  { id: "c4", name: "St Stephens Main", organizationId: "2" },
+  { id: "c5", name: "St Stephens East", organizationId: "2" },
+];
 
 export function AppSidebar({
   teams,
+  organizations,
+  user,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   teams: {
@@ -119,13 +158,13 @@ export function AppSidebar({
     activeTeam?: Team;
     setActiveTeam?: (team: Team) => void;
   };
-  user: {
-    name: string;
-    email: string;
-    image: string;
-  };
+  organizations: Organization[];
+  user: User;
 }) {
   const { state } = useSidebar();
+
+  const [activeClinic, setActiveClinic] = useState(undefined);
+  const [activeTeam, setActiveTeam] = useState(undefined);
 
   // const toggleNotifications = () => setShowNotifications((prev) => !prev);
 
@@ -154,16 +193,20 @@ export function AppSidebar({
         <Separator className={cn({ hidden: state === "expanded" })} />
         <NavMain label="Clinic" items={data.navMain} />
         <Separator className={cn({ hidden: state === "expanded" })} />
-
         <NavMain label="Others" items={data.others} />
       </SidebarContent>
 
       <SidebarFooter className={cn({ "p-0": state === "collapsed" })}>
         <NavSecondary items={data.navSecondary} />
-        <TeamSwitcher
-          teams={teams.data}
-          activeTeam={teams.activeTeam}
-          setActiveTeam={teams.setActiveTeam ?? (() => null)}
+
+        <OrgSwitcher
+          user={sampleUser}
+          organizations={sampleOrganizations}
+          clinics={sampleClinics}
+          activeClinic={activeClinic}
+          setActiveClinic={setActiveClinic}
+          activeTeam={activeTeam}
+          setActiveTeam={setActiveTeam}
         />
       </SidebarFooter>
       <SidebarRail />

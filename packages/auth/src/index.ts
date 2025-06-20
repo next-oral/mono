@@ -53,6 +53,12 @@ export function initAuth(options: {
         enabled: true,
         domain: `.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
       },
+      defaultCookieAttributes: {
+        secure: true,
+        httpOnly: true,
+        sameSite: "none",
+        partitioned: true,
+      },
     },
     trustedOrigins: [
       `https://*.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,

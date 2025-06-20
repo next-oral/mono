@@ -3,10 +3,7 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
-import {
-  AppSidebar,
-  NotificationPanel,
-} from "@repo/design/components/sidebar/app-sidebar";
+import { AppSidebar } from "@repo/design/components/sidebar/app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -22,9 +19,28 @@ import {
 import { Button } from "@repo/design/src/components/ui/button";
 import { Plus } from "@repo/design/src/icons";
 
+// import {
+//   AppSidebar,
+//   NotificationPanel,
+// } from "@repo/design/components/sidebar/app-sidebar";
+// import {
+//   Breadcrumb,
+//   BreadcrumbItem,
+//   BreadcrumbLink,
+//   BreadcrumbList,
+// } from "@repo/design/components/ui/breadcrumb";
+// import { Separator } from "@repo/design/components/ui/separator";
+// import {
+//   SidebarInset,
+//   SidebarProvider,
+//   SidebarTrigger,
+// } from "@repo/design/components/ui/sidebar";
+// import { Button } from "@repo/design/src/components/ui/button";
+// import { Plus } from "@repo/design/src/icons";
+
 import { auth } from "~/auth/server";
 import { env } from "~/env";
-import { getQueryClient, trpc } from "~/trpc/server";
+import { getQueryClient, prefetch, trpc } from "~/trpc/server";
 
 export async function GenerateMetadata({
   params,
@@ -66,6 +82,7 @@ export default async function SubdomainLayout({
   );
 
   if (!sub) return notFound();
+  prefetch(trpc.organization.getAll.queryOptions());
 
   return (
     <Suspense fallback={<Loading />}>
@@ -98,8 +115,11 @@ export async function SubdomainLayoutWithAuth({
     headers: heads,
   });
 
-  const teams =
-    organization?.teams.filter((team) => organization.id != team.id) ?? [];
+  const a = await auth.api.listOrganizations({
+    headers: heads,
+  });
+
+  const teams = organization?.teams ?? [];
 
   return (
     <SidebarProvider>
@@ -108,6 +128,7 @@ export async function SubdomainLayoutWithAuth({
           data: teams,
           activeTeam: teams.pop(),
         }}
+        organizations={a}
         user={{
           name: session.user.name,
           email: session.user.email,
@@ -117,9 +138,9 @@ export async function SubdomainLayoutWithAuth({
 
       <SidebarInset>
         <div className="flex">
-          <div className="relative h-screen w-80 transition-all has-[div[data-notification-panel-state=closed]]:w-0">
+          {/* <div className="relative h-screen w-80 transition-all has-[div[data-notification-panel-state=closed]]:w-0">
             <NotificationPanel />
-          </div>
+          </div> */}
 
           <div className="flex-1">
             <header className="bg-background/50 sticky top-0 z-50 flex h-14 shrink-0 items-center gap-2 border-b px-4 backdrop-blur-sm">

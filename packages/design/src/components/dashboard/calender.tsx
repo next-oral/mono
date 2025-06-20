@@ -1,6 +1,10 @@
 "use client";
 
-import type { DropdownNavProps, DropdownProps } from "react-day-picker";
+import type {
+  DateRange,
+  DropdownNavProps,
+  DropdownProps,
+} from "react-day-picker";
 import {
   Popover,
   PopoverContent,
@@ -16,9 +20,15 @@ import {
   SelectValue,
 } from "@repo/design/components/ui/select";
 
-export function Calender({ children }: { children: React.ReactNode }) {
-  // const [date, setDate] = useState<Date | undefined>(new Date());
-
+export function Calender({
+  children,
+  setDate,
+  date,
+}: {
+  children: React.ReactNode;
+  setDate: (date: DateRange | undefined) => void;
+  date: DateRange | undefined;
+}) {
   const handleCalendarChange = (
     _value: string | number,
     _e: React.ChangeEventHandler<HTMLSelectElement>,
@@ -44,6 +54,8 @@ export function Calender({ children }: { children: React.ReactNode }) {
             classNames={{
               month_caption: "mx-0",
             }}
+            selected={date}
+            onSelect={setDate}
             captionLayout="dropdown"
             defaultMonth={new Date()}
             startMonth={new Date(1980, 6)}
