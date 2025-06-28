@@ -333,8 +333,7 @@ export const CustomDataTable: React.FC<CustomDataTableProps> = ({
   selectable = true,
   selectedRows = [],
   onSelectionChange,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  rowIdKey = "id", // This is kept for backward compatibility but not used for selection
+  // rowIdKey = "id", // This is kept for backward compatibility but not used for selection
   hasSerialNumber = false, // Controls whether to show auto-generated serial numbers
   hasNumberOfRows = false, // Controls whether to show rows per page selector
   actionButtons = ["view", "edit", "delete"],

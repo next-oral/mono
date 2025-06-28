@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, PlusCircleIcon, PlusIcon } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -77,13 +77,13 @@ const sampleData = Array.from({ length: 150 }, (_, i) => ({
   ).toISOString(),
 }));
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 3MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 const staffAccountSchema = z.object({
   profile: z
     .any()
-    .refine((file: File) => !file, { message: "This file is required" })
+    .refine((file: File) => !!file, { message: "This file is required" })
     .refine((file: File) => file.size <= MAX_FILE_SIZE, {
       message: "Max file size is 5MB",
     })
@@ -131,7 +131,7 @@ const staffAccountSchema = z.object({
     }),
   address: z
     .string()
-    .min(3, { message: "Last name cannot be less than 3 characters long" }),
+    .min(3, { message: "Address cannot be empty" }),
   role: z.enum(["staff", "administrator", "Doctor"]),
 });
 
@@ -252,7 +252,7 @@ export default function Organization() {
 
   const handleAccountUpdateSubmit = (Data: StaffAccountForm) => {
     console.log(Data);
-    setStep('details')
+    setStep("details")
   };
 
   // *** For Optional Backend Integration
