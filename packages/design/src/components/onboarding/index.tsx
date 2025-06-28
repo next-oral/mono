@@ -84,11 +84,11 @@ export function Onboarding<T extends OnboardingStep>(
   };
 
   return (
-    <div className="h-full overflow-hidden">
-      <div className="flex h-full items-center justify-center">
-        <Card className="container h-1/2 w-7xl max-w-4xl flex-1 flex-row gap-0 overflow-hidden p-0 shadow-none">
-          <div className="relative flex-2 bg-radial-[at_95%_75%] from-sky-100 via-sky-200 to-sky-200 px-8 py-4">
-            <CardTitle className="text-2xl">
+    <div className="min-h-screen w-full p-4 md:p-6">
+      <div className="flex min-h-[80vh] items-center justify-center">
+        <Card className="w-full max-w-4xl overflow-hidden p-0 shadow-none md:flex md:flex-row">
+          <div className="relative w-full bg-radial-[at_95%_75%] from-sky-100 via-sky-200 to-sky-200 p-6 md:w-2/5 md:p-8">
+            <CardTitle className="text-xl md:text-2xl">
               <motion.h3
                 key={props.step}
                 className="font-medium text-blue-900"
@@ -110,14 +110,15 @@ export function Onboarding<T extends OnboardingStep>(
               </motion.p>
             </CardDescription>
 
-            <div className="mt-64 flex justify-between">
+            <div className="mt-8 flex justify-between md:mt-64">
               {props.step === "invite" && <Button variant="link">Skip</Button>}
               <Button
                 isLoading={props.isPending}
                 type="button"
-                className={cn({
-                  "mt-auto h-11 w-full": props.step !== "invite",
-                })}
+                className={cn(
+                  "w-full md:max-w-xs",
+                  props.step !== "invite" && "h-11",
+                )}
                 disabled={
                   props.step === "organization" && !orgForm.formState.isValid
                 }
@@ -135,17 +136,19 @@ export function Onboarding<T extends OnboardingStep>(
               </Button>
             </div>
           </div>
-          <CardContent className="flex flex-3 items-center justify-center overflow-y-auto">
-            {props.step === "profile" ? (
-              <Profile form={profileForm} handleSubmit={submitProfile} />
-            ) : props.step === "organization" ? (
-              <Organization form={orgForm} checkSlug={props.checkSlug} />
-            ) : props.step === "clinic" ? (
-              <Clinic form={clinicForm} />
-            ) : (
-              // @ts-expect-error asdfs
-              <Invite form={inviteForm} onTypeChange={() => null} />
-            )}
+          <CardContent className="w-full p-6 md:w-3/5 md:p-8">
+            <div className="flex min-h-[400px] w-full items-center justify-center">
+              {props.step === "profile" ? (
+                <Profile form={profileForm} handleSubmit={submitProfile} />
+              ) : props.step === "organization" ? (
+                <Organization form={orgForm} checkSlug={props.checkSlug} />
+              ) : props.step === "clinic" ? (
+                <Clinic form={clinicForm} />
+              ) : (
+                // @ts-expect-error asdfs
+                <Invite form={inviteForm} onTypeChange={() => null} />
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

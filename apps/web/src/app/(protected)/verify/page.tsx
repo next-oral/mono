@@ -28,6 +28,7 @@ export default function VerifyPage() {
   const router = useRouter();
   const search = useSearchParams();
   const [isPending, setIsPending] = useState(false);
+  const { data: session } = authClient.useSession();
 
   const { data: organizations, isPending: isOrganizationsPending } = useQuery({
     queryKey: ["organizations"],
@@ -79,6 +80,10 @@ export default function VerifyPage() {
       setIsPending(false);
     }
   };
+
+  if (session?.user.emailVerified) {
+    return void router.replace("/onboarding");
+  }
 
   return (
     <div className="grid min-h-svh overflow-hidden lg:grid-cols-2">
