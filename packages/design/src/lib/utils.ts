@@ -1,6 +1,12 @@
 import type { ClassValue } from "clsx";
 import { clsx } from "clsx";
+import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
+
+export const gender = [
+  { label: "Male", value: "male" },
+  { label: "Female", value: "female" },
+];
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -12,3 +18,14 @@ export const splitCamelCaseToWords = (str: string) =>
 export const generateAppleGradient = (color = "#C2D6FF") => {
   return `bg-[${color}] shadow-[inset_0px_-8px_16px_${color}40]`;
 };
+
+export const handleClipBoardCopy = (text: string) => {
+  void navigator.clipboard.writeText(text);
+  toast.success("Copied to clipboard");
+};
+
+export const truncateText = (text: string, maxLength?: number): string => {
+  // function to truncate texts
+  if (!maxLength || text.length <= maxLength) return text
+  return text.substring(0, maxLength) + "..."
+}
