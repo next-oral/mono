@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 
 import { LoginForm } from "@repo/design/components/login-form";
@@ -11,28 +12,28 @@ import { authClient } from "~/auth/client";
 export default function LoginPage() {
   const router = useRouter();
 
-  const [isPending, setIsPending] = useState(false);
   const [provider, setProvider] = useState<"google" | "microsoft" | null>(null);
 
-  const handleSubmit = async ({ email }: { email: string }) => {
-    try {
-      setIsPending(true);
-      const { error } = await authClient.emailOtp.sendVerificationOtp({
-        email,
-        type: "sign-in",
-      });
-      if (error) throw new Error(error.message);
-      return router.push(`/verify?email=${email}`);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsPending(false);
-    }
-  };
+  const { mutateAsync: sendVerificationOtp, isPending: isVerificationPending } =
+    useMutation({
+      mutationFn: async ({ email }: { email: string }) => {
+        const { error, data } = await authClient.emailOtp.sendVerificationOtp({
+          email,
+          type: "sign-in",
+        });
+        if (error) throw new Error(error.message);
+        return data;
+      },
+      onSuccess: (_, { email }) => {
+        router.push(`/verify?email=${email}`);
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    });
 
-  const handleOAuthSignUp = async (provider: "google" | "microsoft") => {
-    try {
-      setIsPending(true);
+  const { mutateAsync: OAuthSignUp, isPending: isOAuthPending } = useMutation({
+    mutationFn: async ({ provider }: { provider: "google" | "microsoft" }) => {
       setProvider(provider);
       await authClient.signIn.social(
         {
@@ -43,13 +44,19 @@ export default function LoginPage() {
           onError: (error) => console.log(error),
         },
       );
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setIsPending(false);
-      setProvider(null);
-    }
-  };
+    },
+    onSettled: () => setProvider(null),
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const handleSubmit = async ({ email }: { email: string }) =>
+    await sendVerificationOtp({ email });
+
+  const handleOAuthSignUp = async (provider: "google" | "microsoft") =>
+    await OAuthSignUp({ provider });
+
   return (
     <AnimatePresence>
       <motion.div
@@ -65,7 +72,7 @@ export default function LoginPage() {
       >
         <LoginForm
           provider={provider}
-          isPending={isPending}
+          isPending={isOAuthPending || isVerificationPending}
           handleSubmit={handleSubmit}
           handleOAuthSignUp={handleOAuthSignUp}
         />
