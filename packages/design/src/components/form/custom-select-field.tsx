@@ -267,9 +267,9 @@ export default function CustomSelectField<T extends FieldValues>({
                 {options.map((option) => (
                   <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
                     <div className="flex items-center">
-                      <Check
+                      {/* <Check
                         className={cn("mr-2 h-4 w-4", field.value === option.value ? "opacity-100" : "opacity-0")}
-                      />
+                      /> */}
                       {option.label}
                     </div>
                   </SelectItem>
