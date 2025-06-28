@@ -60,7 +60,7 @@ export interface ColumnConfig {
   className?: string;
   maxLength?: number;
   subFields?: SubField[];
-  render?: (value: any, row: any) => React.ReactNode;
+  render?: (value: any, row: any, index?: number) => React.ReactNode;
 }
 
 export interface ActionButton {
@@ -380,8 +380,8 @@ export const CustomDataTable: React.FC<CustomDataTableProps> = ({
         label: "#",
         sortable: false,
         className: "w-16",
-        render: (_: any, __: any, index: number) => (
-          <span className="text-muted-foreground text-sm">{index + 1}</span>
+        render: (_: any, __: any, index?: number) => (
+          <span className="text-muted-foreground text-sm">{(index ?? 0) + 1}</span>
         ),
       });
     }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import * as React from "react";
@@ -163,7 +164,7 @@ export function AppSidebar({
 }) {
   const { state } = useSidebar();
 
-  const [activeClinic, setActiveClinic] = useState(undefined);
+  const [activeClinic, setActiveClinic] = useState<Clinic | undefined>(undefined);
   const [activeTeam, setActiveTeam] = useState(undefined);
 
   // const toggleNotifications = () => setShowNotifications((prev) => !prev);
@@ -204,9 +205,7 @@ export function AppSidebar({
           organizations={sampleOrganizations}
           clinics={sampleClinics}
           activeClinic={activeClinic}
-          setActiveClinic={setActiveClinic}
-          activeTeam={activeTeam}
-          setActiveTeam={setActiveTeam}
+          setActiveClinic={(clinic: Clinic) => setActiveClinic(clinic)}
         />
       </SidebarFooter>
       <SidebarRail />
