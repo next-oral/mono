@@ -58,7 +58,7 @@ export default function CustomOtpField<T extends FieldValues>({
           className={cn("space-y-[0.2px]", fieldClassName)}
           hidden={hidden}
         >
-          {!isNotLabeled &&
+          {!isNotLabeled && (
             <FormLabel
               className={cn(
                 "text-accent-foreground/80 text-sm font-medium capitalize",
@@ -66,7 +66,8 @@ export default function CustomOtpField<T extends FieldValues>({
               )}
             >
               {label || splitCamelCaseToWords(name)}
-            </FormLabel>}
+            </FormLabel>
+          )}
           <div className="relative">
             <FormControl>
               <InputOTP
@@ -83,7 +84,6 @@ export default function CustomOtpField<T extends FieldValues>({
                   setInputLength(e.currentTarget.value.length);
                 }}
               >
-                {/* TODO: Add feature to make border blue if filled a */}
                 <InputOTPGroup className="flex w-full justify-between gap-[16px] ring-0 *:flex-grow *:rounded-xl *:py-8 data-[active=true]:ring-[0px]">
                   {Array.from({ length: 4 }).map((_, index) => (
                     <InputOTPSlot

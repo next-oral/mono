@@ -2,7 +2,6 @@ import { useLayoutEffect, useState } from "react";
 import {
   faAndroid,
   faApple,
-  faAppStoreIos,
   faLinux,
   faWindows,
 } from "@fortawesome/free-brands-svg-icons";
@@ -14,8 +13,9 @@ import { ArrowLeft, CopyIcon, QrCodeIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { handleClipBoardCopy } from "@repo/design/lib/utils";
+import { cn, handleClipBoardCopy } from "@repo/design/lib/utils";
 
+import CustomInputField from "../form/custom-input-field";
 // import CustomInputField from "../form/custom-input-field";
 import CustomOtpField from "../form/custom-otp-field";
 import { Button } from "../ui/button";
@@ -23,18 +23,32 @@ import { Form } from "../ui/form";
 import { Switch } from "../ui/switch";
 import { Tooltip, TooltipContent } from "../ui/tooltip";
 
-const updatePasswordSchema = z.object({
-  newPassword: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters long" }),
-});
+const updatePasswordSchema = z
+  .object({
+    currentPassword: z
+      .string()
+      .min(8, { message: "Current password is required" }),
+    newPassword: z
+      .string()
+      .min(8, { message: "New password must be at least 8 characters long" }),
+    confirmNewPassword: z.string(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.newPassword !== data.confirmNewPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["confirmNewPassword"],
+        message: "Passwords do not match",
+      });
+    }
+  });
 
 const otpFormSchema = z.object({
   // matches regular-expression to check for numbers only
   code: z
     .string({ message: "Field cannot be empty" })
     .regex(/^\d+$/, { message: "Only digits are allowed" })
-    .min(4, { message: "Code must be at least 6 digits" }),
+    .min(4, { message: "Code must be at least 4 digits" }),
 });
 
 type UpdatePasswordForm = z.infer<typeof updatePasswordSchema>;
@@ -95,19 +109,30 @@ function getDeviceIcon(os: string) {
     case "Android":
       return <FontAwesomeIcon icon={faAndroid} className="size-4" />;
     case "iOS":
-      return <FontAwesomeIcon icon={faAppStoreIos} className="size-4" />;
+      return <FontAwesomeIcon icon={faApple} className="size-4" />;
     default:
       return <FontAwesomeIcon icon={faAndroid} className="size-4" />;
   }
 }
 
-function EnableOtpAuth({
-  setShowEnableOtpAuth,
+function SecondaryPage({
+  pageForm,
+  setPageForm,
   setIsOtpEnabled,
 }: {
-  setShowEnableOtpAuth: React.Dispatch<React.SetStateAction<boolean>>;
+  pageForm: "default" | "password" | "otp";
+  setPageForm: React.Dispatch<React.SetStateAction<typeof pageForm>>;
   setIsOtpEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const updatePasswordForm = useForm<UpdatePasswordForm>({
+    resolver: zodResolver(updatePasswordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmNewPassword: "",
+    },
+  });
+
   const otpForm = useForm<OtpForm>({
     resolver: zodResolver(otpFormSchema),
     defaultValues: {
@@ -118,7 +143,12 @@ function EnableOtpAuth({
   const handleOtpSubmit = (data: OtpForm) => {
     console.log(data);
     setIsOtpEnabled(true);
-    setShowEnableOtpAuth(false);
+    setPageForm("default");
+  };
+
+  const handlePasswordUpdateSubmit = (data: UpdatePasswordForm) => {
+    console.log(data);
+    setPageForm("default");
   };
 
   return (
@@ -139,12 +169,19 @@ function EnableOtpAuth({
             <Button
               variant="ghost"
               className="py-6 font-normal hover:bg-transparent"
-              onClick={() => setShowEnableOtpAuth(false)}
+              onClick={() => setPageForm("default")}
             >
               <ArrowLeft /> Go Back
             </Button>
           </div>
-          <div className="grid grid-cols-1 justify-between gap-10 md:grid-cols-3">
+          <div
+            className={cn(
+              "grid grid-cols-1 justify-between gap-10 md:grid-cols-3",
+              {
+                "md:grid-cols-2": pageForm === "password",
+              },
+            )}
+          >
             <div className="flex flex-grow flex-col gap-1">
               <h4 className="text-sm font-semibold sm:text-lg">
                 Enable two-factor Authentication
@@ -154,97 +191,146 @@ function EnableOtpAuth({
               </p>
             </div>
 
-            <div className="border-secondary rounded-lg border p-2 sm:p-3 md:col-span-2">
-              <Form {...otpForm}>
-                <form onSubmit={otpForm.handleSubmit(handleOtpSubmit)}>
-                  {/* Step 1 */}
-                  <div className="grid items-center justify-between gap-5 md:grid-cols-2">
-                    <div className="flex gap-[12px]">
-                      <span className="text-sm font-semibold sm:text-base">
-                        1.
-                      </span>
-                      <div className="flex flex-col gap-1">
-                        <h4 className="text-sm font-semibold sm:text-base">
-                          Configure your two-factor client
-                        </h4>
-                        <p className="text-xs sm:text-sm">
-                          Please scan the QR code below using an OTP compatible
-                          app (such as Google Authenticator or 1Password).
-                        </p>
+            <div
+              className={cn(
+                "border-secondary rounded-lg border p-2 sm:p-3 md:col-span-2",
+                {
+                  "md:col-span-1": pageForm === "password",
+                },
+              )}
+            >
+              {pageForm === "password" ? (
+                <Form {...updatePasswordForm}>
+                  <form
+                    onSubmit={updatePasswordForm.handleSubmit(
+                      handlePasswordUpdateSubmit,
+                    )}
+                  >
+                    <div className="grid grid-cols-1 gap-10">
+                      <div className="border-secondary flex flex-col gap-3 rounded-lg border p-2 sm:p-3">
+                        <CustomInputField
+                          control={updatePasswordForm.control}
+                          name="currentPassword"
+                          placeholder="* * * * * * * * *"
+                          label="Current Password"
+                          description="Enter your current password"
+                        />
+
+                        <CustomInputField
+                          control={updatePasswordForm.control}
+                          name="newPassword"
+                          placeholder="* * * * * * * * *"
+                          label="New Password"
+                          description="Enter new password, must be at least 8 characters"
+                        />
+
+                        <CustomInputField
+                          control={updatePasswordForm.control}
+                          name="confirmNewPassword"
+                          placeholder="* * * * * * * * *"
+                          label="Confirm New Password"
+                          description="Repeat password, must be at least 8 characters"
+                        />
+                      </div>
+                      <Button className="ml-auto">Save Changes</Button>
+                    </div>
+                  </form>
+                </Form>
+              ) : (
+                <Form {...otpForm}>
+                  <form onSubmit={otpForm.handleSubmit(handleOtpSubmit)}>
+                    {/* Step 1 */}
+                    <div className="grid items-center justify-between gap-5 md:grid-cols-2">
+                      <div className="flex gap-[12px]">
+                        <span className="text-sm font-semibold sm:text-base">
+                          1.
+                        </span>
+                        <div className="flex flex-col gap-1">
+                          <h4 className="text-sm font-semibold sm:text-base">
+                            Configure your two-factor client
+                          </h4>
+                          <p className="text-xs sm:text-sm">
+                            Please scan the QR code below using an OTP
+                            compatible app (such as Google Authenticator or
+                            1Password).
+                          </p>
+                        </div>
+                      </div>
+
+                      <QrCodeIcon className="size-[100px] md:ml-auto" />
+                    </div>
+                    {/* Step 2 */}
+                    <div className="mt-5 grid items-center justify-between gap-5 md:grid-cols-2">
+                      <div className="flex gap-[12px]">
+                        <span className="text-sm font-semibold sm:text-base">
+                          2.
+                        </span>
+                        <div className="flex flex-col gap-1">
+                          <h4 className="text-sm font-semibold sm:text-base">
+                            Scan the QR code with your authenticator
+                          </h4>
+                          <p className="text-xs sm:text-sm">
+                            If you can't scan the code, you can enter this
+                            secret key into you authenticator app
+                          </p>
+                        </div>
+                      </div>
+                      <div className="border-secondary/80 bg-secondary/60 flex items-center justify-between rounded-lg border px-3 py-2 lg:ml-auto">
+                        <span className="flex-grow text-sm opacity-80">
+                          NBCK-LDTHS-NJ1
+                        </span>
+                        <Tooltip>
+                          <TooltipTrigger
+                            className="px-2"
+                            onClick={() =>
+                              handleClipBoardCopy("NBCK-LDTHS-NJ1")
+                            }
+                            aria-label="copy secret key to clipboard"
+                          >
+                            <CopyIcon className="size-5 opacity-80" />
+                          </TooltipTrigger>
+                          <TooltipContent>Copy Code</TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
+                    {/* Step 3 */}
+                    <div className="mt-5 grid items-center justify-between gap-5 lg:ml-auto lg:grid-cols-2">
+                      <div className="mt-5 flex gap-[12px]">
+                        <span className="text-sm font-semibold sm:text-base">
+                          3.
+                        </span>
+                        <div className="flex flex-col gap-1">
+                          <h4 className="text-sm font-semibold sm:text-base">
+                            After scanning the QR code above, enter the
+                            six-digit code generated by the authenticator
+                          </h4>
+                          <p className="text-xs sm:text-sm">
+                            If you can't scan the code, you can enter this
+                            secret key into you authenticator app
+                          </p>
+                        </div>
+                      </div>
+                      <div className="max-lg:w-[60%] max-sm:w-full">
+                        <CustomOtpField
+                          name="code"
+                          control={otpForm.control}
+                          isNotLabeled={true}
+                        />
                       </div>
                     </div>
 
-                    <QrCodeIcon className="size-[100px] md:ml-auto" />
-                  </div>
-                  {/* Step 2 */}
-                  <div className="mt-5 grid items-center justify-between gap-5 md:grid-cols-2">
-                    <div className="flex gap-[12px]">
-                      <span className="text-sm font-semibold sm:text-base">
-                        2.
-                      </span>
-                      <div className="flex flex-col gap-1">
-                        <h4 className="text-sm font-semibold sm:text-base">
-                          Scan the QR code with your authenticator
-                        </h4>
-                        <p className="text-xs sm:text-sm">
-                          If you can't scan the code, you can enter this secret
-                          key into you authenticator app
-                        </p>
-                      </div>
+                    <div className="mt-8 flex">
+                      <Button
+                        type="submit"
+                        className="ml-auto size-fit px-[12px] py-[8px]"
+                        aria-label="Save profile changes"
+                      >
+                        Save Changes
+                      </Button>
                     </div>
-                    <div className="border-secondary/80 bg-secondary/60 flex items-center justify-between rounded-lg border px-3 py-2 lg:ml-auto">
-                      <span className="flex-grow text-sm opacity-80">
-                        NBCK-LDTHS-NJ1
-                      </span>
-                      <Tooltip>
-                        <TooltipTrigger
-                          className="px-2"
-                          onClick={() => handleClipBoardCopy("NBCK-LDTHS-NJ1")}
-                          aria-label="copy secret key to clipboard"
-                        >
-                          <CopyIcon className="size-5 opacity-80" />
-                        </TooltipTrigger>
-                        <TooltipContent>Copy Code</TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </div>
-                  {/* Step 3 */}
-                  <div className="mt-5 grid items-center justify-between gap-5 lg:ml-auto lg:grid-cols-2">
-                    <div className="mt-5 flex gap-[12px]">
-                      <span className="text-sm font-semibold sm:text-base">
-                        3.
-                      </span>
-                      <div className="flex flex-col gap-1">
-                        <h4 className="text-sm font-semibold sm:text-base">
-                          After scanning the QR code above, enter the six-digit
-                          code generated by the authenticator
-                        </h4>
-                        <p className="text-xs sm:text-sm">
-                          If you can't scan the code, you can enter this secret
-                          key into you authenticator app
-                        </p>
-                      </div>
-                    </div>
-                    <div className="max-lg:w-[60%] max-sm:w-full">
-                      <CustomOtpField
-                        name="code"
-                        control={otpForm.control}
-                        isNotLabeled={true}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mt-8 flex">
-                    <Button
-                      type="submit"
-                      className="ml-auto size-fit px-[12px] py-[8px]"
-                      aria-label="Save profile changes"
-                    >
-                      Save Changes
-                    </Button>
-                  </div>
-                </form>
-              </Form>
+                  </form>
+                </Form>
+              )}
             </div>
           </div>
         </section>
@@ -254,26 +340,14 @@ function EnableOtpAuth({
 }
 
 export default function LogInSecurity() {
-  const [showEnableOtpAuth, setShowEnableOtpAuth] = useState(false);
+  const [pageState, setPageState] = useState<"default" | "password" | "otp">(
+    "default",
+  );
   const [isOtpEnabled, setIsOtpEnabled] = useState(false);
 
   useLayoutEffect(() => {
-    setShowEnableOtpAuth(false);
-    return () => {
-      console.log("LogInSecurity component unmounted");
-    };
+    setPageState("default");
   }, []);
-
-  const updatePasswordForm = useForm<UpdatePasswordForm>({
-    resolver: zodResolver(updatePasswordSchema),
-    defaultValues: {
-      newPassword: "",
-    },
-  });
-
-  const handlePasswordUpdateSubmit = (data: UpdatePasswordForm) => {
-    console.log(data);
-  };
 
   return (
     <AnimatePresence>
@@ -289,8 +363,12 @@ export default function LogInSecurity() {
         }}
       >
         <div className="flex w-full flex-col gap-[40px] px-2 sm:px-4">
-          {showEnableOtpAuth ? (
-            <EnableOtpAuth setShowEnableOtpAuth={setShowEnableOtpAuth} setIsOtpEnabled={setIsOtpEnabled} />
+          {pageState !== "default" ? (
+            <SecondaryPage
+              pageForm={pageState}
+              setPageForm={setPageState}
+              setIsOtpEnabled={setIsOtpEnabled}
+            />
           ) : (
             <>
               {/* Password Update */}
@@ -306,24 +384,12 @@ export default function LogInSecurity() {
                 </div>
 
                 <div className="border-secondary flex-grow rounded-lg border p-5">
-                  <Form {...updatePasswordForm}>
-                    <form
-                      onSubmit={updatePasswordForm.handleSubmit(
-                        handlePasswordUpdateSubmit,
-                      )}
-                    >
-                      <div className="">
-                        <Button variant={"secondary"}>Set Password</Button>
-                        {/* <CustomInputField
-                          control={updatePasswordForm.control}
-                          name="newPassword"
-                          placeholder="* * * * * * * * *"
-                          label="New Password"
-                          description="Leave blank if you want to keep your current password"
-                        /> */}
-                      </div>
-                    </form>
-                  </Form>
+                  <Button
+                    variant={"secondary"}
+                    onClick={() => setPageState("password")}
+                  >
+                    Set Password
+                  </Button>
                 </div>
               </section>
 
@@ -340,13 +406,14 @@ export default function LogInSecurity() {
                 <div className="border-secondary flex-grow rounded-lg border px-4 py-8">
                   <div className="">
                     <h4 className="mb-5 font-semibold">
-                      Two-factor authentication is not enabled
+                      Two-factor authentication is{" "}
+                      {`${isOtpEnabled ? "now enabled" : "not enabled"}`}
                     </h4>
-                    {/* TODO: This button will be shown to users without a connected OTP client */}
+
                     <Button
                       variant="secondary"
                       className="ring-secondary-foreground/30 px-6 py-5 opacity-60 ring"
-                      onClick={() => setShowEnableOtpAuth(true)}
+                      onClick={() => setPageState("otp")}
                     >
                       <Switch checked={isOtpEnabled} /> Enable two-factor
                       authentication
@@ -365,8 +432,8 @@ export default function LogInSecurity() {
                   </p>
                 </div>
 
-                <div className="border-secondary max-md:w-full flex-grow gap-2 rounded-lg border px-4 py-8">
-                  <div className="grid w-full xl:grid-cols-2 items-center gap-2">
+                <div className="border-secondary flex-grow gap-2 rounded-lg border px-4 py-8 max-md:w-full">
+                  <div className="grid w-full items-center gap-2 xl:grid-cols-2">
                     <fieldset className="w-full">
                       <legend className="mb-5 font-semibold">
                         Your current session
@@ -384,7 +451,7 @@ export default function LogInSecurity() {
                             {new Date(
                               deviceSessions.find(
                                 ({ os, deviceName }) =>
-                                  os === getCurrentDeviceInfo().os ||
+                                  os === getCurrentDeviceInfo().os &&
                                   deviceName ===
                                     getCurrentDeviceInfo().deviceName,
                               )?.lastLogin ?? "",

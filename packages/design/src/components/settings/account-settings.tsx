@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { InfoIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { InfoIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -36,12 +36,11 @@ const ACCEPTED_IMAGE_TYPES = [
 const updateAccountSchema = z.object({
   avatar: z
     .any()
-    .refine((file: File) => !file, { message: "This file is required" })
     .refine((file: File) => file.size <= MAX_FILE_SIZE, "Max file size is 3MB")
     .refine(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-      {message: "Only .jpg, .jpeg, .png and .webp formats are supported"},
+      { message: "Only .jpg, .jpeg, .png and .webp formats are supported" },
     )
     .optional(),
   firstName: z
@@ -98,8 +97,8 @@ type DeleteAccountForm = z.infer<typeof deleteAccountSchema>;
 const reasons = [
   { label: "I don't find it useful anymore", value: "useful-anymore" },
   { label: "Had a bad experience", value: "bad-experience" },
-  { label: "I'm a concerned about my privacy", value: "concerned-privacy" },
-  { label: "Other", value: "other" },
+  { label: "I'm concerned about my privacy", value: "concerned-privacy" },
+  { label: "I'm concerned about my privacy", value: "concerned-privacy" },
 ];
 
 export default function AccountSettings() {
@@ -270,22 +269,24 @@ export default function AccountSettings() {
                   )}
                   onClick={() => handleThemeChange("light")}
                 >
-                  <div className="rounded-sm bg-slate-100 p-2">
-                    <div className="mb-4 h-[70px] w-full rounded-sm bg-slate-400 p-4 opacity-50"></div>
+                  <div className="">
+                    <div className="rounded-sm bg-slate-100 p-2">
+                      <div className="mb-4 h-[70px] w-full rounded-sm bg-slate-400 p-4 opacity-50"></div>
 
-                    <div className="flex flex-col gap-2 *:h-[8.45px] *:rounded-full">
-                      <div className="w-full bg-slate-400 opacity-50"></div>
-                      <div className="w-full bg-slate-400 opacity-50"></div>
-                      <div className="w-[50%] bg-slate-400 opacity-50"></div>
+                      <div className="flex flex-col gap-2 *:h-[8.45px] *:rounded-full">
+                        <div className="w-full bg-slate-400 opacity-50"></div>
+                        <div className="w-full bg-slate-400 opacity-50"></div>
+                        <div className="w-[50%] bg-slate-400 opacity-50"></div>
+                      </div>
                     </div>
+                    <h4
+                      className={cn("mt-4 text-center text-sm font-semibold", {
+                        "font-semibold": theme?.toLowerCase() === "light",
+                      })}
+                    >
+                      Light Mode
+                    </h4>
                   </div>
-                  <h4
-                    className={cn("mt-4 text-center text-sm font-semibold", {
-                      "font-semibold": theme?.toLowerCase() === "light",
-                    })}
-                  >
-                    Light Mode
-                  </h4>
                 </div>
                 {/* Dark Mode */}
                 <div
@@ -323,7 +324,8 @@ export default function AccountSettings() {
                 Permanently delete your account
               </h4>
               <p className="flex items-center gap-2 text-xs sm:text-sm [&>svg]:size-5">
-                The is a permanent action that cannot be reverted. <InfoIcon />
+                + This is a permanent action that cannot be reverted.{" "}
+                <InfoIcon />
               </p>
             </div>
 

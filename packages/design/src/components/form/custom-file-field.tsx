@@ -254,9 +254,7 @@ export default function CustomFileField<T extends FieldValues>({
               >
                 {getCurrentPreviewSource(field) ? (
                   <img
-                    src={
-                      (getCurrentPreviewSource(field) as string)
-                    }
+                    src={getCurrentPreviewSource(field) as string}
                     alt="Avatar preview"
                     className="h-full w-full object-cover"
                   />
@@ -384,7 +382,7 @@ export default function CustomFileField<T extends FieldValues>({
                       {truncateFileName(field.value.name as string, 20) ??
                         (typeof field.value === "object"
                           ? Object.entries(field.value).map(([_, file]) => (
-                              <span>
+                              <span key={_}>
                                 {truncateFileName(
                                   (file as any).name as string,
                                   15,

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, PlusCircleIcon, PlusIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Plus, PlusCircleIcon, PlusIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { cn, gender } from "@repo/design/lib/utils";
+import { gender } from "@repo/design/lib/utils";
 
 import type {
   ColumnConfig,
@@ -67,6 +67,7 @@ const sampleData = Array.from({ length: 150 }, (_, i) => ({
     "Orthodontic Braces",
     "Cosmetic Dentistry",
   ][i % 7],
+  role: ["staff", "doctor", "administrator"][i % 3],
   joined: new Date(2024, 0, Math.floor(Math.random() * 30) + 1)
     .toISOString()
     .split("T")[0],
@@ -125,14 +126,12 @@ const staffAccountSchema = z.object({
     .min(1, { message: "Age cannot be less than 1 character" })
     .max(3, { message: "Age cannot be more than 3 characters" })
     .refine((val) => {
-      // Check if the value is a valid number between 1 and 999 incase if user is more than 99 years
+      // Check if the value is a valid number between 1 and 999 in case the user is more than 99 years
       const age = parseInt(val, 10);
       return !isNaN(age) && age >= 1 && age <= 999;
     }),
-  address: z
-    .string()
-    .min(3, { message: "Address cannot be empty" }),
-  role: z.enum(["staff", "administrator", "Doctor"]),
+  address: z.string().min(3, { message: "Address cannot be empty" }),
+  role: z.enum(["staff", "administrator", "doctor"]),
 });
 
 type RowDefinition = (typeof sampleData)[0];
@@ -154,12 +153,11 @@ const roles = [
   },
 ];
 
-const stepsCollection = ["profile", "details"] as const;
-
 export default function Organization() {
   const [isLoading] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [roleFilter, setRoleFilter] = useState<string[]>([]);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [step, setStep] = useState<(typeof stepsCollection)[number]>("profile");
   // const [currentPage, setCurrentPage] = useState(1);
   // const pageSize = 2;
   // const totalItems = sampleData.length;
@@ -170,9 +168,12 @@ export default function Organization() {
       age: "",
       email: "",
       firstName: "",
+      lastName: "",
       gender: "male",
-      profile: "",
+      profile: undefined,
       address: "",
+      role: "staff",
+      phoneNumber: "",
     },
   });
 
@@ -224,6 +225,14 @@ export default function Organization() {
     },
   ];
 
+  // Filter button handlers
+  const toggleRoleFilter = (filterValue: string) => {
+    setRoleFilter((prev) =>
+      prev.includes(filterValue)
+        ? prev.filter((f) => f !== filterValue)
+        : [...prev, filterValue],
+    );
+  };
   const handleView = (row: RowDefinition) => {
     console.log("View:", row);
     alert(`Viewing ${row.name}`);
@@ -252,7 +261,6 @@ export default function Organization() {
 
   const handleAccountUpdateSubmit = (Data: StaffAccountForm) => {
     console.log(Data);
-    setStep("details")
   };
 
   // *** For Optional Backend Integration
@@ -272,9 +280,9 @@ export default function Organization() {
       <h3 className="text-foreground mb-2 text-lg font-medium">
         You have no patients yet
       </h3>
-      <Button className="mt-4">
+      <Button className="mt-4" onClick={() => setIsSheetOpen(true)}>
         <Plus className="mr-2 h-4 w-4" />
-        Add patient
+        Add a team member
       </Button>
     </div>
   );
@@ -298,18 +306,29 @@ export default function Organization() {
               <span className="border-r-foreground/30 border-r pr-2 font-semibold">
                 Filters
               </span>
-              <Button variant={"outline"}>
+              <Button
+                variant={roleFilter.includes("staff") ? "default" : "outline"}
+                onClick={() => toggleRoleFilter("staff")}
+              >
                 <PlusCircleIcon /> Staff
               </Button>
-              <Button variant={"outline"}>
+              <Button
+                variant={roleFilter.includes("doctor") ? "default" : "outline"}
+                onClick={() => toggleRoleFilter("doctor")}
+              >
                 <PlusCircleIcon /> Doctor
               </Button>
-              <Button variant={"outline"}>
+              <Button
+                variant={
+                  roleFilter.includes("administrator") ? "default" : "outline"
+                }
+                onClick={() => toggleRoleFilter("administrator")}
+              >
                 <PlusCircleIcon /> Administrator
               </Button>
             </div>
 
-            <Sheet>
+            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
                 <Button className="ml-auto size-fit">
                   <PlusIcon /> Add Staff Member
@@ -415,24 +434,8 @@ export default function Organization() {
                           />
                         </div>
                       </div>
-                      <SheetFooter className="grid grid-cols-2 items-center justify-between border-t p-0">
-                        <div className="flex w-full items-center gap-2">
-                          {Array.from({ length: 2 }).map((_, index) => (
-                            <span
-                              key={index}
-                              className={cn(
-                                "bg-primary-foreground h-[4px] w-[15%] rounded-full p-1 transition-colors duration-500",
-                                {
-                                  "bg-primary": step === stepsCollection[index],
-                                },
-                              )}
-                            ></span>
-                          ))}
-                        </div>
-                        <Button
-                          type="submit"
-                          className="mt-4 ml-auto size-fit px-8"
-                        >
+                      <SheetFooter className="flex items-end">
+                        <Button type="submit" className="mt-4 size-fit px-8">
                           Proceed
                         </Button>
                       </SheetFooter>
@@ -446,11 +449,12 @@ export default function Organization() {
           <CustomDataTable
             data={sampleData}
             loading={isLoading}
-            searchPlaceholder="Search patients, phone no, email..."
-            showSeeAll={false}
+            searchPlaceholder="Search staff, phone no, email..."
             hasNumberOfRows={true}
             autoDetectColumns={false}
             columns={customColumns}
+            filter={roleFilter}
+            filterKeys={["role"]}
             onSeeAllClick={handleSeeAll}
             selectedRows={selectedRows}
             onSelectionChange={setSelectedRows}

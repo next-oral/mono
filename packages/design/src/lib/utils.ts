@@ -19,13 +19,17 @@ export const generateAppleGradient = (color = "#C2D6FF") => {
   return `bg-[${color}] shadow-[inset_0px_-8px_16px_${color}40]`;
 };
 
-export const handleClipBoardCopy = (text: string) => {
-  void navigator.clipboard.writeText(text);
-  toast.success("Copied to clipboard");
+export const handleClipBoardCopy = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard");
+  } catch (error) {
+    toast.error("Failed to copy to clipboard - " + (error as Error).message);
+  }
 };
 
 export const truncateText = (text: string, maxLength?: number): string => {
   // function to truncate texts
-  if (!maxLength || text.length <= maxLength) return text
-  return text.substring(0, maxLength) + "..."
+  if (!maxLength || text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + "...";
 }
