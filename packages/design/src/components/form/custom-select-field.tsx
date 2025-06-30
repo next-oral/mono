@@ -346,13 +346,16 @@ export default function CustomSelectField<T extends FieldValues>({
                   >
                     <div className="flex items-center gap-2">
                       {option.label}{" "}
-                      {option.tooltip &&
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <InfoIcon className="fill-foreground text-background" />
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-foreground text-background max-w-sm">{option.tooltip}</TooltipContent>
-                      </Tooltip> }
+                      {option.tooltip && (
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <InfoIcon className="fill-foreground text-background" />
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-foreground text-background max-w-sm">
+                            {option.tooltip}
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
                     </div>
                   </SelectItem>
                 ))}

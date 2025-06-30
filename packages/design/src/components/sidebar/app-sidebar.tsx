@@ -164,7 +164,9 @@ export function AppSidebar({
 }) {
   const { state } = useSidebar();
 
-  const [activeClinic, setActiveClinic] = useState<Clinic | undefined>(undefined);
+  const [activeClinic, setActiveClinic] = useState<Clinic | undefined>(
+    undefined,
+  );
   const [activeTeam, setActiveTeam] = useState(undefined);
 
   // const toggleNotifications = () => setShowNotifications((prev) => !prev);
