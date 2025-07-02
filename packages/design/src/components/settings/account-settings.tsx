@@ -2,7 +2,6 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
 import { InfoIcon } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -24,6 +23,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Form } from "../ui/form";
+import { useTheme } from "next-themes";
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
 const ACCEPTED_IMAGE_TYPES = [
@@ -101,8 +101,10 @@ const reasons = [
   { label: "I'm concerned about my privacy", value: "concerned-privacy" },
 ];
 
-export default function AccountSettings() {
-  const [deleteProcessState, setDeleteProcessState] = useState(1);
+export function AccountSettings() {
+  const [deleteProcessState, setDeleteProcessState] = useState<
+    "email" | "reason"
+  >("reason");
 
   const { theme, setTheme } = useTheme();
   const handleThemeChange = (theme: string) => {
@@ -342,7 +344,7 @@ export default function AccountSettings() {
                 <DialogHeader>
                   <DialogTitle>Are you sure?</DialogTitle>
                   <DialogDescription className="text-center">
-                    {deleteProcessState === 2
+                    {deleteProcessState === "email"
                       ? "To permanently delete your account, please confirm your identity by entering your email address below. This helps us ensure your data is securely removed from our system."
                       : "Removing your account will permanently remove you user data from Next Oral. If you wish to continue, please tell us why you are leaving."}
                   </DialogDescription>
@@ -361,7 +363,7 @@ export default function AccountSettings() {
                       placeholder="Select a reason"
                       options={reasons}
                       allowSearch
-                      hidden={deleteProcessState === 2}
+                      hidden={deleteProcessState === "email"}
                     />
 
                     <CustomInputField
@@ -370,7 +372,7 @@ export default function AccountSettings() {
                       placeholder="Email"
                       inputMode="email"
                       isNotLabeled={true}
-                      hidden={deleteProcessState === 1}
+                      hidden={deleteProcessState === "reason"}
                     />
                   </form>
                 </Form>
@@ -380,20 +382,20 @@ export default function AccountSettings() {
                     <Button
                       variant="secondary"
                       className="flex-1"
-                      onClick={() => setDeleteProcessState(1)}
+                      onClick={() => setDeleteProcessState("reason")}
                     >
                       No, Cancel
                     </Button>
                   </DialogClose>
                   <Button
                     variant={
-                      deleteProcessState === 2 ? "destructive" : "default"
+                      deleteProcessState === "email" ? "destructive" : "default"
                     }
-                    type={deleteProcessState === 2 ? "submit" : "button"}
+                    type={deleteProcessState === "email" ? "submit" : "button"}
                     onClick={() => {
-                      if (deleteProcessState === 1) {
+                      if (deleteProcessState === "reason") {
                         if (deleteAccountForm.getValues().reason) {
-                          setDeleteProcessState(2);
+                          setDeleteProcessState("email");
                         }
                       }
                     }}

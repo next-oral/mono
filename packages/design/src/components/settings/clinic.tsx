@@ -153,7 +153,7 @@ const roles = [
   },
 ];
 
-export default function Organization() {
+export function Clinic () {
   const [isLoading] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [roleFilter, setRoleFilter] = useState<string[]>([]);
@@ -453,6 +453,7 @@ export default function Organization() {
             hasNumberOfRows={true}
             autoDetectColumns={false}
             columns={customColumns}
+            // showSeeAll={true}
             filter={roleFilter}
             filterKeys={["role"]}
             onSeeAllClick={handleSeeAll}

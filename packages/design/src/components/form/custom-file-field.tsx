@@ -138,6 +138,7 @@ export default function CustomFileField<T extends FieldValues>({
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     if (!validateFileSize(file!)) {
       // Handle file size error
+      console.error(`File size exceeds ${maxSize}MB limit`);
       return;
     }
 

@@ -229,7 +229,7 @@ const PaginationComponent: React.FC<{
   // Generate page numbers with ellipses logic
   const generatePageNumbers = (): (number | string)[] => {
     const pages: (number | string)[] = [];
-    const maxVisiblePages = 7;
+    const maxVisiblePages = 5;
 
     if (totalPages <= maxVisiblePages) {
       // Show all pages if total pages is less than or equal to max visible

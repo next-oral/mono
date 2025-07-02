@@ -5,7 +5,7 @@ import type { Control, FieldValues, Path } from "react-hook-form";
 import { useState } from "react";
 import { Check, ChevronsUpDown, InfoIcon, X } from "lucide-react";
 
-import { cn, splitCamelCaseToWords } from "@repo/design/lib/utils";
+import { cn, splitCamelCaseToWords, truncateText } from "@repo/design/lib/utils";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -93,10 +93,6 @@ export default function CustomSelectField<T extends FieldValues>({
 }: CustomSelectFieldProps<T>) {
   const [open, setOpen] = useState(false);
 
-  const truncateString = (str: string, maxLength = 10) => {
-    return str.length > maxLength ? `${str.slice(0, maxLength)}...` : str;
-  };
-
   const getDisplayValue = (value: string | string[]) => {
     if (!value) return placeholder;
 
@@ -117,7 +113,7 @@ export default function CustomSelectField<T extends FieldValues>({
               variant="secondary"
               className="max-w-[120px] truncate text-xs"
             >
-              {truncateString(option.label)}
+              {truncateText(option.label)}
             </Badge>
           ))}
           {remainingCount > 0 && (

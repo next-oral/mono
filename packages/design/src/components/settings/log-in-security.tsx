@@ -1,18 +1,12 @@
 import { useLayoutEffect, useState } from "react";
-import {
-  faAndroid,
-  faApple,
-  faLinux,
-  faWindows,
-} from "@fortawesome/free-brands-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, CopyIcon, QrCodeIcon } from "lucide-react";
+import { ArrowLeft, CopyIcon, Monitor, QrCodeIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { AndroidBrand, AppleBrand, LinuxBrand, WindowsBrand } from "@repo/design/icons";
 import { cn, handleClipBoardCopy } from "@repo/design/lib/utils";
 
 import CustomInputField from "../form/custom-input-field";
@@ -23,11 +17,14 @@ import { Form } from "../ui/form";
 import { Switch } from "../ui/switch";
 import { Tooltip, TooltipContent } from "../ui/tooltip";
 
+const currentPasswordSchema = z.object({
+  currentPassword: z
+    .string()
+    .min(8, { message: "Current password is required" }),
+});
+
 const updatePasswordSchema = z
   .object({
-    currentPassword: z
-      .string()
-      .min(8, { message: "Current password is required" }),
     newPassword: z
       .string()
       .min(8, { message: "New password must be at least 8 characters long" }),
@@ -51,6 +48,7 @@ const otpFormSchema = z.object({
     .min(4, { message: "Code must be at least 4 digits" }),
 });
 
+type CurrentPasswordForm = z.infer<typeof currentPasswordSchema>;
 type UpdatePasswordForm = z.infer<typeof updatePasswordSchema>;
 type OtpForm = z.infer<typeof otpFormSchema>;
 
@@ -101,17 +99,17 @@ function getCurrentDeviceInfo() {
 function getDeviceIcon(os: string) {
   switch (os) {
     case "Windows":
-      return <FontAwesomeIcon icon={faWindows} className="size-4" />;
+      return <WindowsBrand className="size-4" />;
     case "macOS":
-      return <FontAwesomeIcon icon={faApple} className="size-4" />;
+      return <AppleBrand className="size-4" />;
     case "Linux":
-      return <FontAwesomeIcon icon={faLinux} className="size-4" />;
+      return <LinuxBrand className="size-4" />;
     case "Android":
-      return <FontAwesomeIcon icon={faAndroid} className="size-4" />;
+      return <AndroidBrand className="size-4" />;
     case "iOS":
-      return <FontAwesomeIcon icon={faApple} className="size-4" />;
+      return <AppleBrand className="size-4" />;
     default:
-      return <FontAwesomeIcon icon={faAndroid} className="size-4" />;
+      return <Monitor className="size-4" />;
   }
 }
 
@@ -119,15 +117,20 @@ function SecondaryPage({
   pageForm,
   setPageForm,
   setIsOtpEnabled,
+  setHasCurrentPassword,
 }: {
   pageForm: "default" | "password" | "otp";
   setPageForm: React.Dispatch<React.SetStateAction<typeof pageForm>>;
   setIsOtpEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+  setHasCurrentPassword: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const [isNewPasswordVisible, setIsNewPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
+    useState(false);
+
   const updatePasswordForm = useForm<UpdatePasswordForm>({
     resolver: zodResolver(updatePasswordSchema),
     defaultValues: {
-      currentPassword: "",
       newPassword: "",
       confirmNewPassword: "",
     },
@@ -141,14 +144,22 @@ function SecondaryPage({
   });
 
   const handleOtpSubmit = (data: OtpForm) => {
-    console.log(data);
-    setIsOtpEnabled(true);
-    setPageForm("default");
+    try {
+      // TODO: Implement actual OTP verification logic
+      console.log(data);
+      setIsOtpEnabled(true);
+      setPageForm("default");
+      // TODO: Show success toast
+    } catch (error) {
+      // TODO: Handle OTP verification errors
+      console.error("OTP verification failed:", error);
+    }
   };
 
   const handlePasswordUpdateSubmit = (data: UpdatePasswordForm) => {
     console.log(data);
     setPageForm("default");
+    setHasCurrentPassword(true);
   };
 
   return (
@@ -210,18 +221,12 @@ function SecondaryPage({
                       <div className="border-secondary flex flex-col gap-3 rounded-lg border p-2 sm:p-3">
                         <CustomInputField
                           control={updatePasswordForm.control}
-                          name="currentPassword"
-                          placeholder="* * * * * * * * *"
-                          label="Current Password"
-                          description="Enter your current password"
-                        />
-
-                        <CustomInputField
-                          control={updatePasswordForm.control}
                           name="newPassword"
                           placeholder="* * * * * * * * *"
                           label="New Password"
                           description="Enter new password, must be at least 8 characters"
+                          isPasswordVisible={isNewPasswordVisible}
+                          setIsPasswordVisible={setIsNewPasswordVisible}
                         />
 
                         <CustomInputField
@@ -230,6 +235,8 @@ function SecondaryPage({
                           placeholder="* * * * * * * * *"
                           label="Confirm New Password"
                           description="Repeat password, must be at least 8 characters"
+                          isPasswordVisible={isConfirmPasswordVisible}
+                          setIsPasswordVisible={setIsConfirmPasswordVisible}
                         />
                       </div>
                       <Button className="ml-auto">Save Changes</Button>
@@ -339,11 +346,28 @@ function SecondaryPage({
   );
 }
 
-export default function LogInSecurity() {
+export function LogInSecurity() {
   const [pageState, setPageState] = useState<"default" | "password" | "otp">(
     "default",
   );
+  const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] =
+    useState(false);
+
+  const [hasCurrentPassword, setHasCurrentPassword] = useState(false);
   const [isOtpEnabled, setIsOtpEnabled] = useState(false);
+
+  const currentPasswordForm = useForm<CurrentPasswordForm>({
+    resolver: zodResolver(currentPasswordSchema),
+    defaultValues: {
+      currentPassword: "",
+    },
+  });
+
+  const handleCurrentPasswordSubmit = (data: CurrentPasswordForm) => {
+    console.log(data);
+    setPageState("password");
+    setHasCurrentPassword(true);
+  };
 
   useLayoutEffect(() => {
     setPageState("default");
@@ -368,6 +392,7 @@ export default function LogInSecurity() {
               pageForm={pageState}
               setPageForm={setPageState}
               setIsOtpEnabled={setIsOtpEnabled}
+              setHasCurrentPassword={setHasCurrentPassword}
             />
           ) : (
             <>
@@ -384,12 +409,37 @@ export default function LogInSecurity() {
                 </div>
 
                 <div className="border-secondary flex-grow rounded-lg border p-5">
-                  <Button
-                    variant={"secondary"}
-                    onClick={() => setPageState("password")}
-                  >
-                    Set Password
-                  </Button>
+                  {hasCurrentPassword ? (
+                    <Form {...currentPasswordForm}>
+                      <form
+                        onSubmit={currentPasswordForm.handleSubmit(
+                          handleCurrentPasswordSubmit,
+                        )}
+                      >
+                        <div className="grid grid-cols-1 gap-3">
+                          <CustomInputField
+                            control={currentPasswordForm.control}
+                            name="currentPassword"
+                            placeholder="* * * * * * * * *"
+                            label="Current Password"
+                            description="Enter your current password"
+                            isPasswordVisible={isCurrentPasswordVisible}
+                            setIsPasswordVisible={setIsCurrentPasswordVisible}
+                          />
+                          <Button variant={"secondary"} className="size-fit">
+                            Change Password
+                          </Button>
+                        </div>
+                      </form>
+                    </Form>
+                  ) : (
+                    <Button
+                      variant={"secondary"}
+                      onClick={() => setPageState("password")}
+                    >
+                      Set Password
+                    </Button>
+                  )}
                 </div>
               </section>
 
@@ -411,12 +461,15 @@ export default function LogInSecurity() {
                     </h4>
 
                     <Button
+                      asChild
                       variant="secondary"
                       className="ring-secondary-foreground/30 px-6 py-5 opacity-60 ring"
                       onClick={() => setPageState("otp")}
                     >
-                      <Switch checked={isOtpEnabled} /> Enable two-factor
-                      authentication
+                      <div className="">
+                        <Switch checked={isOtpEnabled} /> Enable two-factor
+                        authentication
+                      </div>
                     </Button>
                   </div>
                 </div>

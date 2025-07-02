@@ -13,6 +13,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
+import { ThemeProvider } from "./_providers/theme-provider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -59,11 +60,18 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           GeistMono.variable,
         )}
       >
-        <Toaster theme="light" richColors position="top-center" />
-        <TRPCReactProvider>
-          <ReactQueryDevtools />
-          <NuqsAdapter>{props.children}</NuqsAdapter>
-        </TRPCReactProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Toaster theme="light" richColors position="top-center" />
+          <TRPCReactProvider>
+            <ReactQueryDevtools />
+            <NuqsAdapter>{props.children}</NuqsAdapter>
+          </TRPCReactProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

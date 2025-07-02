@@ -1,5 +1,3 @@
-import React from "react";
-
-export default function Billings() {
+export function Billings() {
   return <div>billings</div>;
 }

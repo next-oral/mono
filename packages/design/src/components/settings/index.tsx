@@ -1,11 +1,11 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import AccountSettings from "./account-settings";
-import Billings from "./billings";
-import Clinic from "./clinic";
-import LogInSecurity from "./log-in-security";
-import Organization from "./organization";
+import { AccountSettings } from "./account-settings";
+import { Billings } from "./billings";
+import { Clinic } from "./clinic";
+import { LogInSecurity } from "./log-in-security";
+import { Organization } from "./organization";
 
 export default function Settings() {
   return (
