@@ -51,6 +51,6 @@ dist/
 # turbo
 .turbo
 
-
+.history
 
 yc.md

@@ -47,7 +47,7 @@ export function SubdomainLayoutWithAuth({
           data: team ?? [],
           activeTeam: teams.pop()?.pop(),
         }}
-        organizations={organizations ?? []}
+        organizations={(organizations ?? []) as never[]}
         user={{
           name: session.user.name,
           email: session.user.email,
