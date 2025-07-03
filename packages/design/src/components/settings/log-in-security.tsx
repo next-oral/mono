@@ -6,7 +6,12 @@ import { ArrowLeft, CopyIcon, Monitor, QrCodeIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { AndroidBrand, AppleBrand, LinuxBrand, WindowsBrand } from "@repo/design/icons";
+import {
+  AndroidBrand,
+  AppleBrand,
+  LinuxBrand,
+  WindowsBrand,
+} from "@repo/design/icons";
 import { cn, handleClipBoardCopy } from "@repo/design/lib/utils";
 
 import CustomInputField from "../form/custom-input-field";

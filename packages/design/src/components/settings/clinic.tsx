@@ -153,7 +153,7 @@ const roles = [
   },
 ];
 
-export function Clinic () {
+export function Clinic() {
   const [isLoading] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [roleFilter, setRoleFilter] = useState<string[]>([]);

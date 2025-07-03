@@ -5,7 +5,11 @@ import type { Control, FieldValues, Path } from "react-hook-form";
 import { useState } from "react";
 import { Check, ChevronsUpDown, InfoIcon, X } from "lucide-react";
 
-import { cn, splitCamelCaseToWords, truncateText } from "@repo/design/lib/utils";
+import {
+  cn,
+  splitCamelCaseToWords,
+  truncateText,
+} from "@repo/design/lib/utils";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";

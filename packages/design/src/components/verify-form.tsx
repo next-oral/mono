@@ -113,8 +113,6 @@ export function VerifyForm({
                 </InputOTP>
               </FormControl>
               <FormMessage />
-
-              
             </FormItem>
           )}
         />
