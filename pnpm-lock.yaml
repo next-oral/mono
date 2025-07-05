@@ -166,6 +166,9 @@ importers:
       react-dom:
         specifier: catalog:react19
         version: 19.1.0(react@19.1.0)
+      react-hook-form:
+        specifier: ^7.56.3
+        version: 7.56.3(react@19.1.0)
       superjson:
         specifier: 2.2.2
         version: 2.2.2
@@ -8615,7 +8618,7 @@ snapshots:
       jose: 5.10.0
       kysely: 0.27.6
       nanostores: 0.11.4
-      zod: 3.24.3
+      zod: 3.24.4
 
   better-call@1.0.9:
     dependencies:
