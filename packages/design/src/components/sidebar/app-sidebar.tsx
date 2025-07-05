@@ -204,7 +204,7 @@ export function AppSidebar({
           organizations={sampleOrganizations}
           clinics={sampleClinics}
           activeClinic={activeClinic}
-          setActiveClinic={setActiveClinic}
+          setActiveClinic={setActiveClinic as (arg0:unknown)=> void}
           activeTeam={activeTeam}
           setActiveTeam={setActiveTeam}
         />
