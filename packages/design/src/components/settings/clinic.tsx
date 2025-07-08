@@ -290,9 +290,9 @@ export function Clinic() {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ x: -300 }}
-        animate={{ x: 0 }}
-        exit={{ x: -300, opacity: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         transition={{
           duration: 0.2,
           type: "spring",
@@ -309,12 +309,14 @@ export function Clinic() {
               <Button
                 variant={roleFilter.includes("staff") ? "default" : "outline"}
                 onClick={() => toggleRoleFilter("staff")}
+                className="rounded-xl border-dashed px-3 py-1.5"
               >
                 <PlusCircleIcon /> Staff
               </Button>
               <Button
                 variant={roleFilter.includes("doctor") ? "default" : "outline"}
                 onClick={() => toggleRoleFilter("doctor")}
+                className="rounded-xl border-dashed px-3 py-1.5"
               >
                 <PlusCircleIcon /> Doctor
               </Button>
@@ -323,6 +325,7 @@ export function Clinic() {
                   roleFilter.includes("administrator") ? "default" : "outline"
                 }
                 onClick={() => toggleRoleFilter("administrator")}
+                className="rounded-xl border-dashed px-3 py-1.5"
               >
                 <PlusCircleIcon /> Administrator
               </Button>

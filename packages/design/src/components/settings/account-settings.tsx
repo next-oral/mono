@@ -98,12 +98,12 @@ const reasons = [
   { label: "I don't find it useful anymore", value: "useful-anymore" },
   { label: "Had a bad experience", value: "bad-experience" },
   { label: "I'm concerned about my privacy", value: "concerned-privacy" },
-  { label: "I'm concerned about my privacy", value: "concerned-privacy" },
+  { label: "Other", value: "other" },
 ];
 
 export function AccountSettings() {
   const [deleteProcessState, setDeleteProcessState] = useState<
-    "email" | "reason"
+    "email" | "reason-other" | "reason"
   >("reason");
 
   const { theme, setTheme } = useTheme();
@@ -141,9 +141,9 @@ export function AccountSettings() {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ x: -300 }}
-        animate={{ x: 0 }}
-        exit={{ x: -300, opacity: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         transition={{
           duration: 0.2,
           type: "spring",
@@ -226,7 +226,7 @@ export function AccountSettings() {
                         name="gender"
                         placeholder="Gender"
                         label="gender"
-                        options={gender}
+                        options={gender as never[]}
                       />
                     </div>
                     <div className="">
@@ -343,7 +343,7 @@ export function AccountSettings() {
               >
                 <DialogHeader>
                   <DialogTitle>Are you sure?</DialogTitle>
-                  <DialogDescription className="text-center">
+                  <DialogDescription className="">
                     {deleteProcessState === "email"
                       ? "To permanently delete your account, please confirm your identity by entering your email address below. This helps us ensure your data is securely removed from our system."
                       : "Removing your account will permanently remove you user data from Next Oral. If you wish to continue, please tell us why you are leaving."}
@@ -356,15 +356,23 @@ export function AccountSettings() {
                       handleAccountDelete,
                     )}
                   >
-                    <CustomCommandField
-                      control={deleteAccountForm.control}
-                      name="reason"
-                      label="Reason for leaving"
-                      placeholder="Select a reason"
-                      options={reasons}
-                      allowSearch
-                      hidden={deleteProcessState === "email"}
-                    />
+                    {deleteProcessState === "reason-other" ? (
+                      <CustomInputField
+                        control={deleteAccountForm.control}
+                        name="reason"
+                        placeholder="Type your reason"
+                      />
+                    ) : (
+                      <CustomCommandField
+                        control={deleteAccountForm.control}
+                        name="reason"
+                        label="Reason for leaving"
+                        placeholder="Select a reason"
+                        options={reasons}
+                        allowSearch
+                        hidden={deleteProcessState !== "reason"}
+                      />
+                    )}
 
                     <CustomInputField
                       control={deleteAccountForm.control}
@@ -372,7 +380,7 @@ export function AccountSettings() {
                       placeholder="Email"
                       inputMode="email"
                       isNotLabeled={true}
-                      hidden={deleteProcessState === "reason"}
+                      hidden={deleteProcessState !== "email"}
                     />
                   </form>
                 </Form>
@@ -389,11 +397,17 @@ export function AccountSettings() {
                   </DialogClose>
                   <Button
                     variant={
-                      deleteProcessState === "email" ? "destructive" : "default"
+                      deleteProcessState !== "email" ? "default" : "destructive"
                     }
-                    type={deleteProcessState === "email" ? "submit" : "button"}
+                    type={deleteProcessState !== "email" ? "button" : "submit"}
                     onClick={() => {
-                      if (deleteProcessState === "reason") {
+                      if (
+                        deleteAccountForm.getValues().reason.toLowerCase() ===
+                        "other"
+                      ) {
+                        setDeleteProcessState("reason-other");
+                        deleteAccountForm.setValue("reason", "");
+                      } else {
                         if (deleteAccountForm.getValues().reason) {
                           setDeleteProcessState("email");
                         }

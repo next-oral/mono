@@ -127,7 +127,7 @@ export default function CustomCommandField<T extends FieldValues>({
               </FormControl>
             </PopoverTrigger>
             <PopoverContent
-              className={cn("w-full p-0", contentClassName)}
+              className={cn("w-[130%] p-0", contentClassName)}
               align="start"
             >
               <Command className={cn(commandClassName)}>

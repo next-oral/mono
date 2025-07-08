@@ -170,9 +170,9 @@ function SecondaryPage({
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ x: -300 }}
-        animate={{ x: 0 }}
-        exit={{ x: -300, opacity: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         transition={{
           duration: 0.2,
           type: "spring",
@@ -252,7 +252,7 @@ function SecondaryPage({
                 <Form {...otpForm}>
                   <form onSubmit={otpForm.handleSubmit(handleOtpSubmit)}>
                     {/* Step 1 */}
-                    <div className="grid items-center justify-between gap-5 md:grid-cols-2">
+                    <div className="grid items-center justify-between gap-5 md:grid-cols-1">
                       <div className="flex gap-[12px]">
                         <span className="text-sm font-semibold sm:text-base">
                           1.
@@ -269,7 +269,7 @@ function SecondaryPage({
                         </div>
                       </div>
 
-                      <QrCodeIcon className="size-[100px] md:ml-auto" />
+                      <QrCodeIcon className="size-[100px] mx-auto" />
                     </div>
                     {/* Step 2 */}
                     <div className="mt-5 grid items-center justify-between gap-5 md:grid-cols-2">
@@ -294,8 +294,8 @@ function SecondaryPage({
                         <Tooltip>
                           <TooltipTrigger
                             className="px-2"
-                            onClick={() =>
-                              handleClipBoardCopy("NBCK-LDTHS-NJ1")
+                            onClick={async () =>
+                              await handleClipBoardCopy("NBCK-LDTHS-NJ1")
                             }
                             aria-label="copy secret key to clipboard"
                           >
@@ -322,7 +322,7 @@ function SecondaryPage({
                           </p>
                         </div>
                       </div>
-                      <div className="max-lg:w-[60%] max-sm:w-full">
+                      <div className="max-w-[320px]">
                         <CustomOtpField
                           name="code"
                           control={otpForm.control}
@@ -381,9 +381,9 @@ export function LogInSecurity() {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ x: -300 }}
-        animate={{ x: 0 }}
-        exit={{ x: -300, opacity: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         transition={{
           duration: 0.2,
           type: "spring",
