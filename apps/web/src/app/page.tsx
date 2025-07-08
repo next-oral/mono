@@ -7,10 +7,17 @@ import { AnimatePresence, motion } from "motion/react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import CustomInputField from "@repo/design/src/components/form/custom-input-field";
 import { Button } from "@repo/design/src/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@repo/design/src/components/ui/dialog";
 import { Form } from "@repo/design/src/components/ui/form";
-import { Input } from "@repo/design/src/components/ui/input";
-
 import {
   CalendarImg,
   DashboardHeroImg,
@@ -21,12 +28,20 @@ import {
 // import { HydrateClient } from "~/trpc/server";
 
 const waitlistFormSchema = z.object({
+  firstName: z.string().min(1, { message: "Please provide your first name" }),
+  lastName: z.string().min(1, { message: "Please provide your last name" }),
   email: z.string().email("Please provide a valid email"),
 });
 
 type WaitlistForm = z.infer<typeof waitlistFormSchema>;
+type WaitlistFormFieldProps =
+  | { withDialog: true; children: React.ReactNode }
+  | { withDialog?: false; children?: React.ReactNode };
 
-export default function HomePage() {
+function WaitlistFormField({
+  children,
+  withDialog = false,
+}: WaitlistFormFieldProps) {
   const waitlistForm = useForm<WaitlistForm>({
     resolver: zodResolver(waitlistFormSchema),
     defaultValues: {
@@ -42,6 +57,67 @@ export default function HomePage() {
     }
   };
 
+  function WlForm() {
+    return (
+      <Form {...waitlistForm}>
+        <form
+          onSubmit={waitlistForm.handleSubmit(handleWaitlistSubmit)}
+          className="grid grid-cols-2 gap-1"
+        >
+          <CustomInputField
+            control={waitlistForm.control}
+            name="firstName"
+            placeholder="First name *"
+            isNotLabeled={true}
+            inputClassName="bg-background"
+          />
+          <CustomInputField
+            control={waitlistForm.control}
+            name="lastName"
+            placeholder="Last name *"
+            isNotLabeled={true}
+            inputClassName="bg-background"
+          />
+          <div className="col-span-2">
+            <CustomInputField
+              control={waitlistForm.control}
+              name="email"
+              placeholder="Email *"
+              isNotLabeled={true}
+              inputClassName="bg-background"
+            />
+          </div>
+          <Button className="col-span-2 mt-2 py-5">Join the Waitlist</Button>
+        </form>
+      </Form>
+    );
+  }
+
+  return (
+    <>
+      {withDialog ? (
+        <Dialog>
+          <DialogTrigger asChild>{children}</DialogTrigger>
+          <DialogContent>
+            <DialogHeader className="border-b py-3">
+              <DialogTitle className="text-center font-normal max-sm:text-sm">
+                Enter your details below to tag along with us
+              </DialogTitle>
+              <DialogDescription className="sr-only">
+                Join waitlist form
+              </DialogDescription>
+            </DialogHeader>
+            <WlForm />
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <WlForm />
+      )}
+    </>
+  );
+}
+
+export default function HomePage() {
   const transitionValues = (duration?: number) => {
     return {
       duration: duration ?? 0.3,
@@ -54,22 +130,21 @@ export default function HomePage() {
   return (
     // <HydrateClient>
     <AnimatePresence>
-      <div>
-        <header className="bg-background/70 sticky top-0 z-20 grid grid-cols-2 border-b px-10 py-5 backdrop-blur-lg sm:px-20">
+      <div className="overflow-x-hidden">
+        <header className="bg-background/70 sticky top-0 z-20 flex justify-between border-b px-10 py-5 backdrop-blur-lg sm:px-20">
           <Link href="/">
             <Image
-              src="/next-oral.png"
-              width="10"
-              height="10"
+              src={"/next-oral.png"}
+              width="40"
+              height="40"
               className="size-10"
-              alt="Next Oral"
+              alt="Next oral"
             />
-            {/* Next Oral */}
           </Link>
 
-          <Button asChild className="ml-auto size-fit">
-            <Link href="/login">Join the Waitlist</Link>
-          </Button>
+          <WaitlistFormField withDialog={true}>
+            <Button>Join the Waitlist</Button>
+          </WaitlistFormField>
         </header>
 
         <main>
@@ -110,9 +185,11 @@ export default function HomePage() {
                     exit={{ opacity: 0, translateX: -100 }}
                     transition={transitionValues(0.5)}
                   >
-                    <Button asChild className="max-sm:min-w-full">
-                      <Link href="/login">Join the Waitlist</Link>
-                    </Button>
+                    <WaitlistFormField withDialog={true}>
+                      <Button className="max-sm:min-w-full">
+                        Join the Waitlist
+                      </Button>
+                    </WaitlistFormField>
                   </motion.div>
 
                   <motion.div
@@ -135,9 +212,7 @@ export default function HomePage() {
               <div className="max-sm:px-2">
                 <Image
                   src={DashboardHeroImg}
-                  quality={100}
                   loading={"lazy"}
-                  unoptimized={true}
                   alt="Dashboard Hero"
                 />
               </div>
@@ -245,20 +320,11 @@ export default function HomePage() {
                     Join the Waitlist Today. Don't miss out!
                   </h2>
                 </motion.div>
-                <p className="text-foreground/60 text-base md:max-w-xl md:text-lg">
+                <p className="text-foreground/60 text-center text-base md:max-w-xl md:text-lg">
                   Be the first to know when we launch
                 </p>
 
-                <Form {...waitlistForm}>
-                  <form onSubmit={waitlistForm.handleSubmit(handleWaitlistSubmit)} className="flex items-center gap-1 max-sm:flex-col max-sm:*:w-full">
-                    <Input
-                      className="bg-background px-4 py-3"
-                      placeholder="Enter your email"
-                      inputMode="email"
-                    />
-                    <Button>Join The Waitlist</Button>
-                  </form>
-                </Form>
+                <WaitlistFormField />
               </div>
             </div>
           </section>
