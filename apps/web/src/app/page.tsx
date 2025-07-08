@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from "@repo/design/src/components/ui/dialog";
 import { Form } from "@repo/design/src/components/ui/form";
+
 import {
   CalendarImg,
   DashboardHeroImg,
@@ -148,7 +149,8 @@ export default function HomePage() {
         </header>
 
         <main>
-          <section className="from-primary/15 to-primary/5 border-y bg-gradient-to-b from-5% sm:px-20">
+          {/* Hero Section */}
+          <section className="from-primary/15 to-primary/0 border-y bg-gradient-to-b from-5% sm:px-20">
             <div className="container mx-auto flex flex-col items-center justify-center gap-20 py-32 sm:px-20 md:border-x">
               <div className="max-sm:px-14">
                 <motion.div
