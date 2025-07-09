@@ -17,16 +17,16 @@ import { cn } from "~/lib/utils";
 export const metadata: Metadata = {
   metadataBase: new URL(
     env.VERCEL_ENV === "production"
-      ? `https://${env.NEXT_PUBLIC_ROOT_DOMAIN}`
+      ? "https://nextoral.com"
       : "http://localhost:3000",
   ),
   title: "Next Oral - Modern Dental Management Software",
   description:
-    "Comprehensive dental practice management software by Norden, designed to streamline your dental operations and enhance patient care",
+    "Comprehensive dental practice management software by NextOral, designed to streamline your dental operations and enhance patient care",
   openGraph: {
     title: "Next Oral - Modern Dental Management Software",
     description:
-      "Comprehensive dental practice management software by Norden, designed to streamline your dental operations and enhance patient care",
+      "Comprehensive dental practice management software by NextOral, designed to streamline your dental operations and enhance patient care",
     siteName: "Next Oral",
   },
   twitter: {
