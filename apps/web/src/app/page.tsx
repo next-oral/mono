@@ -10,7 +10,7 @@ import {
   PatientImg,
   ScheduleImg,
 } from "~/images/screenshots";
-import { WaitlistFormField } from "./waitlist-form";
+import { WaitlistForm } from "./waitlist-form";
 
 const transitionValues = {
   duration: 0.5,
@@ -21,10 +21,10 @@ const transitionValues = {
 export default function HomePage() {
   return (
     <div className="overflow-x-hidden">
-      <header className="bg-background/70 fixed top-0 right-0 left-0 z-20 flex justify-between border-b px-10 py-2 backdrop-blur-lg sm:px-20">
+      <header className="bg-background/70 fixed top-0 right-0 left-0 z-20 flex justify-between border-b px-2 py-2 backdrop-blur-lg max-md:px-2 sm:px-20">
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src={"/next-oral.svg"}
+            src="/next-oral.svg"
             width="40"
             height="40"
             className="size-10"
@@ -33,14 +33,14 @@ export default function HomePage() {
           <span className="text-2xl font-medium">Next Oral</span>
         </Link>
 
-        <WaitlistFormField withDialog={true}>
+        <WaitlistForm withDialog={true}>
           <Button>Join the Waitlist</Button>
-        </WaitlistFormField>
+        </WaitlistForm>
       </header>
 
       <main>
         {/* Hero Section */}
-        <section className="from-primary/15 to-primary/0 border-y bg-gradient-to-b from-5% sm:px-20">
+        <section className="from-primary/15 to-primary/0 border-y bg-gradient-to-b from-5%">
           <div className="container mx-auto flex flex-col items-center justify-center gap-20 py-32 sm:px-20 md:border-x">
             <div className="max-sm:px-14">
               <motion.div
@@ -77,11 +77,11 @@ export default function HomePage() {
                   exit={{ opacity: 0, translateX: -100 }}
                   transition={transitionValues}
                 >
-                  <WaitlistFormField withDialog={true}>
+                  <WaitlistForm withDialog={true}>
                     <Button className="max-sm:min-w-full">
                       Join the Waitlist
                     </Button>
-                  </WaitlistFormField>
+                  </WaitlistForm>
                 </motion.div>
 
                 <motion.div
@@ -109,10 +109,6 @@ export default function HomePage() {
               />
             </div>
           </div>
-        </section>
-
-        <section className="px-4 sm:px-20">
-          <div className="border-x py-10"></div>
         </section>
 
         <section className="border-y px-4 sm:px-20">
@@ -220,7 +216,7 @@ export default function HomePage() {
                 Be the first to know when we launch
               </p>
 
-              <WaitlistFormField />
+              <WaitlistForm />
             </div>
           </div>
         </section>

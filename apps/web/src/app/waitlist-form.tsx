@@ -75,7 +75,7 @@ function WlForm({
   );
 }
 
-export function WaitlistFormField({
+export function WaitlistForm({
   children,
   withDialog = false,
 }: WaitlistFormFieldProps) {
