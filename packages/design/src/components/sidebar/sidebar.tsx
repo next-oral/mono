@@ -19,6 +19,7 @@ import {
 import { HugeIcons } from "@repo/design/icons";
 import { cn } from "@repo/design/lib/utils";
 
+import type { Clinic } from "./org-switcher";
 import { CommandSearch } from "./command-search";
 import { NavSecondary } from "./nav-secondary";
 import { OrgSwitcher } from "./org-switcher";
@@ -116,8 +117,9 @@ export function AppSidebar({
 }: React.ComponentProps<typeof Sidebar> & { user: User }) {
   const { state } = useSidebar();
 
-  const [activeClinic, setActiveClinic] = useState(undefined);
-  const [activeTeam, setActiveTeam] = useState(undefined);
+  const [activeClinic, setActiveClinic] = useState<Clinic | undefined>(
+    undefined,
+  );
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -160,13 +162,10 @@ export function AppSidebar({
 
         <OrgSwitcher
           user={user}
-          organizations={sampleOrganizations}
           clinics={sampleClinics}
           activeClinic={activeClinic}
-          setActiveClinic={setActiveClinic as (arg0: unknown) => void}
-          // @ts-expect-error - TODO: fix this
-          activeTeam={activeTeam}
-          setActiveTeam={setActiveTeam}
+          setActiveClinic={setActiveClinic}
+          organizations={sampleOrganizations}
         />
       </SidebarFooter>
       <SidebarRail />

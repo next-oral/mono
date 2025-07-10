@@ -79,11 +79,6 @@ const Loading = () => {
     </div>
   );
 };
-export interface User {
-  name: string;
-  email: string;
-  image: string;
-}
 
 export async function SubdomainLayoutWithAuth({
   children,
