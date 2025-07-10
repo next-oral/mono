@@ -8,9 +8,9 @@ import { z } from "zod";
 
 import { cn, gender } from "@repo/design/lib/utils";
 
-import CustomCommandField from "../form/custom-command-field";
-import CustomFileField from "../form/custom-file-field";
-import CustomInputField from "../form/custom-input-field";
+import { CustomCommandField } from "../form/custom-command-field";
+import { CustomFileField } from "../form/custom-file-field";
+import { CustomInputField } from "../form/custom-input-field";
 import CustomSelectField from "../form/custom-select-field";
 import { Button } from "../ui/button";
 import {

@@ -1,11 +1,16 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { AccountSettings } from "./account-settings";
-import { Billings } from "./billings";
-import { Clinic } from "./clinic";
-import { LogInSecurity } from "./log-in-security";
-import { Organization } from "./organization";
+import { AccountSettings } from "@repo/design/components/settings/account-settings";
+import { Billings } from "@repo/design/components/settings/billings";
+import { Clinic } from "@repo/design/components/settings/clinic";
+import { LogInSecurity } from "@repo/design/components/settings/log-in-security";
+import { Organization } from "@repo/design/components/settings/organization";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@repo/design/components/ui/tabs";
 
 export default function Settings() {
   return (

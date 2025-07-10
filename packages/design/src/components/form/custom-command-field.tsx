@@ -55,7 +55,7 @@ interface CustomCommandFieldProps<T extends FieldValues> {
   contentClassName?: ClassValue;
 }
 
-export default function CustomCommandField<T extends FieldValues>({
+export function CustomCommandField<T extends FieldValues>({
   control,
   name,
   label = "",

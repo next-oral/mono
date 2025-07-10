@@ -150,8 +150,8 @@ const sampleClinics: Clinic[] = [
 
 export function AppSidebar({
   teams,
-  organizations,
-  user,
+  // organizations,
+  // user,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   teams: {
@@ -174,7 +174,7 @@ export function AppSidebar({
   if (!teams.data.length) return null;
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -207,7 +207,9 @@ export function AppSidebar({
           organizations={sampleOrganizations}
           clinics={sampleClinics}
           activeClinic={activeClinic}
-          setActiveClinic={(clinic: Clinic) => setActiveClinic(clinic)}
+          setActiveClinic={setActiveClinic}
+          // @ts-expect-error - TODO: fix this
+          setActiveTeam={setActiveTeam}
         />
       </SidebarFooter>
       <SidebarRail />

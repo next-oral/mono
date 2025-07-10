@@ -11,8 +11,8 @@ import type {
   ColumnConfig,
   // PaginationConfig,
 } from "../table/custom-data-table";
-import CustomFileField from "../form/custom-file-field";
-import CustomInputField from "../form/custom-input-field";
+import { CustomFileField } from "../form/custom-file-field";
+import { CustomInputField } from "../form/custom-input-field";
 import CustomSelectField from "../form/custom-select-field";
 import CustomDataTable from "../table/custom-data-table";
 import { Button } from "../ui/button";

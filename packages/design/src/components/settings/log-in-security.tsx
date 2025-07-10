@@ -14,9 +14,8 @@ import {
 } from "@repo/design/icons";
 import { cn, handleClipBoardCopy } from "@repo/design/lib/utils";
 
-import CustomInputField from "../form/custom-input-field";
-// import CustomInputField from "../form/custom-input-field";
-import CustomOtpField from "../form/custom-otp-field";
+import { CustomInputField } from "../form/custom-input-field";
+import { CustomOtpField } from "../form/custom-otp-field";
 import { Button } from "../ui/button";
 import { Form } from "../ui/form";
 import { Switch } from "../ui/switch";
@@ -269,7 +268,7 @@ function SecondaryPage({
                         </div>
                       </div>
 
-                      <QrCodeIcon className="size-[100px] mx-auto" />
+                      <QrCodeIcon className="mx-auto size-[100px]" />
                     </div>
                     {/* Step 2 */}
                     <div className="mt-5 grid items-center justify-between gap-5 md:grid-cols-2">
