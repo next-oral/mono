@@ -79,12 +79,12 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: HugeIcons.Setting03,
     },
     {
       title: "Help Centre",
-      url: "#",
+      url: "/help",
       icon: HugeIcons.CustomerSupport,
     },
   ],

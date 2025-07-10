@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import * as React from "react";
@@ -163,7 +164,9 @@ export function AppSidebar({
 }) {
   const { state } = useSidebar();
 
-  const [activeClinic, setActiveClinic] = useState(undefined);
+  const [activeClinic, setActiveClinic] = useState<Clinic | undefined>(
+    undefined,
+  );
   const [activeTeam, setActiveTeam] = useState(undefined);
 
   // const toggleNotifications = () => setShowNotifications((prev) => !prev);
@@ -204,9 +207,8 @@ export function AppSidebar({
           organizations={sampleOrganizations}
           clinics={sampleClinics}
           activeClinic={activeClinic}
-          setActiveClinic={setActiveClinic as (arg0: unknown) => void}
+          setActiveClinic={setActiveClinic}
           // @ts-expect-error - TODO: fix this
-          activeTeam={activeTeam}
           setActiveTeam={setActiveTeam}
         />
       </SidebarFooter>

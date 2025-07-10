@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import CustomInputField from "@repo/design/src/components/form/custom-input-field";
+import { CustomInputField } from "@repo/design/src/components/form/custom-input-field";
 import { Button } from "@repo/design/src/components/ui/button";
 import {
   Dialog,

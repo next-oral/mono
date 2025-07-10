@@ -145,7 +145,7 @@ export async function SubdomainLayoutWithAuth({
                 <Plus />
               </Button>
             </header>
-            {children}
+            <div className="p-5">{children}</div>
           </div>
         </div>
       </SidebarInset>
