@@ -4,7 +4,7 @@ export function useIsMac() {
   const [isMac, setIsMac] = useState(true);
 
   useEffect(() => {
-    setIsMac(navigator.userAgent.toUpperCase().includes("MAC"));
+    setIsMac(navigator.platform.toUpperCase().includes("MAC"));
   }, []);
 
   return isMac;
