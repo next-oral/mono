@@ -171,7 +171,7 @@ export function AppSidebar({
   if (!teams.data.length) return null;
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
