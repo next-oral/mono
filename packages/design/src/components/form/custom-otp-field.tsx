@@ -31,7 +31,7 @@ interface CustomOtpFieldProps<T extends FieldValues> {
   labelClassName?: ClassValue;
 }
 
-export default function CustomOtpField<T extends FieldValues>({
+export function CustomOtpField<T extends FieldValues>({
   control,
   name,
   label = "",

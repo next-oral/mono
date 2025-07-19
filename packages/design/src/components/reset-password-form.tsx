@@ -14,8 +14,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { cn } from "../lib/utils";
-import CustomInputField from "./form/custom-input-field";
-import CustomOtpField from "./form/custom-otp-field";
+import { CustomInputField } from "./form/custom-input-field";
+import { CustomOtpField } from "./form/custom-otp-field";
 import { Button } from "./ui/button";
 import { Form } from "./ui/form";
 

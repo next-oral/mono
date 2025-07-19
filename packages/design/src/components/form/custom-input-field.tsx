@@ -37,7 +37,7 @@ interface CustomInputFieldProps<T extends FieldValues> {
   inputClassName?: ClassValue;
 }
 
-export default function CustomInputField<T extends FieldValues>({
+export function CustomInputField<T extends FieldValues>({
   control,
   name,
   label = "",

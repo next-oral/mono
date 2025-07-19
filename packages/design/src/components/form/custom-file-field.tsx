@@ -56,7 +56,7 @@ interface CustomFileFieldProps<T extends FieldValues> {
   dropzoneClassName?: ClassValue;
 }
 
-export default function CustomFileField<T extends FieldValues>({
+export function CustomFileField<T extends FieldValues>({
   control,
   name,
   label = "",
@@ -96,12 +96,12 @@ export default function CustomFileField<T extends FieldValues>({
   }, [defaultPreview]);
 
   const getFileIcon = (fileType: string) => {
-    if (fileType.startsWith("image/")) return <ImageIcon className="h-6 w-6" />;
-    if (fileType.startsWith("audio/")) return <Music className="h-6 w-6" />;
-    if (fileType.startsWith("video/")) return <Video className="h-6 w-6" />;
+    if (fileType.startsWith("image/")) return <ImageIcon className="size-6" />;
+    if (fileType.startsWith("audio/")) return <Music className="size-6" />;
+    if (fileType.startsWith("video/")) return <Video className="size-6" />;
     if (fileType.includes("pdf") || fileType.includes("document"))
-      return <FileText className="h-6 w-6" />;
-    return <File className="h-6 w-6" />;
+      return <FileText className="size-6" />;
+    return <File className="size-6" />;
   };
 
   const getAcceptedFileTypes = () => {
@@ -397,7 +397,7 @@ export default function CustomFileField<T extends FieldValues>({
                 ) : (
                   <>
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-                      <Upload className="h-6 w-6 text-gray-400" />
+                      <Upload className="size-6 text-gray-400" />
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900">
@@ -413,17 +413,14 @@ export default function CustomFileField<T extends FieldValues>({
             </div>
           )}
 
-          {variant !== "avatar" && (
-            <>
-              {fieldState.error ? (
-                <FormMessage className={cn("text-destructive text-sm")} />
-              ) : (
-                <FormDescription className="text-sm">
-                  {description}
-                </FormDescription>
-              )}
-            </>
-          )}
+          {variant !== "avatar" &&
+            (fieldState.error ? (
+              <FormMessage className={cn("text-destructive text-sm")} />
+            ) : (
+              <FormDescription className="text-sm">
+                {description}
+              </FormDescription>
+            ))}
         </FormItem>
       )}
     />
