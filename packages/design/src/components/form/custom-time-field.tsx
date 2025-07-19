@@ -472,7 +472,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
   );
 };
 
-export default function CustomTimeField<T extends FieldValues>({
+export function CustomTimeField<T extends FieldValues>({
   control,
   name,
   label = "",

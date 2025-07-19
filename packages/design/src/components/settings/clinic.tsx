@@ -29,12 +29,12 @@ import type {
   ColumnConfig,
   // PaginationConfig,
 } from "../table/custom-data-table";
-import CustomAccordionCheckboxGroup from "../form/custom-accordion-checkbox-group";
-import CustomFileField from "../form/custom-file-field";
-import CustomInputField from "../form/custom-input-field";
-import CustomSelectField from "../form/custom-select-field";
-import CustomSwitchField from "../form/custom-switch-field";
-import CustomTimeField from "../form/custom-time-field";
+import {CustomAccordionCheckboxGroup} from "../form/custom-accordion-checkbox-group";
+import {CustomFileField} from "../form/custom-file-field";
+import {CustomInputField} from "../form/custom-input-field";
+import {CustomSelectField} from "../form/custom-select-field";
+import {CustomSwitchField} from "../form/custom-switch-field";
+import {CustomTimeField} from "../form/custom-time-field";
 import CustomDataTable from "../table/custom-data-table";
 import { Button } from "../ui/button";
 import { Form } from "../ui/form";

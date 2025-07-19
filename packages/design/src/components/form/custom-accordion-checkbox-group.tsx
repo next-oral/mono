@@ -47,7 +47,7 @@ interface CustomAccordionCheckboxGroupProps<T extends FieldValues> {
   checkboxItemClassName?: ClassValue;
 }
 
-export default function CustomAccordionCheckboxGroup<T extends FieldValues>({
+export function CustomAccordionCheckboxGroup<T extends FieldValues>({
   control,
   name,
   label = "",

@@ -27,7 +27,7 @@ interface CustomSwitchFieldProps<T extends FieldValues> {
   switchClassName?: ClassValue; // Renamed from inputClassName for clarity
 }
 
-export default function CustomSwitchField<T extends FieldValues>({
+export function CustomSwitchField<T extends FieldValues>({
   control,
   name,
   label = "",
