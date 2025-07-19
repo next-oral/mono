@@ -9,6 +9,7 @@ export default async function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
   const isEarlyAccess = await allowEarlyAccess();
 
   if (!isEarlyAccess) return redirect("/");
