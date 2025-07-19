@@ -16,7 +16,7 @@ import {
   X,
 } from "lucide-react";
 
-import { cn, splitCamelCaseToWords } from "@repo/design/lib/utils";
+import { cn, splitCamelCaseToWords, truncateFileName } from "@repo/design/lib/utils";
 
 import { Button } from "../ui/button";
 import {
@@ -198,7 +198,7 @@ export default function CustomFileField<T extends FieldValues>({
     }
   };
 
-  const getCurrentPreviewSource = (field: { value: any }) => {
+  const getCurrentPreviewSource = (field: { value: File | string | null }) => {
     // If user selected a new file and we have a preview, use it
     if (preview && !hasDefaultPreview) {
       return preview;
@@ -208,20 +208,12 @@ export default function CustomFileField<T extends FieldValues>({
       return defaultPreview;
     }
     // If field has a value and it's a string (URL), use it
-    if (typeof field.value === "string" && field.value) {
+    if (field.value && typeof field.value === "string") {
       return field.value;
     }
     return null;
   };
 
-  // this function is to cut out some characters from the file name leaving the remaining string and the file extension
-  const truncateFileName = (fileName: string, maxLength: number) => {
-    if (fileName.length <= maxLength) return fileName;
-    const extension = fileName.split(".").pop();
-    const nameWithoutExtension = fileName.slice(0, fileName.lastIndexOf("."));
-    const truncatedName = nameWithoutExtension.slice(0, maxLength - 3);
-    return `${truncatedName}...${extension}`;
-  };
 
   return (
     <FormField
