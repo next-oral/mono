@@ -19,16 +19,16 @@ export const DAYS_OF_WEEK = [
 ] as const;
 
 export const userRoles = [
-  { label: "Staff", value: "staff", tooltip: "staff" },
+  { label: "Staff", value: "staff" as const, tooltip: "staff" },
   {
     label: "Administrator",
-    value: "administrator",
+    value: "administrator" as const,
     tooltip:
-      "Edit treatment plans View appointment schedules Chat with patients Access medical records Add new users",
+      "Full system access: Manage users, configure settings, view reports, access all features",
   },
   {
     label: "Doctor",
-    value: "doctor",
+    value: "doctor" as const,
     tooltip:
       "Edit treatment plans View appointment schedules Chat with patients Access medical records Add new users",
   },

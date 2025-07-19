@@ -29,12 +29,12 @@ import type {
   ColumnConfig,
   // PaginationConfig,
 } from "../table/custom-data-table";
-import {CustomAccordionCheckboxGroup} from "../form/custom-accordion-checkbox-group";
-import {CustomFileField} from "../form/custom-file-field";
-import {CustomInputField} from "../form/custom-input-field";
-import {CustomSelectField} from "../form/custom-select-field";
-import {CustomSwitchField} from "../form/custom-switch-field";
-import {CustomTimeField} from "../form/custom-time-field";
+import { CustomAccordionCheckboxGroup } from "../form/custom-accordion-checkbox-group";
+import { CustomFileField } from "../form/custom-file-field";
+import { CustomInputField } from "../form/custom-input-field";
+import { CustomSelectField } from "../form/custom-select-field";
+import { CustomSwitchField } from "../form/custom-switch-field";
+import { CustomTimeField } from "../form/custom-time-field";
 import CustomDataTable from "../table/custom-data-table";
 import { Button } from "../ui/button";
 import { Form } from "../ui/form";
@@ -281,7 +281,7 @@ export function Clinic() {
         tuesday: { isActive: false, time: { from: "", to: "" } },
         wednesday: { isActive: false, time: { from: "", to: "" } },
         thursday: { isActive: false, time: { from: "", to: "" } },
-        friday: { isActive: false, time: { from: "" } },
+        friday: { isActive: false, time: { from: "", to: "" } },
         saturday: { isActive: false, time: { from: "", to: "" } },
         sunday: { isActive: false, time: { from: "", to: "" } },
       },
@@ -496,9 +496,7 @@ export function Clinic() {
                             <span className="capitalize">{col.label}</span>
                           </div>
 
-                          {col.step < 3 && (
-                            <ArrowRight className="size-3" />
-                          )}
+                          {col.step < 3 && <ArrowRight className="size-3" />}
                         </div>
                       ))}
                     </div>
@@ -632,7 +630,7 @@ export function Clinic() {
                           {/* Error Summary (if any errors exist in workHours) */}
                           {typeof form.formState.errors.workHours ===
                           "object" ? (
-                            <div className="bg-background text-destructive shadow sticky top-0 z-10 rounded-md p-3 text-sm">
+                            <div className="bg-background text-destructive sticky top-0 z-10 rounded-md p-3 text-sm shadow">
                               <p>Please fix the following issues:</p>
                               <ul className="ml-4 list-disc">
                                 {Object.entries(
