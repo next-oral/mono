@@ -112,14 +112,17 @@ export const generateAppleGradient = (color = "#C2D6FF") => {
   return `bg-[${color}] shadow-[inset_0px_-8px_16px_${color}40]`;
 };
 
-export const handleClipBoardCopy = async (text: string) => {
+export const handleClipBoardCopy = async (text: string): Promise<boolean> => {
   try {
     await navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard");
+    return true;
   } catch (error) {
-    toast.error("Failed to copy to clipboard - " + (error as Error).message);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    toast.error("Failed to copy to clipboard - " + errorMessage);
+    return false;
   }
-  return null;
 };
 
 export const truncateText = (text: string, maxLength?: number): string => {
@@ -131,8 +134,13 @@ export const truncateText = (text: string, maxLength?: number): string => {
 // this function is to cut out some characters from the file name leaving the remaining string and the file extension
 export const truncateFileName = (fileName: string, maxLength: number) => {
   if (fileName.length <= maxLength) return fileName;
+  const lastDotIndex = fileName.lastIndexOf(".");
+  if (lastDotIndex === -1) {
+    // No extension found
+    return fileName.slice(0, maxLength - 3) + "...";
+  }
   const extension = fileName.split(".").pop();
-  const nameWithoutExtension = fileName.slice(0, fileName.lastIndexOf("."));
+  const nameWithoutExtension = fileName.slice(0, lastDotIndex);
   const truncatedName = nameWithoutExtension.slice(0, maxLength - 3);
   return `${truncatedName}...${extension}`;
 };

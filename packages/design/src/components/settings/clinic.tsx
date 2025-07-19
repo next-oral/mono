@@ -111,9 +111,13 @@ const timeFieldSchema = z
   .refine(
     (data) => {
       if (data.from && data.to) {
-        const fromMinutes = parseTimeToMinutes(data.from);
-        const toMinutes = parseTimeToMinutes(data.to);
-        return toMinutes > fromMinutes;
+        try {
+          const fromMinutes = parseTimeToMinutes(data.from);
+          const toMinutes = parseTimeToMinutes(data.to);
+          return toMinutes > fromMinutes;
+        } catch {
+          return false; // Invalid time format
+        }
       }
       return true; // Skip if either field is empty
     },
@@ -410,7 +414,7 @@ export function Clinic() {
         <Plus className="h-8 w-8 text-blue-600" />
       </div>
       <h3 className="text-foreground mb-2 text-lg font-medium">
-        You have no patients yet
+        You have no staff members yet
       </h3>
       <Button className="mt-4" onClick={() => setIsSheetOpen(true)}>
         <Plus className="mr-2 h-4 w-4" />
