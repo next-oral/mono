@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
 import type { ClassValue } from "class-variance-authority/types";
@@ -198,7 +196,7 @@ export function CustomFileField<T extends FieldValues>({
     }
   };
 
-  const getCurrentPreviewSource = (field: { value: any }) => {
+  const getCurrentPreviewSource = (field: { value: string }) => {
     // If user selected a new file and we have a preview, use it
     if (preview && !hasDefaultPreview) {
       return preview;
@@ -384,10 +382,7 @@ export function CustomFileField<T extends FieldValues>({
                         (typeof field.value === "object"
                           ? Object.entries(field.value).map(([_, file]) => (
                               <span key={_}>
-                                {truncateFileName(
-                                  (file as any).name as string,
-                                  15,
-                                )}
+                                {truncateFileName((file as File).name, 15)}
                               </span>
                             ))
                           : "File(s) selected")}

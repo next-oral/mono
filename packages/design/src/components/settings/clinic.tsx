@@ -28,7 +28,7 @@ import {
 } from "../ui/sheet";
 
 // Generated 150 table records
-const sampleData = Array.from({ length: 150 }, (_, i) => ({
+export const sampleData = Array.from({ length: 150 }, (_, i) => ({
   id: i + 1, // This will be ignored
   avatar: "/placeholder.svg?height=40&width=40",
   age: [41, 36, 53, 18, 54, 45, 15, 48, 29, 23, 45, 54, 34, 70, 90][i % 15],
