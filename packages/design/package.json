@@ -7,6 +7,7 @@
     "./globals.css": "./src/styles/globals.css",
     "./postcss.config": "./postcss.config.mjs",
     "./lib/*": "./src/lib/*.ts",
+    "./config/*": "./src/config/*.ts",
     "./components/*": "./src/components/*.tsx",
     "./hooks/*": "./src/hooks/*.ts",
     "./icons": "./src/icons.tsx"
@@ -33,6 +34,8 @@
   },
   "prettier": "@repo/prettier-config",
   "dependencies": {
+    "@dnd-kit/modifiers": "^9.0.0",
+    "@dnd-kit/sortable": "^10.0.0",
     "@hookform/resolvers": "^5.0.1",
     "@ndaidong/txtgen": "^4.0.1",
     "@radix-ui/react-accordion": "^1.2.10",
@@ -59,7 +62,9 @@
     "input-otp": "^1.4.2",
     "lucide-react": "^0.511.0",
     "motion": "^12.12.1",
+    "nanoid": "^5.1.5",
     "next-themes": "^0.4.6",
+    "nuqs": "^2.4.3",
     "radix-ui": "^1.4.2",
     "react-day-picker": "^9.8.0",
     "react-hook-form": "^7.56.3",

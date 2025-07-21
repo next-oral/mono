@@ -1,9 +1,9 @@
-"use client";
-
-import type { Table as TanStackTable } from "@tanstack/react-table";
+import type { Table as TanstackTable } from "@tanstack/react-table";
+import type * as React from "react";
 import { flexRender } from "@tanstack/react-table";
+import { Search } from "lucide-react";
 
-import { Button } from "../ui/button";
+import { DataTablePagination } from "@repo/design/components/data-table/data-table-pagination";
 import {
   Table,
   TableBody,
@@ -11,19 +11,66 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "@repo/design/components/ui/table";
+import { getCommonPinningStyles } from "@repo/design/lib/data-table";
+import { cn } from "@repo/design/lib/utils";
 
-export function DataTable<TData>({ table }: { table: TanStackTable<TData> }) {
+import { DataTableToolbarFilter } from "./data-table-toolbar";
+import { DataTableViewOptions } from "./data-table-view-options";
+
+interface DataTableProps<TData> extends React.ComponentProps<"div"> {
+  table: TanstackTable<TData>;
+  actionBar?: React.ReactNode;
+}
+
+export function DataTable<TData>({
+  table,
+  actionBar,
+  children,
+  className,
+  ...props
+}: DataTableProps<TData>) {
+  const textColumns = table
+    .getAllColumns()
+    .filter(
+      (column) =>
+        column.getCanFilter() && column.columnDef.meta?.variant === "text",
+    );
+
+  const searchTerm = textColumns
+    .map((column) => column.getFilterValue())
+    .join(",");
+
   return (
-    <>
-      <div className="rounded-md border bg-white dark:bg-inherit">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
+    <div
+      className={cn("flex w-full flex-col gap-2.5 overflow-auto", className)}
+      {...props}
+    >
+      {children}
+      <div className="bg-primary/5 space-y-2 rounded-md border p-1">
+        <div className="flex items-center gap-2">
+          {textColumns.map((column) => (
+            <DataTableToolbarFilter
+              key={column.id}
+              column={column}
+              className="border-none shadow-none lg:w-80"
+            />
+          ))}
+          <DataTableViewOptions table={table} />
+        </div>
+        <div className="bg-background overflow-hidden rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      style={{
+                        ...getCommonPinningStyles({ column: header.column }),
+                      }}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -31,69 +78,63 @@ export function DataTable<TData>({ table }: { table: TanStackTable<TData> }) {
                             header.getContext(),
                           )}
                     </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="h-12"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={table.getAllColumns().length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="text-muted-foreground flex-1 text-sm tabular-nums">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.{" "}
-          <span className="text-primary font-medium">
-            Total row count: {table.getCoreRowModel().rows.length}
-          </span>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        style={{
+                          ...getCommonPinningStyles({ column: cell.column }),
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={table.getAllColumns().length}
+                    className="h-24 text-center"
+                  >
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <div className="bg-secondary mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+                        <Search className="text-muted-foreground h-8 w-8" />
+                      </div>
+                      <h3 className="text-foreground mb-2 text-lg font-medium">
+                        No results found for "{searchTerm}"
+                      </h3>
+                      <p className="text-muted-foreground text-sm">
+                        Search for something else.
+                      </p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
       </div>
-    </>
+
+      <div className="flex flex-col gap-2.5">
+        <DataTablePagination table={table} />
+        {actionBar &&
+          table.getFilteredSelectedRowModel().rows.length > 0 &&
+          actionBar}
+      </div>
+    </div>
   );
 }
