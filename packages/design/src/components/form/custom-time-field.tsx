@@ -1,10 +1,5 @@
 "use client";
 
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ClassValue } from "class-variance-authority/types";
 import type React from "react";
 import type { Control, FieldValues, Path } from "react-hook-form";
@@ -81,12 +76,12 @@ interface TimeColumnProps {
   formatValue?: (value: number | string) => string;
 }
 
-const TimeColumn: React.FC<TimeColumnProps> = ({
+function TimeColumn({
   values,
   selectedValue,
   onValueChange,
   formatValue,
-}) => {
+}: TimeColumnProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const startY = useRef(0);
@@ -184,14 +179,14 @@ const TimeColumn: React.FC<TimeColumnProps> = ({
 
     const touchStartHandler = (e: TouchEvent) => {
       isDragging.current = true;
-      startY.current = (e.touches[0] as any).clientY;
+      startY.current = e.touches[0]?.clientY ?? 0;
       startScrollTop.current = container.scrollTop;
     };
 
     const touchMoveHandler = (e: TouchEvent) => {
       if (!isDragging.current) return;
       e.preventDefault();
-      const deltaY = (e.touches[0] as any).clientY - startY.current;
+      const deltaY = (e.touches[0]?.clientY ?? 0) - startY.current;
       const newScrollTop = startScrollTop.current - deltaY;
       container.scrollTop = newScrollTop;
       updateSelectedValue(newScrollTop);
@@ -223,7 +218,7 @@ const TimeColumn: React.FC<TimeColumnProps> = ({
         clearInterval(buttonIntervalRef.current);
       }
       if (wheelTimeoutRefCurrent) {
-        clearTimeout(wheelTimeoutRefCurrent as any);
+        clearTimeout(wheelTimeoutRefCurrent);
       }
     };
   }, [handleMouseMove, handleMouseUp, updateSelectedValue]);
@@ -250,16 +245,18 @@ const TimeColumn: React.FC<TimeColumnProps> = ({
     const currentIndex = values.indexOf(selectedValue);
     const newIndex = Math.max(0, currentIndex - 1);
     const newValue = values[newIndex];
-    onValueChange(newValue as string);
-    scrollToValue(newValue as number);
+    if (!newValue) return;
+    onValueChange(newValue);
+    scrollToValue(newValue);
   };
 
   const decrementValue = () => {
     const currentIndex = values.indexOf(selectedValue);
     const newIndex = Math.min(values.length - 1, currentIndex + 1);
     const newValue = values[newIndex];
-    onValueChange(newValue as string);
-    scrollToValue(newValue as number);
+    if (!newValue) return;
+    onValueChange(newValue);
+    scrollToValue(newValue);
   };
 
   return (
@@ -357,7 +354,7 @@ const TimeColumn: React.FC<TimeColumnProps> = ({
       </Button>
     </div>
   );
-};
+}
 
 // Time Picker Component
 interface TimePickerProps {
@@ -367,12 +364,12 @@ interface TimePickerProps {
   popoverContentClassName?: ClassValue;
 }
 
-const TimePicker: React.FC<TimePickerProps> = ({
+function TimePicker({
   initialTime,
   onSelect,
   onCancel,
   popoverContentClassName,
-}) => {
+}: TimePickerProps) {
   const [selectedHour, setSelectedHour] = useState(12);
   const [selectedMinute, setSelectedMinute] = useState(0);
   const [selectedAmPm, setSelectedAmPm] = useState("AM");
@@ -432,7 +429,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
           <Button
             variant={selectedAmPm === "AM" ? "default" : "outline"}
             size="sm"
-            className="h-10 w-12 text-xs font-medium rounded-b-none"
+            className="h-10 w-12 rounded-b-none text-xs font-medium"
             onClick={() => setSelectedAmPm("AM")}
           >
             AM
@@ -440,7 +437,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
           <Button
             variant={selectedAmPm === "PM" ? "default" : "outline"}
             size="sm"
-            className="h-10 w-12 text-xs font-medium rounded-t-none"
+            className="h-10 w-12 rounded-t-none text-xs font-medium"
             onClick={() => setSelectedAmPm("PM")}
           >
             PM
@@ -470,7 +467,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
       </div>
     </div>
   );
-};
+}
 
 export function CustomTimeField<T extends FieldValues>({
   control,
@@ -593,7 +590,7 @@ export function CustomTimeField<T extends FieldValues>({
               <div className="col-span-2 min-w-0">
                 {renderTimeInput(field, fieldState, true, false)}
               </div>
-              <span className="text-muted-foreground col-span-1 text-center sm:text-left mx-auto">
+              <span className="text-muted-foreground col-span-1 mx-auto text-center sm:text-left">
                 to
               </span>
               <div className="col-span-2 min-w-0">
@@ -605,7 +602,9 @@ export function CustomTimeField<T extends FieldValues>({
           )}
 
           {fieldState.error ? (
-            <FormMessage className={cn("text-destructive text-sm")} >{fieldState.error.message}</FormMessage>
+            <FormMessage className={cn("text-destructive text-sm")}>
+              {fieldState.error.message}
+            </FormMessage>
           ) : (
             <FormDescription className="text-sm">{description}</FormDescription>
           )}
