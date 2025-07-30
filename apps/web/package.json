@@ -57,5 +57,8 @@
     "prettier": "catalog:",
     "typescript": "catalog:"
   },
+  "peerDependencies": {
+    "sonner": "^2.0.3"
+  },
   "prettier": "@repo/prettier-config"
 }

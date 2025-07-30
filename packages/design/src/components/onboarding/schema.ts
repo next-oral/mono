@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import type { InviteForm } from "./invite";
 
@@ -94,14 +94,14 @@ export type Locale = LocaleObject["code"];
 export const profileFormSchema = z.object({
   firstName: z
     .string({
-      required_error: "Firstname is required",
+      message: "Firstname is required",
     })
     .min(1, {
       message: "Must be at least 3 characters",
     }),
   lastName: z
     .string({
-      required_error: "Lastname is required",
+      message: "Lastname is required",
     })
     .min(1, {
       message: "Must be at least 3 characters",
@@ -172,7 +172,7 @@ export const orgFormSchema = z.object({
 });
 export type OrgForm = z.infer<typeof orgFormSchema>;
 
-const clincTypes = [
+const clinicTypes = [
   // By Specialization
   "General",
   "Pediatrics",
@@ -204,11 +204,9 @@ export const clinicSchema = z.object({
         message: "Clinic is required",
       }),
       country: z.enum(["us", "de", "au"], {
-        required_error: "Country is required",
         message: "Country is required",
       }),
-      speciality: z.enum(clincTypes, {
-        required_error: "Speciality is required",
+      speciality: z.enum(clinicTypes, {
         message: "Speciality is required",
       }),
     }),

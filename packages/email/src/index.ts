@@ -1,13 +1,13 @@
 import { Resend } from "resend";
 import { z } from "zod";
 
-import AWSVerifyEmail from "@repo/email/templates/verify-email";
+import VerifyEmail from "@repo/email/templates/verify-email";
 
 import { OrgInviteEmail } from "./templates/invite";
+import WaitlistEmail from "./templates/waitlist";
 
-const key = process.env.RESEND_API_TOKEN ?? "";
-
-export const resend = new Resend(key);
+export const resend = new Resend(process.env.RESEND_API_TOKEN);
+const onBoardingEmail = "suuport@onboarding.nextoral.com" as const;
 
 export const authTemplateSchema = z.object({
   template: z.literal("sign-up"),
@@ -24,10 +24,20 @@ type AuthTemplate = z.infer<typeof authTemplateSchema>;
 export const actions = {
   auth: async (options: AuthTemplate) => {
     const res = await resend.emails.send({
-      from: "Next Oral <support@onboarding.nextoral.com>",
+      from: `Next Oral <${onBoardingEmail}>`,
       to: [options.data.email],
       subject: "Your OTP",
-      react: AWSVerifyEmail(options.data),
+      react: VerifyEmail(options.data),
+    });
+
+    return res;
+  },
+  waitlist: async (options: { email: string; name: string }) => {
+    const res = await resend.emails.send({
+      from: `Next Oral <${onBoardingEmail}>`,
+      to: [options.email],
+      subject: "You're on the waitlist",
+      react: WaitlistEmail(options),
     });
 
     return res;
@@ -40,7 +50,7 @@ export const actions = {
     organizationName: string;
   }) => {
     const res = await resend.emails.send({
-      from: "Next Oral <support@onboarding.nextoral.com>",
+      from: `Next Oral <${onBoardingEmail}>`,
       to: [opts.email],
       subject: `${opts.inviterName} sent you an invite`,
       react: OrgInviteEmail(opts),
