@@ -37,7 +37,7 @@ function extractSubdomain(request: NextRequest): string | null {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  return NextResponse.next();
+  // return NextResponse.next();
   const subdomain = extractSubdomain(request);
 
   if (subdomain && pathname === "/login") {
