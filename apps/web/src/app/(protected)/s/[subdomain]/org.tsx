@@ -47,6 +47,7 @@ export function SubdomainLayoutWithAuth({
           data: team ?? [],
           activeTeam: teams.pop()?.pop(),
         }}
+        // @ts-expect-error - TODO: fix this
         organizations={organizations ?? []}
         user={{
           name: session.user.name,

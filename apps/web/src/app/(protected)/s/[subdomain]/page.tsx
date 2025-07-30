@@ -151,8 +151,8 @@ export default async function Page() {
   return (
     <div>
       <div className="flex flex-1 flex-col">
-        <div className="flex flex-wrap items-center justify-between gap-4 p-4">
-          <div className="mt-2">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="my-2">
             <h2 className="text-xl font-medium text-slate-900">
               Good Evening, {session.user.name}
             </h2>
@@ -162,7 +162,7 @@ export default async function Page() {
           </div>
           <DateFilter />
         </div>
-        <div className="grid grid-cols-1 gap-4 p-4 pt-0 md:grid-cols-12">
+        <div className="grid grid-cols-1 gap-4 pt-0 md:grid-cols-12">
           {/* Stats Cards Row */}
           <div className="col-span-1 grid auto-rows-min gap-4 md:col-span-12 md:grid-cols-4">
             {stats.map((stat) => (

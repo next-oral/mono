@@ -2,12 +2,17 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 
 import { getSession } from "~/auth/server";
+import { allowEarlyAccess } from "~/flags";
 
 export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const isEarlyAccess = await allowEarlyAccess();
+
+  if (!isEarlyAccess) return redirect("/");
+
   const session = await getSession();
 
   if (session) return redirect("/verify");

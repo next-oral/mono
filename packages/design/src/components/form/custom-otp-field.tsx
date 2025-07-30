@@ -20,6 +20,7 @@ interface CustomOtpFieldProps<T extends FieldValues> {
   control: Control<T>;
   name: Path<T>;
   label?: string;
+  isNotLabeled?: boolean;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   defaultValue?: never;
   value?: number;
@@ -30,10 +31,11 @@ interface CustomOtpFieldProps<T extends FieldValues> {
   labelClassName?: ClassValue;
 }
 
-export default function CustomOtpField<T extends FieldValues>({
+export function CustomOtpField<T extends FieldValues>({
   control,
   name,
   label = "",
+  isNotLabeled = false,
   inputMode = "numeric",
   defaultValue,
   value,
@@ -56,14 +58,16 @@ export default function CustomOtpField<T extends FieldValues>({
           className={cn("space-y-[0.2px]", fieldClassName)}
           hidden={hidden}
         >
-          <FormLabel
-            className={cn(
-              "text-accent-foreground/80 text-sm font-medium capitalize",
-              labelClassName,
-            )}
-          >
-            {label || splitCamelCaseToWords(name)}
-          </FormLabel>
+          {!isNotLabeled && (
+            <FormLabel
+              className={cn(
+                "text-accent-foreground/80 text-sm font-medium capitalize",
+                labelClassName,
+              )}
+            >
+              {label || splitCamelCaseToWords(name)}
+            </FormLabel>
+          )}
           <div className="relative">
             <FormControl>
               <InputOTP
@@ -80,7 +84,6 @@ export default function CustomOtpField<T extends FieldValues>({
                   setInputLength(e.currentTarget.value.length);
                 }}
               >
-                {/* TODO: Add feature to make border blue if filled a */}
                 <InputOTPGroup className="flex w-full justify-between gap-[16px] ring-0 *:flex-grow *:rounded-xl *:py-8 data-[active=true]:ring-[0px]">
                   {Array.from({ length: 4 }).map((_, index) => (
                     <InputOTPSlot
