@@ -24,7 +24,7 @@ type AuthTemplate = z.infer<typeof authTemplateSchema>;
 export const actions = {
   auth: async (options: AuthTemplate) => {
     const res = await resend.emails.send({
-      from: "Next Oral <test@resend.artzkaizen.com>",
+      from: "Next Oral <support@onboarding.nextoral.com>",
       to: [options.data.email],
       subject: "Your OTP",
       react: AWSVerifyEmail(options.data),
@@ -40,7 +40,7 @@ export const actions = {
     organizationName: string;
   }) => {
     const res = await resend.emails.send({
-      from: "Next Oral <test@resend.artzkaizen.com>",
+      from: "Next Oral <support@onboarding.nextoral.com>",
       to: [opts.email],
       subject: `${opts.inviterName} sent you an invite`,
       react: OrgInviteEmail(opts),
