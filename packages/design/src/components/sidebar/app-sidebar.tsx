@@ -207,8 +207,9 @@ export function AppSidebar({
           organizations={sampleOrganizations}
           clinics={sampleClinics}
           activeClinic={activeClinic}
-          setActiveClinic={setActiveClinic}
+          setActiveClinic={setActiveClinic as (arg0:unknown)=> void}
           // @ts-expect-error - TODO: fix this
+          activeTeam={activeTeam}
           setActiveTeam={setActiveTeam}
         />
       </SidebarFooter>
