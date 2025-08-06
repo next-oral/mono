@@ -44,7 +44,6 @@ export default function VerifyPage() {
     if (!org) return void router.replace("/onboarding");
 
     console.log(org);
-    return <div></div>;
 
     void authClient.organization.setActive({
       organizationId: org.id,

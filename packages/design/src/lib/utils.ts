@@ -28,3 +28,22 @@ export const handleClipBoardCopy = async (text: string) => {
   }
 };
 
+export const truncateText = (text: string, maxLength?: number): string => {
+  // function to truncate texts
+  if (!maxLength || text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + "...";
+};
+
+// this function is to cut out some characters from the file name leaving the remaining string and the file extension
+export const truncateFileName = (fileName: string, maxLength: number) => {
+  if (fileName.length <= maxLength) return fileName;
+  const lastDotIndex = fileName.lastIndexOf(".");
+  if (lastDotIndex === -1) {
+    // No extension found
+    return fileName.slice(0, maxLength - 3) + "...";
+  }
+  const extension = fileName.split(".").pop();
+  const nameWithoutExtension = fileName.slice(0, lastDotIndex);
+  const truncatedName = nameWithoutExtension.slice(0, maxLength - 3);
+  return `${truncatedName}...${extension}`;
+};
