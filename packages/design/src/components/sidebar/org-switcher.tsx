@@ -12,6 +12,7 @@ import {
 
 import { cn } from "@repo/design/lib/utils";
 
+import type { User } from "./sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -29,13 +30,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "../ui/sidebar";
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  image?: string;
-}
 
 export interface Organization {
   id: string;
@@ -100,7 +94,7 @@ export function OrgSwitcher({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent bg-card data-[state=open]:text-sidebar-accent-foreground border-none"
             >
               <Avatar className="size-8">
                 <AvatarImage src={activeClinic?.name ?? ""} />
@@ -136,13 +130,6 @@ export function OrgSwitcher({
               return (
                 <div key={org.id} className="relative">
                   <DropdownMenuItem
-                    onClick={() =>
-                      handleClinicChange({
-                        id: org.id,
-                        name: org.name,
-                        organizationId: org.id,
-                      })
-                    }
                     onMouseEnter={() => handleOrgHover(org.id)}
                     className={cn("cursor-pointer gap-2 p-2", {
                       "bg-sidebar-accent": isHovered,
@@ -255,7 +242,7 @@ export function OrgSwitcher({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem className="gap-2">
+            <DropdownMenuItem variant="destructive" className="gap-2">
               <LogOut className="size-4" />
               Log out
             </DropdownMenuItem>

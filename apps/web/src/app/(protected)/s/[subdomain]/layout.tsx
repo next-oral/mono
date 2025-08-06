@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
-import { AppSidebar } from "@repo/design/components/sidebar/app-sidebar";
+import { AppSidebar } from "@repo/design/components/sidebar/sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,25 +18,6 @@ import {
 } from "@repo/design/components/ui/sidebar";
 import { Button } from "@repo/design/src/components/ui/button";
 import { Plus } from "@repo/design/src/icons";
-
-// import {
-//   AppSidebar,
-//   NotificationPanel,
-// } from "@repo/design/components/sidebar/app-sidebar";
-// import {
-//   Breadcrumb,
-//   BreadcrumbItem,
-//   BreadcrumbLink,
-//   BreadcrumbList,
-// } from "@repo/design/components/ui/breadcrumb";
-// import { Separator } from "@repo/design/components/ui/separator";
-// import {
-//   SidebarInset,
-//   SidebarProvider,
-//   SidebarTrigger,
-// } from "@repo/design/components/ui/sidebar";
-// import { Button } from "@repo/design/src/components/ui/button";
-// import { Plus } from "@repo/design/src/icons";
 
 import { auth } from "~/auth/server";
 import { env } from "~/env";
@@ -111,19 +92,19 @@ export async function SubdomainLayoutWithAuth({
   });
 
   if (!session) return null;
-  const organization = await auth.api.getFullOrganization({
+  // const organization = await auth.api.getFullOrganization({
+  //   headers: heads,
+  // });
+
+  await auth.api.listOrganizations({
     headers: heads,
   });
 
-  const a = await auth.api.listOrganizations({
-    headers: heads,
-  });
-
-  const teams = organization?.teams ?? [];
+  // const teams = organization?.teams ?? [];
 
   return (
     <SidebarProvider>
-      <AppSidebar
+      {/* <AppSidebar
         teams={{
           data: teams,
           activeTeam: teams.pop(),
@@ -134,7 +115,9 @@ export async function SubdomainLayoutWithAuth({
           email: session.user.email,
           image: session.user.image ?? "",
         }}
-      />
+      /> */}
+
+      <AppSidebar user={session.user} />
 
       <SidebarInset>
         <div className="flex">
@@ -162,7 +145,7 @@ export async function SubdomainLayoutWithAuth({
                 <Plus />
               </Button>
             </header>
-            {children}
+            <div className="p-5">{children}</div>
           </div>
         </div>
       </SidebarInset>

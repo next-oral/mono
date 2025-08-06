@@ -12,7 +12,9 @@ export default async function OnboardingLayout({
 
   if (!session)
     return redirect(
-      `${env.NEXT_PUBLIC_PROTOCOL}://www.${env.NEXT_PUBLIC_ROOT_DOMAIN}/login`,
+      `${env.NEXT_PUBLIC_PROTOCOL}://${
+        env.NEXT_PUBLIC_SUBDOMAIN ? `${env.NEXT_PUBLIC_SUBDOMAIN}` : ""
+      }${env.NEXT_PUBLIC_ROOT_DOMAIN}/login`,
     );
 
   return children;

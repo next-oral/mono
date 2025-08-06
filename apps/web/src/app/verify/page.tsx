@@ -15,7 +15,7 @@ import { toast } from "@repo/design/src/components/ui/sonner";
 import { authClient } from "~/auth/client";
 import { env } from "~/env";
 
-const emailSchema = z.string().email();
+const emailSchema = z.email();
 
 const Loading = () => {
   return (
@@ -72,9 +72,8 @@ export default function VerifyPage() {
     } catch (err) {
       console.log(err);
       if (err instanceof ZodError) {
-        const { fieldErrors, formErrors } = err.flatten();
-        const firstFieldError = Object.values(fieldErrors)[0]?.[0];
-        toast.error(firstFieldError ?? formErrors[0] ?? "Invalid input");
+        const { errors } = z.treeifyError(err);
+        toast.error(errors.join("\n"));
       }
     } finally {
       setIsPending(false);

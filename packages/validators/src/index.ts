@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 
 export const UserPositions = [
   "Dentist",
@@ -92,14 +92,14 @@ export const groupedLocales = Locales.reduce(
 export const profileFormSchema = z.object({
   firstName: z
     .string({
-      required_error: "Firstname is required",
+      message: "Firstname is required",
     })
     .min(1, {
       message: "Must be at least 3 characters",
     }),
   lastName: z
     .string({
-      required_error: "Lastname is required",
+      message: "Lastname is required",
     })
     .min(1, {
       message: "Must be at least 3 characters",
@@ -173,11 +173,9 @@ export const clinicSchema = z.object({
         message: "Clinic is required",
       }),
       country: z.enum(["us", "de", "au"], {
-        required_error: "Country is required",
         message: "Country is required",
       }),
       speciality: z.enum(ClinicTypes, {
-        required_error: "Speciality is required",
         message: "Speciality is required",
       }),
     }),
@@ -187,4 +185,4 @@ export const clinicSchema = z.object({
 export type ClinicForm = z.infer<typeof clinicSchema>;
 
 export const INVALID_SLUGS_REGEX =
-  /^(www|admin|api|auth|login|logout|signup|register|user|users|me|account|settings|dashboard|about|contact|support|help|privacy|terms|status|blog|faq|system|config|root|files|explore|search|feed|notifications|messages|inbox|home|app|application|client|server|backend|frontend|undefined|null|true|false|404|500)$/i;
+  /^(www|admin|api|auth|login|logout|signup|register|user|users|me|account|settings|dashboard|about|contact|support|help|privacy|terms|status|blog|faq|system|config|root|files|explore|search|feed|notifications|messages|inbox|home|app|application|client|waitlist|onboarding|server|backend|frontend|undefined|null|true|false|404|500)$/i;
