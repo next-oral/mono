@@ -16,7 +16,7 @@ export const env = createEnv({
    * This way you can ensure the app isn't built with invalid env vars.
    */
   server: {
-    POSTGRES_URL: z.string().url(),
+    POSTGRES_URL: z.url(),
   },
 
   /**
@@ -24,7 +24,7 @@ export const env = createEnv({
    * For them to be exposed to the client, prefix them with `NEXT_PUBLIC_`.
    */
   client: {
-    NEXT_PUBLIC_SUBDOMAIN: z.string().endsWith(".").optional(),
+    NEXT_PUBLIC_SUBDOMAIN: z.string().optional(),
     NEXT_PUBLIC_ROOT_DOMAIN: z.string(),
     NEXT_PUBLIC_PROTOCOL: z.string(),
   },
