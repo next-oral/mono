@@ -26,7 +26,7 @@ export function initAuth(options: {
     clientSecret: string;
     tenantId: string;
   };
-}) {
+}): ReturnType<typeof betterAuth> {
   const config = {
     database: drizzleAdapter(db, {
       provider: "pg",

@@ -5,6 +5,6 @@ import {
   organizationClient,
 } from "better-auth/client/plugins";
 
-export const authClient = createAuthClient({
+export const authClient: unknown = createAuthClient({
   plugins: [adminClient(), emailOTPClient(), organizationClient()],
 });
