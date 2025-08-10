@@ -5,6 +5,7 @@ import {
   organizationClient,
 } from "better-auth/client/plugins";
 
-export const authClient: unknown = createAuthClient({
+// TODO: Create a PR to fix the types export on better-auth/client/plugins v.1.3.4
+export const authClient = createAuthClient({
   plugins: [adminClient(), emailOTPClient(), organizationClient()],
 });
