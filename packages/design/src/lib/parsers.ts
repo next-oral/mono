@@ -24,8 +24,7 @@ export const getSortingStateParser = <TData>(
   return createParser({
     parse: (value) => {
       try {
-        const parsed = JSON.parse(value);
-        const result = z.array(sortingItemSchema).safeParse(parsed);
+        const result = z.array(sortingItemSchema).safeParse(JSON.parse(value));
 
         if (!result.success) return null;
 
@@ -43,7 +42,7 @@ export const getSortingStateParser = <TData>(
       a.length === b.length &&
       a.every(
         (item, index) =>
-          item.id === b[index]?.id && item.desc === b[index]?.desc,
+          item.id === b[index]?.id && item.desc === b[index].desc,
       ),
   });
 };
@@ -70,8 +69,7 @@ export const getFiltersStateParser = <TData>(
   return createParser({
     parse: (value) => {
       try {
-        const parsed = JSON.parse(value);
-        const result = z.array(filterItemSchema).safeParse(parsed);
+        const result = z.array(filterItemSchema).safeParse(JSON.parse(value));
 
         if (!result.success) return null;
 
@@ -90,9 +88,9 @@ export const getFiltersStateParser = <TData>(
       a.every(
         (filter, index) =>
           filter.id === b[index]?.id &&
-          filter.value === b[index]?.value &&
-          filter.variant === b[index]?.variant &&
-          filter.operator === b[index]?.operator,
+          filter.value === b[index].value &&
+          filter.variant === b[index].variant &&
+          filter.operator === b[index].operator,
       ),
   });
 };

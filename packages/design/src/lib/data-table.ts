@@ -53,7 +53,7 @@ export function getFilterOperators(filterVariant: FilterVariant) {
     multiSelect: dataTableConfig.multiSelectOperators,
   };
 
-  return operatorMap[filterVariant] ?? dataTableConfig.textOperators;
+  return operatorMap[filterVariant];
 }
 
 export function getDefaultFilterOperator(filterVariant: FilterVariant) {

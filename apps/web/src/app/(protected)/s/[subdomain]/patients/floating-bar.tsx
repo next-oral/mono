@@ -22,7 +22,7 @@ interface FloatingBarProps<T> {
 }
 
 export function FloatingBar<T>({ table }: FloatingBarProps<T>) {
-  const rows = table.getFilteredSelectedRowModel().rows;
+  const { rows } = table.getFilteredSelectedRowModel();
 
   // Clear selection on Escape key press
   React.useEffect(() => {

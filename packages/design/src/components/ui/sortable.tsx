@@ -175,7 +175,7 @@ function SortableRoot<T>(props: SortableRootProps<T>) {
       if (event.activatorEvent.defaultPrevented) return;
 
       const { active, over } = event;
-      if (over && active.id !== over?.id) {
+      if (over && active.id !== over.id) {
         const activeIndex = value.findIndex(
           (item) => getItemValue(item) === active.id,
         );
@@ -209,11 +209,14 @@ function SortableRoot<T>(props: SortableRootProps<T>) {
     () => ({
       onDragStart({ active }) {
         const activeValue = active.id.toString();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return `Grabbed sortable item "${activeValue}". Current position is ${active.data.current?.sortable.index + 1} of ${value.length}. Use arrow keys to move, space to drop.`;
       },
       onDragOver({ active, over }) {
         if (over) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           const overIndex = over.data.current?.sortable.index ?? 0;
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           const activeIndex = active.data.current?.sortable.index ?? 0;
           const moveDirection = overIndex > activeIndex ? "down" : "up";
           const activeValue = active.id.toString();
@@ -224,19 +227,23 @@ function SortableRoot<T>(props: SortableRootProps<T>) {
       onDragEnd({ active, over }) {
         const activeValue = active.id.toString();
         if (over) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           const overIndex = over.data.current?.sortable.index ?? 0;
           return `Sortable item "${activeValue}" dropped at position ${overIndex + 1} of ${value.length}.`;
         }
         return `Sortable item "${activeValue}" dropped. No changes were made.`;
       },
       onDragCancel({ active }) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         const activeIndex = active.data.current?.sortable.index ?? 0;
         const activeValue = active.id.toString();
         return `Sorting cancelled. Sortable item "${activeValue}" returned to position ${activeIndex + 1} of ${value.length}.`;
       },
       onDragMove({ active, over }) {
         if (over) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           const overIndex = over.data.current?.sortable.index ?? 0;
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           const activeIndex = active.data.current?.sortable.index ?? 0;
           const moveDirection = overIndex > activeIndex ? "down" : "up";
           const activeValue = active.id.toString();
@@ -555,7 +562,7 @@ function SortableOverlay(props: SortableOverlayProps) {
   React.useLayoutEffect(() => setMounted(true), []);
 
   const container =
-    containerProp ?? (mounted ? globalThis.document?.body : null);
+    containerProp ?? (mounted ? globalThis.document.body : null);
 
   if (!container) return null;
 

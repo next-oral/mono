@@ -23,5 +23,6 @@ export function generateId(
     length,
   )();
 
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   return prefix ? `${prefixes[prefix]}${separator}${id}` : id;
 }
