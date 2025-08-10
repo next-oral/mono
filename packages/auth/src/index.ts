@@ -14,7 +14,7 @@ import { actions } from "@repo/email";
 import { env } from "../env";
 import { ac, admin, user } from "./lib/permission";
 
-export function initAuth(options: {
+interface InitAuthOptions {
   baseUrl: string;
   secret: string | undefined;
   google: {
@@ -26,7 +26,9 @@ export function initAuth(options: {
     clientSecret: string;
     tenantId: string;
   };
-}): ReturnType<typeof betterAuth> {
+}
+// TODO: Create a PR to fix the types export on better-auth v.1.3.4
+export function initAuth(options: InitAuthOptions) {
   const config = {
     database: drizzleAdapter(db, {
       provider: "pg",

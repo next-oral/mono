@@ -1,3 +1,5 @@
+import { PatientsTable } from "./table";
+
 export default function Page() {
-  return <div>Patients</div>;
+  return <PatientsTable />;
 }
