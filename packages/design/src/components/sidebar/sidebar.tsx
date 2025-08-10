@@ -157,16 +157,18 @@ export function AppSidebar({
         <NavItems items={data.navMain} />
         <NavItems items={data.others} />
       </SidebarContent>
-      <SidebarFooter className={cn({ "p-0": state === "collapsed" })}>
+      <SidebarFooter className={cn("p-0", { "p-0": state === "collapsed" })}>
         <NavSecondary items={data.navSecondary} />
 
-        <OrgSwitcher
-          user={user}
-          clinics={sampleClinics}
-          activeClinic={activeClinic}
-          setActiveClinic={setActiveClinic}
-          organizations={sampleOrganizations}
-        />
+        <div className="p-2">
+          <OrgSwitcher
+            user={user}
+            clinics={sampleClinics}
+            activeClinic={activeClinic}
+            setActiveClinic={setActiveClinic}
+            organizations={sampleOrganizations}
+          />
+        </div>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

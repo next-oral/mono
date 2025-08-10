@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
-import { z, ZodError } from "zod";
+import { z, ZodError } from "zod/v4";
 
 import { VerifyForm } from "@repo/design/components/verify-form";
 import { Button } from "@repo/design/src/components/ui/button";
