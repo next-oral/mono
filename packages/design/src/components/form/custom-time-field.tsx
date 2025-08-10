@@ -492,7 +492,7 @@ export function CustomTimeField<T extends FieldValues>({
   const defaultTime = "09:00 AM"; // Default time if none is set
 
   const renderTimeInput = (
-    field: any,
+    field: FieldValues,
     fieldState: any,
     isFromField = false,
     isToField = false,

@@ -1,7 +1,9 @@
+import { createId } from "@paralleldrive/cuid2";
 import { relations } from "drizzle-orm";
 import { boolean, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
 
-const UserPostions = [
+const UserPositions = [
   "Dentist",
   "Dental Assistant",
   "Receptionist",
@@ -13,7 +15,7 @@ const UserPostions = [
   "Other",
 ] as const;
 
-export const userPositionEnum = pgEnum("position", UserPostions);
+export const userPositionEnum = pgEnum("position", UserPositions);
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -28,7 +30,7 @@ export const user = pgTable("user", {
     .notNull(),
   role: text("role"),
   position: userPositionEnum("position"),
-  locale: text("locale"),
+  locale: text("locale").default("EN"),
   banned: boolean("banned"),
   banReason: text("ban_reason"),
   banExpires: timestamp("ban_expires"),
@@ -46,6 +48,7 @@ export const session = pgTable("session", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   impersonatedBy: text("impersonated_by"),
+  activeTeamId: text("active_team_id"),
   activeOrganizationId: text("active_organization_id"),
 });
 
@@ -100,7 +103,6 @@ export const member = pgTable("member", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   role: text("role").default("member").notNull(),
-  teamId: text("team_id"),
   createdAt: timestamp("created_at").notNull(),
 });
 
@@ -128,6 +130,30 @@ export const team = pgTable("team", {
   updatedAt: timestamp("updated_at"),
 });
 
+export const teamMember = pgTable("team_member", {
+  id: text("id").primaryKey(),
+  teamId: text("team_id").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at"),
+});
+
+export const waitlist = pgTable("waitlist", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  email: text("email").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const waitlistInsertSchema = createInsertSchema(waitlist).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Relations
 export const organizationRelations = relations(organization, ({ many }) => ({
   teams: many(team),
@@ -143,20 +169,20 @@ export const teamRelations = relations(team, ({ one, many }) => ({
   members: many(member),
 }));
 
-export const memberRelations = relations(member, ({ one }) => ({
-  organization: one(organization, {
-    fields: [member.organizationId],
-    references: [organization.id],
-  }),
-  user: one(user, {
-    fields: [member.userId],
-    references: [user.id],
-  }),
-  team: one(team, {
-    fields: [member.teamId],
-    references: [team.id],
-  }),
-}));
+// export const memberRelations = relations(member, ({ one }) => ({
+//   organization: one(organization, {
+//     fields: [member.organizationId],
+//     references: [organization.id],
+//   }),
+//   user: one(user, {
+//     fields: [member.userId],
+//     references: [user.id],
+//   }),
+//   team: one(team, {
+//     fields: [member.teamId],
+//     references: [team.id],
+//   }),
+// }));
 
 export const userRelations = relations(user, ({ many }) => ({
   members: many(member),

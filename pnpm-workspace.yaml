@@ -5,19 +5,19 @@ packages:
 
 catalog:
   # Auth
-  better-auth: ^1.2.7
+  better-auth: ^1.3.4
 
   # Dev tooling
   eslint: ^9.25.1
   prettier: ^3.5.3
   # tailwindcss: ^3.4.15
-  typescript: ^5.8.3
+  typescript: ^5.9.0-beta
 
   # Misc
-  zod: ^3.24.3
+  zod: ^4.0.0
 
   # Tanstack & tRPC
-  "@tanstack/react-query": ^5.69.0
+  "@tanstack/react-query": ^5.83.0
   "@trpc/client": ^11.1.0
   "@trpc/tanstack-react-query": ^11.1.0
   "@trpc/server": ^11.1.0
