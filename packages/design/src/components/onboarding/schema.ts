@@ -2,7 +2,7 @@ import { z } from "zod/v4";
 
 import type { InviteForm } from "./invite";
 
-const UserPostions = [
+const UserPositions = [
   "Dentist",
   "Dental Assistant",
   "Receptionist",
@@ -106,7 +106,7 @@ export const profileFormSchema = z.object({
     .min(1, {
       message: "Must be at least 3 characters",
     }),
-  position: z.enum(UserPostions),
+  position: z.enum(UserPositions),
   locale: z.enum(codes),
   email: z.string().email(),
 });

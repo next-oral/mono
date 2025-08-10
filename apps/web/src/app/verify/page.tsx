@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -24,7 +24,16 @@ const Loading = () => {
     </div>
   );
 };
-export default function VerifyPage() {
+
+export default function Verify() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <VerifyPage />
+    </Suspense>
+  );
+}
+
+export function VerifyPage() {
   const router = useRouter();
   const search = useSearchParams();
   const [isPending, setIsPending] = useState(false);
