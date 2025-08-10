@@ -71,7 +71,7 @@ interface CustomSelectFieldProps<T extends FieldValues> {
   contentClassName?: ClassValue;
 }
 
-export default function CustomSelectField<T extends FieldValues>({
+export function CustomSelectField<T extends FieldValues>({
   control,
   name,
   label = "",

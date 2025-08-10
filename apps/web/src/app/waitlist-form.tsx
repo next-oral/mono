@@ -1,9 +1,13 @@
 "use client";
 
+import type { UseFormReturn } from "react-hook-form";
+import type { z } from "zod/v4";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
+import { waitlistInsertSchema } from "@repo/database/src/schema/auth";
 import { CustomInputField } from "@repo/design/src/components/form/custom-input-field";
 import { Button } from "@repo/design/src/components/ui/button";
 import {
@@ -15,26 +19,39 @@ import {
   DialogTrigger,
 } from "@repo/design/src/components/ui/dialog";
 import { Form } from "@repo/design/src/components/ui/form";
+import { toast } from "@repo/design/src/components/ui/sonner";
 
-const waitlistFormSchema = z.object({
-  firstName: z.string().min(1, { message: "Please provide your first name" }),
-  lastName: z.string().min(1, { message: "Please provide your last name" }),
-  email: z.string().email("Please provide a valid email"),
-});
+import { useTRPC } from "~/trpc/react";
 
-type WaitlistForm = z.infer<typeof waitlistFormSchema>;
+type WaitlistForm = z.infer<typeof waitlistInsertSchema>;
 type WaitlistFormFieldProps =
   | { withDialog: true; children: React.ReactNode }
   | { withDialog?: false; children?: React.ReactNode };
 
 function WlForm({
   waitlistForm,
+  onOpenChange,
 }: {
-  waitlistForm: ReturnType<typeof useForm<WaitlistForm>>;
+  waitlistForm: UseFormReturn<WaitlistForm>;
+  onOpenChange?: (isOpen: boolean) => void;
 }) {
-  const handleWaitlistSubmit = (values: WaitlistForm) => {
+  const trpc = useTRPC();
+
+  const joinWaitlist = useMutation({
+    ...trpc.auth.joinWaitlist.mutationOptions(),
+    onSuccess: () => {
+      toast.success("Thank you for joining us on this journey.", {
+        description: "We'll be in touch soon!",
+      });
+      waitlistForm.reset();
+      onOpenChange?.(false);
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const handleWaitlistSubmit = async (values: WaitlistForm) => {
     try {
-      console.log(values);
+      await joinWaitlist.mutateAsync(values);
     } catch (error) {
       console.error(error);
     }
@@ -69,7 +86,13 @@ function WlForm({
             inputClassName="bg-background"
           />
         </div>
-        <Button className="col-span-2 mt-2 py-5">Join the Waitlist</Button>
+        <Button
+          isLoading={joinWaitlist.isPending}
+          loadingMessage="Joining the waitlist..."
+          className="col-span-2 mt-2 py-5"
+        >
+          Join the Waitlist
+        </Button>
       </form>
     </Form>
   );
@@ -79,8 +102,9 @@ export function WaitlistForm({
   children,
   withDialog = false,
 }: WaitlistFormFieldProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const waitlistForm = useForm<WaitlistForm>({
-    resolver: zodResolver(waitlistFormSchema),
+    resolver: zodResolver(waitlistInsertSchema),
     defaultValues: {
       email: "",
     },
@@ -89,7 +113,7 @@ export function WaitlistForm({
   return (
     <>
       {withDialog ? (
-        <Dialog>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>{children}</DialogTrigger>
           <DialogContent>
             <DialogHeader className="border-b py-3">
@@ -100,7 +124,7 @@ export function WaitlistForm({
                 Join waitlist form
               </DialogDescription>
             </DialogHeader>
-            <WlForm waitlistForm={waitlistForm} />
+            <WlForm onOpenChange={setIsOpen} waitlistForm={waitlistForm} />
           </DialogContent>
         </Dialog>
       ) : (

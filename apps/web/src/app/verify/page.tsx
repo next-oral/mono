@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -15,7 +15,7 @@ import { toast } from "@repo/design/src/components/ui/sonner";
 import { authClient } from "~/auth/client";
 import { env } from "~/env";
 
-const emailSchema = z.string().email();
+const emailSchema = z.email();
 
 const Loading = () => {
   return (
@@ -24,7 +24,16 @@ const Loading = () => {
     </div>
   );
 };
-export default function VerifyPage() {
+
+export default function Verify() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <VerifyPage />
+    </Suspense>
+  );
+}
+
+export function VerifyPage() {
   const router = useRouter();
   const search = useSearchParams();
   const [isPending, setIsPending] = useState(false);
@@ -72,9 +81,8 @@ export default function VerifyPage() {
     } catch (err) {
       console.log(err);
       if (err instanceof ZodError) {
-        const { fieldErrors, formErrors } = err.flatten();
-        const firstFieldError = Object.values(fieldErrors)[0]?.[0];
-        toast.error(firstFieldError ?? formErrors[0] ?? "Invalid input");
+        const { errors } = z.treeifyError(err);
+        toast.error(errors.join("\n"));
       }
     } finally {
       setIsPending(false);

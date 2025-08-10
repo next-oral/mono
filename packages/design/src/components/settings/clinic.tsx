@@ -1,19 +1,40 @@
+"use client";
+
 import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, PlusCircleIcon, PlusIcon } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle,
+  Loader2,
+  Plus,
+  PlusCircleIcon,
+  PlusIcon,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
-import { gender } from "@repo/design/lib/utils";
+import {
+  cn,
+  DAYS_OF_WEEK,
+  dentalSpecialists,
+  dentalTreatmentServices,
+  gender,
+  parseTimeToMinutes,
+  userRoles,
+} from "@repo/design/lib/utils";
 
 import type {
   ColumnConfig,
   // PaginationConfig,
 } from "../table/custom-data-table";
+import { CustomAccordionCheckboxGroup } from "../form/custom-accordion-checkbox-group";
 import { CustomFileField } from "../form/custom-file-field";
 import { CustomInputField } from "../form/custom-input-field";
-import CustomSelectField from "../form/custom-select-field";
+import { CustomSelectField } from "../form/custom-select-field";
+import { CustomSwitchField } from "../form/custom-switch-field";
+import { CustomTimeField } from "../form/custom-time-field";
 import CustomDataTable from "../table/custom-data-table";
 import { Button } from "../ui/button";
 import { Form } from "../ui/form";
@@ -21,6 +42,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -28,7 +50,7 @@ import {
 } from "../ui/sheet";
 
 // Generated 150 table records
-export const sampleData = Array.from({ length: 150 }, (_, i) => ({
+const sampleData = Array.from({ length: 10 }, (_, i) => ({
   id: i + 1, // This will be ignored
   avatar: "/placeholder.svg?height=40&width=40",
   age: [41, 36, 53, 18, 54, 45, 15, 48, 29, 23, 45, 54, 34, 70, 90][i % 15],
@@ -81,106 +103,199 @@ export const sampleData = Array.from({ length: 150 }, (_, i) => ({
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
-const staffAccountSchema = z.object({
+const timeFieldSchema = z
+  .object({
+    from: z.string().optional(), // Allow initial empty state
+    to: z.string().optional(), // Allow initial empty state
+  })
+  .refine(
+    (data) => {
+      if (data.from && data.to) {
+        try {
+          const fromMinutes = parseTimeToMinutes(data.from);
+          const toMinutes = parseTimeToMinutes(data.to);
+          return toMinutes > fromMinutes;
+        } catch {
+          return false; // Invalid time format
+        }
+      }
+      return true; // Skip if either field is empty
+    },
+    {
+      message: "'To' time must be after 'From' time",
+      path: ["to"], // Will be nested under "time" in the form
+    },
+  );
+
+const daySchema = z
+  .object({
+    isActive: z.boolean(),
+    time: timeFieldSchema.optional(), // Optional by default
+  })
+  .refine(
+    (data) =>
+      !data.isActive ||
+      (data.time?.from &&
+        data.time.to &&
+        data.time.from.trim() !== "" &&
+        data.time.to.trim() !== ""),
+    {
+      message: "Both 'From' and 'To' times are required when day is active",
+      path: ["time"], // Applies to the entire time object
+    },
+  );
+
+// Step 1: Personal and Contact Details
+const staffAccountSchemaStep1 = z.object({
   profile: z
-    .any()
-    .refine((file: File) => !!file, { message: "This file is required" })
-    .refine((file: File) => file.size <= MAX_FILE_SIZE, {
-      message: "Max file size is 5MB",
-    })
+    .custom<File>((val) => val instanceof File, "Expected a file")
     .refine(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-      (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-      { message: "Only .jpg, .jpeg, .png and .webp formats are supported" },
-    ),
+      (file) => file.size <= MAX_FILE_SIZE,
+      "File size must be less than 5MB",
+    )
+    .refine(
+      (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
+      "Only JPEG and PNG images are allowed",
+    )
+    .optional(),
   firstName: z
     .string()
-    .min(3, { message: "First name cannot be less than 3 characters long" }),
+    .min(3, { message: "First name must be at least 3 characters" }),
   lastName: z
     .string()
-    .min(3, { message: "Last name cannot be less than 3 characters long" }),
+    .min(3, { message: "Last name must be at least 3 characters" }),
   phoneNumber: z
     .string()
     .trim()
-    .transform((val) => {
-      // Keep leading plus sign '+' if present, then remove all other non-digit characters
-      if (val.startsWith("+")) {
-        return "+" + val.slice(1).replace(/[^\d]/g, "");
-      }
-      return val.replace(/[^\d]/g, "");
-    })
-    .refine(
-      (val) => {
-        // Check regular expression: optional plus sign '+' followed by 1–15 digits, first digit that is not a 0
-        const e164Regex = /^\+?[1-9]\d{1,14}$/;
-        return e164Regex.test(val);
-      },
-      {
-        message: "Invalid international phone number format",
-      },
-    ),
+    .transform((val) =>
+      val.startsWith("+")
+        ? "+" + val.slice(1).replace(/[^\d]/g, "")
+        : val.replace(/[^\d]/g, ""),
+    )
+    .refine((val) => /^\+?[1-9]\d{1,14}$/.test(val), {
+      message: "Invalid international phone number format",
+    }),
   email: z.string().email("Invalid email format"),
   gender: z.enum(["male", "female"]),
   age: z
     .string()
-    .min(1, { message: "Age cannot be less than 1 character" })
-    .max(3, { message: "Age cannot be more than 3 characters" })
-    .refine((val) => {
-      // Check if the value is a valid number between 1 and 999 in case the user is more than 99 years
-      const age = parseInt(val, 10);
-      return !isNaN(age) && age >= 1 && age <= 999;
-    }),
-  address: z.string().min(3, { message: "Address cannot be empty" }),
+    .min(1, { message: "Age is required" })
+    .max(3, { message: "Age cannot exceed 3 digits" })
+    .refine(
+      (val) =>
+        !isNaN(parseInt(val, 10)) &&
+        parseInt(val, 10) >= 1 &&
+        parseInt(val, 10) <= 999,
+      {
+        message: "Age must be a number between 1 and 999",
+      },
+    ),
+  address: z
+    .string()
+    .min(3, { message: "Address must be at least 3 characters" }),
   role: z.enum(["staff", "administrator", "doctor"]),
 });
 
-type RowDefinition = (typeof sampleData)[0];
-type StaffAccountForm = z.infer<typeof staffAccountSchema>;
+// Step 2: Assigned Services
+const staffAccountSchemaStep2 = z.object({
+  specialist: z
+    .array(z.string())
+    .refine((value) => value.some((item) => item), {
+      message: "You must select at least one specialist",
+    }),
+  treatments: z
+    .array(z.string())
+    .refine((value) => value.some((item) => item), {
+      message: "You must select at least one treatment",
+    }),
+});
 
-const roles = [
-  { label: "Staff", value: "staff", tooltip: "staff" },
+// Step 3: Work Hours
+const staffAccountSchemaStep3 = z
+  .object({
+    monday: daySchema,
+    tuesday: daySchema,
+    wednesday: daySchema,
+    thursday: daySchema,
+    friday: daySchema,
+    saturday: daySchema,
+    sunday: daySchema,
+  })
+  .refine((data) => Object.values(data).some((day) => day.isActive), {
+    message: "At least one day must be active",
+    path: ["workHours"],
+  });
+
+// Full staff form schema
+const staffFormSchema = z.object({
+  doctorDetails: staffAccountSchemaStep1,
+  assignedServices: staffAccountSchemaStep2,
+  workHours: staffAccountSchemaStep3,
+});
+
+type StaffAccountForm = z.infer<typeof staffFormSchema>;
+type RowDefinition = (typeof sampleData)[0];
+
+const formCollection = [
   {
-    label: "Administrator",
-    value: "administrator",
-    tooltip:
-      "Edit treatment plans View appointment schedules Chat with patients Access medical records Add new users",
+    label: "doctor details" as const,
+    step: 1,
   },
   {
-    label: "Doctor",
-    value: "doctor",
-    tooltip:
-      "Edit treatment plans View appointment schedules Chat with patients Access medical records Add new users",
+    label: "assigned services" as const,
+    step: 2,
+  },
+  {
+    label: "work hours" as const,
+    step: 3,
   },
 ];
+type FormStep = (typeof formCollection)[number];
 
 export function Clinic() {
   const [isLoading] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [roleFilter, setRoleFilter] = useState<string[]>([]);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  // const [currentPage, setCurrentPage] = useState(1);
-  // const pageSize = 2;
-  // const totalItems = sampleData.length;
+  const [formStep, setFormStep] = useState<FormStep | undefined>(
+    formCollection[0],
+  );
+  const [isTransitioning, setIsTransitioning] = useState(false); // New state for loader
 
-  const staffAccountForm = useForm<StaffAccountForm>({
-    resolver: zodResolver(staffAccountSchema),
+  const form = useForm<StaffAccountForm>({
+    resolver: zodResolver(staffFormSchema),
     defaultValues: {
-      age: "",
-      email: "",
-      firstName: "",
-      lastName: "",
-      gender: "male",
-      profile: undefined,
-      address: "",
-      role: "staff",
-      phoneNumber: "",
+      doctorDetails: {
+        age: "",
+        email: "",
+        firstName: "",
+        lastName: "",
+        gender: "male",
+        profile: undefined,
+        address: "",
+        role: "staff",
+        phoneNumber: "",
+      },
+      assignedServices: {
+        specialist: [],
+        treatments: [],
+      },
+      workHours: {
+        monday: { isActive: false, time: { from: "", to: "" } },
+        tuesday: { isActive: false, time: { from: "", to: "" } },
+        wednesday: { isActive: false, time: { from: "", to: "" } },
+        thursday: { isActive: false, time: { from: "", to: "" } },
+        friday: { isActive: false, time: { from: "", to: "" } },
+        saturday: { isActive: false, time: { from: "", to: "" } },
+        sunday: { isActive: false, time: { from: "", to: "" } },
+      },
     },
   });
 
   const customColumns: ColumnConfig[] = [
     {
       key: "avatar",
-      label: "Patient",
+      label: "Staff",
       sortable: false,
       render: (value, row: RowDefinition) => (
         <div className="flex items-center space-x-3">
@@ -233,6 +348,7 @@ export function Clinic() {
         : [...prev, filterValue],
     );
   };
+
   const handleView = (row: RowDefinition) => {
     console.log("View:", row);
     alert(`Viewing ${row.name}`);
@@ -259,18 +375,38 @@ export function Clinic() {
     alert("See all functionality");
   };
 
-  const handleAccountUpdateSubmit = (Data: StaffAccountForm) => {
-    console.log(Data);
+  const handleProceed = async () => {
+    setIsTransitioning(true);
+    try {
+      const isValid = await form.trigger(
+        formStep?.label === "doctor details"
+          ? ["doctorDetails"]
+          : formStep?.label === "assigned services"
+            ? ["assignedServices"]
+            : ["workHours"],
+        {
+          shouldFocus: true,
+        },
+      );
+      if (isValid && formStep && formStep.step < 3) {
+        setFormStep(formCollection[formStep.step]);
+      }
+    } finally {
+      setIsTransitioning(false);
+    }
   };
 
-  // *** For Optional Backend Integration
-  // const paginationConfig: PaginationConfig = {
-  //   currentPage,
-  //   totalPages: Math.ceil(totalItems / pageSize),
-  //   pageSize,
-  //   totalItems,
-  //   onPageChange: setCurrentPage,
-  // };
+  const handleSubmit = (values: StaffAccountForm) => {
+    try {
+      console.log(values);
+      toast.success("");
+    } catch (error) {
+      console.error("Staff creation failed:", error);
+      toast.error("Failed to add user");
+    }
+  };
+
+  const handleInvalid = (errors: unknown) => console.log("Errors:", errors);
 
   const customEmptyState = (
     <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -278,7 +414,7 @@ export function Clinic() {
         <Plus className="h-8 w-8 text-blue-600" />
       </div>
       <h3 className="text-foreground mb-2 text-lg font-medium">
-        You have no patients yet
+        You have no staff members yet
       </h3>
       <Button className="mt-4" onClick={() => setIsSheetOpen(true)}>
         <Plus className="mr-2 h-4 w-4" />
@@ -337,110 +473,340 @@ export function Clinic() {
                   <PlusIcon /> Add Staff Member
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="min-w-md">
+              <SheetContent side="right" className="min-w-full sm:min-w-md">
                 <SheetHeader className="border-b">
                   <SheetTitle>Add Staff Member</SheetTitle>
+                  <SheetDescription className="sr-only">
+                    add new staff
+                  </SheetDescription>
+                  {formStep && formStep.step > 1 && (
+                    <div className="flex flex-wrap items-center gap-1">
+                      {formCollection.map((col, index) => (
+                        <div
+                          key={index}
+                          className={cn(
+                            "flex items-center gap-1 text-xs opacity-70",
+                            {
+                              "opacity-100": col.label === formStep.label,
+                            },
+                          )}
+                        >
+                          <div className="flex items-center">
+                            {col.step < formStep.step && (
+                              <span className="text-muted-foreground mx-1">
+                                <CheckCircle className="size-3" />
+                              </span>
+                            )}
+                            <span className="capitalize">{col.label}</span>
+                          </div>
+
+                          {col.step < 3 && <ArrowRight className="size-3" />}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </SheetHeader>
 
                 <ScrollArea className="max-h-[80%]">
-                  <Form {...staffAccountForm}>
+                  <Form {...form}>
                     <form
                       className="px-4"
-                      onSubmit={staffAccountForm.handleSubmit(
-                        handleAccountUpdateSubmit,
-                      )}
+                      onSubmit={form.handleSubmit(handleSubmit, handleInvalid)}
                     >
-                      <CustomFileField
-                        control={staffAccountForm.control}
-                        name="profile"
-                        label="Profile Picture"
-                        variant="avatar"
-                        accept=".jpg, .png"
-                        maxSize={5} // 5mb
-                        isNotLabeled={true}
-                        avatarUploadButtonText="Upload DP"
-                        description="formats .jpg, or .png (5mb max size)"
-                        onFileSelect={(files) =>
-                          console.log("Profile selected:", files)
-                        }
-                      />
+                      {formStep?.label === "doctor details" && (
+                        <div>
+                          {isTransitioning && (
+                            <div className="bg-opacity-75 absolute inset-0 z-10 flex items-center justify-center bg-gray-100">
+                              <Loader2 className="text-primary h-8 w-8 animate-spin" />
+                            </div>
+                          )}
+                          <CustomFileField
+                            control={form.control}
+                            name="doctorDetails.profile"
+                            label="Profile Picture"
+                            variant="avatar"
+                            accept=".jpg, .png"
+                            maxSize={5} // 5mb
+                            isNotLabeled={true}
+                            avatarUploadButtonText="Upload DP"
+                            description="formats .jpg, or .png (5mb max size)"
+                            onFileSelect={(files) =>
+                              console.log("Profile selected:", files)
+                            }
+                          />
 
-                      <div className="mt-4 mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div className="">
-                          <CustomInputField
-                            control={staffAccountForm.control}
-                            name="firstName"
-                            placeholder="First Name"
-                            label="First Name"
+                          <div className="mt-4 mb-5 flex flex-wrap gap-4 *:min-w-1/4 *:flex-grow">
+                            <div className="">
+                              <CustomInputField
+                                control={form.control}
+                                name="doctorDetails.firstName"
+                                placeholder="First Name"
+                                label="First Name"
+                              />
+                            </div>
+                            <div className="">
+                              <CustomInputField
+                                control={form.control}
+                                name="doctorDetails.lastName"
+                                placeholder="Last Name"
+                                label="Last Name"
+                              />
+                            </div>
+                            <div className="">
+                              <CustomInputField
+                                control={form.control}
+                                name="doctorDetails.phoneNumber"
+                                placeholder="+234 8090 0389 90"
+                                label="Phone Number"
+                                inputType="tel"
+                                inputMode="tel"
+                              />
+                            </div>
+                            <div className="">
+                              <CustomInputField
+                                control={form.control}
+                                name="doctorDetails.email"
+                                placeholder="johndoe@example.com"
+                                label="email address"
+                                inputMode="email"
+                              />
+                            </div>
+                            <div className="">
+                              <CustomSelectField
+                                control={form.control}
+                                name="doctorDetails.gender"
+                                placeholder="Gender"
+                                label="gender"
+                                options={gender}
+                              />
+                            </div>
+                            <div className="">
+                              <CustomInputField
+                                control={form.control}
+                                name="doctorDetails.age"
+                                placeholder="18"
+                                label="age"
+                                inputMode="numeric"
+                              />
+                            </div>
+                            <div className="col-span-2">
+                              <CustomInputField
+                                control={form.control}
+                                name="doctorDetails.address"
+                                placeholder="15 Hill Avenue"
+                                label="Address"
+                              />
+                            </div>
+                            <div className="col-span-2">
+                              <CustomSelectField
+                                control={form.control}
+                                name="doctorDetails.role"
+                                placeholder="Role"
+                                label="Role"
+                                options={userRoles}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {formStep?.label === "assigned services" && (
+                        <div className="flex flex-col gap-5">
+                          <CustomAccordionCheckboxGroup
+                            control={form.control}
+                            name="assignedServices.specialist"
+                            label="Specialist"
+                            placeholder="Select specialist doctor"
+                            options={dentalSpecialists}
+                          />
+                          <CustomAccordionCheckboxGroup
+                            control={form.control}
+                            name="assignedServices.treatments"
+                            label="Treatment Service"
+                            placeholder="Select treatment service for doctor"
+                            options={dentalTreatmentServices}
                           />
                         </div>
-                        <div className="">
-                          <CustomInputField
-                            control={staffAccountForm.control}
-                            name="lastName"
-                            placeholder="Last Name"
-                            label="Last Name"
-                          />
+                      )}
+
+                      {formStep?.label === "work hours" && (
+                        <div className="flex flex-col gap-4">
+                          {/* Error Summary (if any errors exist in workHours) */}
+                          {typeof form.formState.errors.workHours ===
+                          "object" ? (
+                            <div className="bg-background text-destructive sticky top-0 z-10 rounded-md p-3 text-sm shadow">
+                              <p>Please fix the following issues:</p>
+                              <ul className="ml-4 list-disc">
+                                {Object.entries(
+                                  form.formState.errors.workHours as Record<
+                                    string,
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                    any
+                                  >,
+                                ).map(([day, error]) => (
+                                  <li key={day}>
+                                    {day.charAt(0).toUpperCase() + day.slice(1)}
+                                    :
+                                    {/* Handle day-level errors (e.g., isActive) */}
+                                    {(error as { message?: string })
+                                      .message && (
+                                      <span>
+                                        {" "}
+                                        {
+                                          (error as { message?: string })
+                                            .message
+                                        }
+                                      </span>
+                                    )}
+                                    {/* Handle nested time errors */}
+                                    {(
+                                      error as {
+                                        time?: { from?: string; to?: string };
+                                      }
+                                    ).time &&
+                                      typeof (
+                                        error as {
+                                          time?: { from?: string; to?: string };
+                                        }
+                                      ).time === "object" && (
+                                        <ul className="ml-4 list-disc">
+                                          {(
+                                            error as {
+                                              time?: {
+                                                from?: { message?: string };
+                                              };
+                                            }
+                                          ).time?.from?.message && (
+                                            <li>
+                                              From:{" "}
+                                              {
+                                                (
+                                                  error as {
+                                                    time?: {
+                                                      from?: {
+                                                        message?: string;
+                                                      };
+                                                    };
+                                                  }
+                                                ).time?.from?.message
+                                              }
+                                            </li>
+                                          )}
+                                          {(
+                                            error as {
+                                              time?: {
+                                                to?: { message?: string };
+                                              };
+                                            }
+                                          ).time?.to?.message && (
+                                            <li>
+                                              To:{" "}
+                                              {
+                                                (
+                                                  error as {
+                                                    time?: {
+                                                      to?: { message?: string };
+                                                    };
+                                                  }
+                                                ).time?.to?.message
+                                              }
+                                            </li>
+                                          )}
+                                        </ul>
+                                      )}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ) : typeof form.formState.errors.workHours ===
+                            "string" ? (
+                            <div className="bg-destructive/10 text-destructive sticky top-0 z-10 rounded-md p-3 text-sm">
+                              <p>{form.formState.errors.workHours}</p>
+                            </div>
+                          ) : null}
+                          {DAYS_OF_WEEK.map((day, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2"
+                            >
+                              <div className="w-1/3">
+                                <CustomSwitchField
+                                  control={form.control}
+                                  label={day}
+                                  name={`workHours.${day}.isActive`}
+                                  fieldClassName="flex-row-reverse justify-end"
+                                  labelClassName="text-sm"
+                                />
+                              </div>
+                              <div className="w-2/3">
+                                <CustomTimeField
+                                  control={form.control}
+                                  name={`workHours.${day}.time`}
+                                  timeFieldType="from-to"
+                                  disabled={
+                                    !form.watch(`workHours.${day}.isActive`)
+                                  }
+                                  isNotLabeled
+                                />
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                        <div className="">
-                          <CustomInputField
-                            control={staffAccountForm.control}
-                            name="phoneNumber"
-                            placeholder="+234 8090 0389 90"
-                            label="Phone Number"
-                            inputType="tel"
-                            inputMode="tel"
-                          />
+                      )}
+
+                      <SheetFooter className="mt-4 grid grid-cols-2 items-center justify-between px-1">
+                        <div className="flex gap-1">
+                          {Array.from({ length: 3 }).map((_, index) => (
+                            <span
+                              key={index}
+                              className={cn(
+                                "bg-primary-foreground h-[2px] w-[16%] rounded-full transition-colors duration-500",
+                                {
+                                  "bg-primary":
+                                    formStep?.step ===
+                                    formCollection[index]?.step,
+                                },
+                              )}
+                            />
+                          ))}
                         </div>
-                        <div className="">
-                          <CustomInputField
-                            control={staffAccountForm.control}
-                            name="email"
-                            placeholder="johndoe@example.com"
-                            label="email address"
-                            inputMode="email"
-                          />
+
+                        <div className="ml-auto grid grid-cols-2 gap-1">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="size-fit"
+                            aria-label="previous"
+                            disabled={
+                              formStep?.label === "doctor details" ||
+                              isTransitioning
+                            }
+                            onClick={() => {
+                              if (formStep && formStep.step > 1) {
+                                setFormStep(formCollection[formStep.step - 2]);
+                              }
+                            }}
+                          >
+                            Previous
+                          </Button>
+
+                          <Button
+                            type={formStep?.step === 3 ? "submit" : "button"}
+                            onClick={
+                              formStep && formStep.step < 3
+                                ? handleProceed
+                                : undefined
+                            }
+                            className="size-fit"
+                            disabled={isTransitioning}
+                          >
+                            {isTransitioning
+                              ? "Loading..."
+                              : formStep && formStep.step < 3
+                                ? "Proceed"
+                                : "Submit"}
+                          </Button>
                         </div>
-                        <div className="">
-                          <CustomSelectField
-                            control={staffAccountForm.control}
-                            name="gender"
-                            placeholder="Gender"
-                            label="gender"
-                            options={gender}
-                          />
-                        </div>
-                        <div className="">
-                          <CustomInputField
-                            control={staffAccountForm.control}
-                            name="age"
-                            placeholder="18"
-                            label="age"
-                            inputMode="numeric"
-                          />
-                        </div>
-                        <div className="col-span-2">
-                          <CustomInputField
-                            control={staffAccountForm.control}
-                            name="address"
-                            placeholder="15 Hill Avenue"
-                            label="Address"
-                          />
-                        </div>
-                        <div className="col-span-2">
-                          <CustomSelectField
-                            control={staffAccountForm.control}
-                            name="role"
-                            placeholder="Role"
-                            label="Role"
-                            options={roles}
-                          />
-                        </div>
-                      </div>
-                      <SheetFooter className="flex items-end">
-                        <Button type="submit" className="mt-4 size-fit px-8">
-                          Proceed
-                        </Button>
                       </SheetFooter>
                     </form>
                   </Form>
