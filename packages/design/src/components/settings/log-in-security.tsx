@@ -4,7 +4,7 @@ import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, CopyIcon, Monitor, QrCodeIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import {
   AndroidBrand,
@@ -294,7 +294,7 @@ function SecondaryPage({
                           <TooltipTrigger
                             className="px-2"
                             onClick={() =>
-                               handleClipBoardCopy("NBCK-LDTHS-NJ1")
+                              handleClipBoardCopy("NBCK-LDTHS-NJ1")
                             }
                             aria-label="copy secret key to clipboard"
                           >

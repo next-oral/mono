@@ -14,7 +14,7 @@
     },
     "./schema": {
       "types": "./dist/schema/index.d.ts",
-      "default": "./src/schema/index.js"
+      "default": "./src/schema/index.ts"
     },
     "./env": "./src/env.ts"
   },
@@ -31,10 +31,11 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.2",
     "@upstash/redis": "^1.34.9",
     "@vercel/postgres": "^0.10.0",
     "drizzle-orm": "^0.43.1",
-    "drizzle-zod": "^0.7.1",
+    "drizzle-zod": "^0.8.2",
     "zod": "catalog:"
   },
   "devDependencies": {

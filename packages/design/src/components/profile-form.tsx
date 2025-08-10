@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardTitle } from "./ui/card";
@@ -19,14 +19,14 @@ import { Input } from "./ui/input";
 const profileFormSchema = z.object({
   firstName: z
     .string({
-      required_error: "Firstname is required",
+      message: "Firstname is required",
     })
     .min(1, {
       message: "Firstname must be at least 3 characters",
     }),
   lastName: z
     .string({
-      required_error: "Lastname is required",
+      message: "Lastname is required",
     })
     .min(1, {
       message: "Lastname must be at least 3 characters",

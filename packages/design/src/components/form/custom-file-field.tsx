@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
 import type { ClassValue } from "class-variance-authority/types";
@@ -16,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 
-import { cn, splitCamelCaseToWords, truncateFileName } from "@repo/design/lib/utils";
+import { cn, splitCamelCaseToWords } from "@repo/design/lib/utils";
 
 import { Button } from "../ui/button";
 import {
@@ -135,8 +133,7 @@ export function CustomFileField<T extends FieldValues>({
 
     const file = files[0];
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    if (!validateFileSize(file!)) {
+    if (file && !validateFileSize(file)) {
       // Handle file size error
       console.error(`File size exceeds ${maxSize}MB limit`);
       return;
@@ -198,7 +195,7 @@ export function CustomFileField<T extends FieldValues>({
     }
   };
 
-  const getCurrentPreviewSource = (field: { value: File | string | null }) => {
+  const getCurrentPreviewSource = (field: { value: any }) => {
     // If user selected a new file and we have a preview, use it
     if (preview && !hasDefaultPreview) {
       return preview;
@@ -208,12 +205,20 @@ export function CustomFileField<T extends FieldValues>({
       return defaultPreview;
     }
     // If field has a value and it's a string (URL), use it
-    if (field.value && typeof field.value === "string") {
+    if (typeof field.value === "string" && field.value) {
       return field.value;
     }
     return null;
   };
 
+  // this function is to cut out some characters from the file name leaving the remaining string and the file extension
+  const truncateFileName = (fileName: string, maxLength: number) => {
+    if (fileName.length <= maxLength) return fileName;
+    const extension = fileName.split(".").pop();
+    const nameWithoutExtension = fileName.slice(0, fileName.lastIndexOf("."));
+    const truncatedName = nameWithoutExtension.slice(0, maxLength - 3);
+    return `${truncatedName}...${extension}`;
+  };
 
   return (
     <FormField
