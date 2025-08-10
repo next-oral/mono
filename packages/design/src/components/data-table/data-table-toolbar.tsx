@@ -49,9 +49,7 @@ export function DataTableToolbar<TData>({
       {...props}
     >
       <div className="flex flex-1 flex-wrap items-center gap-2">
-        <span className="text-muted-foreground border-r pr-2 text-sm font-medium">
-          Filters
-        </span>
+        <span className="border-r pr-2 text-sm font-medium">Filters</span>
         <div className="flex flex-1 flex-wrap items-center gap-2">
           {columns
             .filter((column) => column.columnDef.meta?.variant !== "text")
@@ -63,7 +61,7 @@ export function DataTableToolbar<TData>({
               aria-label="Reset filters"
               variant="outline"
               size="sm"
-              className="border-dashed"
+              className="border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive border-dashed"
               onClick={onReset}
             >
               <X />

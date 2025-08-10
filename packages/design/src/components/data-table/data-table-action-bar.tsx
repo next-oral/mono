@@ -48,7 +48,7 @@ function DataTableActionBar<TData>({
   }, [table]);
 
   const container =
-    containerProp ?? (mounted ? globalThis.document?.body : null);
+    containerProp ?? (mounted ? globalThis.document.body : null);
 
   if (!container) return null;
 
@@ -103,7 +103,7 @@ function DataTableActionBarAction({
         size === "icon" ? "size-7" : "h-7",
         className,
       )}
-      disabled={disabled || isPending}
+      disabled={disabled ?? isPending}
       {...props}
     >
       {isPending ? <Loader className="animate-spin" /> : children}

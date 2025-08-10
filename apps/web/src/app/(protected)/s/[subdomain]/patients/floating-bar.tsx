@@ -110,7 +110,7 @@ export function FloatingBar<T>({ table }: FloatingBarProps<T>) {
                     </TooltipTrigger>
                   </SelectTrigger>
                   <TooltipContent className="bg-accent text-foreground border font-semibold dark:bg-zinc-900">
-                    <p>Update status</p>
+                    <p>Update</p>
                   </TooltipContent>
                 </Tooltip>
                 <SelectContent align="center">

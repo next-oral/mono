@@ -18,7 +18,7 @@ import { formatDate } from "@repo/design/lib/format";
 type DateSelection = Date[] | DateRange;
 
 function getIsDateRange(value: DateSelection): value is DateRange {
-  return value && typeof value === "object" && !Array.isArray(value);
+  return typeof value === "object" && !Array.isArray(value);
 }
 
 function parseAsDate(timestamp: number | string | undefined): Date | undefined {
@@ -110,7 +110,7 @@ export function DataTableDateFilter<TData>({
   const hasValue = React.useMemo(() => {
     if (multiple) {
       if (!getIsDateRange(selectedDates)) return false;
-      return selectedDates.from || selectedDates.to;
+      return selectedDates.from ?? selectedDates.to;
     }
     if (!Array.isArray(selectedDates)) return false;
     return selectedDates.length > 0;
@@ -128,7 +128,7 @@ export function DataTableDateFilter<TData>({
     if (multiple) {
       if (!getIsDateRange(selectedDates)) return null;
 
-      const hasSelectedDates = selectedDates.from || selectedDates.to;
+      const hasSelectedDates = selectedDates.from ?? selectedDates.to;
       const dateText = hasSelectedDates
         ? formatDateRange(selectedDates)
         : "Select date range";
@@ -195,7 +195,7 @@ export function DataTableDateFilter<TData>({
       <PopoverContent className="w-auto p-0" align="start">
         {multiple ? (
           <Calendar
-            initialFocus
+            autoFocus
             mode="range"
             selected={
               getIsDateRange(selectedDates)
@@ -206,7 +206,7 @@ export function DataTableDateFilter<TData>({
           />
         ) : (
           <Calendar
-            initialFocus
+            autoFocus
             mode="single"
             selected={
               !getIsDateRange(selectedDates) ? selectedDates[0] : undefined
