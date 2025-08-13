@@ -164,17 +164,17 @@ export function Clinic() {
 
   const staffAccountForm = useForm<StaffAccountForm>({
     resolver: zodResolver(staffAccountSchema),
-    defaultValues: {
-      age: "",
-      email: "",
-      firstName: "",
-      lastName: "",
-      gender: "male",
-      profile: undefined,
-      address: "",
-      role: "staff",
-      phoneNumber: "",
-    },
+    // defaultValues: {
+    //   age: "",
+    //   email: "",
+    //   firstName: "",
+    //   lastName: "",
+    //   gender: "male",
+    //   profile: undefined,
+    //   address: "",
+    //   role: "staff",
+    //   phoneNumber: "",
+    // },
   });
 
   const customColumns: ColumnConfig[] = [
