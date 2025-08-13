@@ -58,12 +58,12 @@ const roles = [
       },
       notifications: {
         canSendNotifications: true,
-        canSendEmailAndSMS: true,
+        canManageEmailAndSMSSettings: true,
         canReceiveAppointmentAlert: true,
         canReceivePatientFeedback: false,
         canNotifyPatientOnAppointment: true,
         canControlAutoNotifications: false,
-        canReceiveScheduleUpdates: true,
+        canReceiveScheduleNotifications: true,
       },
       security: {
         canAccessLogs: true,
@@ -114,12 +114,12 @@ const roles = [
       },
       notifications: {
         canSendNotifications: true,
-        canSendEmailAndSMS: false,
+        canManageEmailAndSMSSettings: false,
         canReceiveAppointmentAlert: true,
         canReceivePatientFeedback: true,
         canNotifyPatientOnAppointment: true,
         canControlAutoNotifications: false,
-        canReceiveScheduleUpdates: true,
+        canReceiveScheduleNotifications: true,
       },
       security: {
         canAccessLogs: false,
@@ -170,12 +170,12 @@ const roles = [
       },
       notifications: {
         canSendNotifications: false,
-        canSendEmailAndSMS: false,
+        canManageEmailAndSMSSettings: false,
         canReceiveAppointmentAlert: false,
         canReceivePatientFeedback: false,
         canNotifyPatientOnAppointment: false,
         canControlAutoNotifications: false,
-        canReceiveScheduleUpdates: false,
+        canReceiveScheduleNotifications: false,
       },
       security: {
         canAccessLogs: false,
@@ -221,12 +221,12 @@ const systemSettingsSchema = z.object({
 
 const notificationsSchema = z.object({
   canSendNotifications: z.boolean().catch(false),
-  canSendEmailAndSMS: z.boolean().catch(false),
+  canManageEmailAndSMSSettings: z.boolean().catch(false),
   canReceiveAppointmentAlert: z.boolean().catch(false),
   canReceivePatientFeedback: z.boolean().catch(false),
   canNotifyPatientOnAppointment: z.boolean().catch(false),
   canControlAutoNotifications: z.boolean().catch(false),
-  canReceiveScheduleUpdates: z.boolean().catch(false),
+  canReceiveScheduleNotifications: z.boolean().catch(false),
 });
 
 const securitySchema = z.object({
@@ -429,43 +429,797 @@ export function Teams() {
               editForm={editRoleForm as unknown as never}
               createForm={createRoleForm as unknown as never}
             >
-              <div className="flex flex-wrap gap-1 *:flex-1 mt-5 py-5 border-y border-secondary">
+              {/* USER MANAGEMENT */}
+              <div className="border-secondary mt-10 flex flex-wrap gap-1 border-y py-5 *:flex-1">
                 <h4 className="text-sm"> User Management</h4>
                 <div className="rounded-xl border p-3">
-                  {pageState === "edit" ? (
-                    <CustomCheckboxField
-                      control={editRoleForm.control}
-                      name={"userManagement.canAddEditOrRemoveUsers"}
-                      label="Add, edit, or remove users"
-                      labelClassName="text-xs opacity-70"
-                      defaultChecked={editStateInfo?.permissions.userManagement.canAddEditOrRemoveUsers}
-                    />
-                  ) : (
-                    <CustomCheckboxField
-                      control={createRoleForm.control}
-                      name={
-                        "permissions.userManagement.canAddEditOrRemoveUsers"
-                      }
-                      label="Add, edit, or remove users"
-                    />
-                  )}
-                  {pageState === "edit" ? (
-                    <CustomCheckboxField
-                      control={editRoleForm.control}
-                      name={"userManagement.canAssignAndChangeRole"}
-                      label="Add, edit, or remove users"
-                      labelClassName="text-xs opacity-70"
-                      defaultChecked={editStateInfo?.permissions.userManagement.canAddEditOrRemoveUsers}
-                    />
-                  ) : (
-                    <CustomCheckboxField
-                      control={createRoleForm.control}
-                      name={
-                        "permissions.userManagement.canAssignAndChangeRole"
-                      }
-                      label="Add, edit, or remove users"
-                    />
-                  )}
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"userManagement.canAddEditOrRemoveUsers"}
+                          label="Add, edit, or remove users"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.userManagement
+                              .canAddEditOrRemoveUsers
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.userManagement.canAddEditOrRemoveUsers"
+                          }
+                          label="Add, edit, or remove users"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"userManagement.canAssignAndChangeRole"}
+                          label="Assign and change roles"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.userManagement
+                              .canAssignAndRole
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.userManagement.canAssignAndChangeRole"
+                          }
+                          label="Assign and change roles"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"userManagement.canResetUserPassword"}
+                          label="Reset user password"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.userManagement
+                              .canResetUserPassword
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.userManagement.canResetUserPassword"
+                          }
+                          label="Reset user password"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"userManagement.canViewUserActivityLogs"}
+                          label="View user activity logs"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.userManagement
+                              .canViewUserActivityLogs
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.userManagement.canViewUserActivityLogs"
+                          }
+                          label="View user activity logs"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* DOCTOR MANAGEMENT */}
+              <div className="border-secondary mt-10 flex flex-wrap gap-1 border-y py-5 *:flex-1">
+                <div className="flex flex-col">
+                  <h4 className="text-sm"> Doctor Management</h4>
+                  <p className="text-xs opacity-60">
+                    Configure whether the role can configure organization
+                    details and Single Sign-On.
+                  </p>
+                </div>
+                <div className="rounded-xl border p-3">
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"doctorManagement.canApproveDoctorSchedules"}
+                          label="Approve doctor schedules"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.doctorManagement
+                              .canApproveDoctorSchedules
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.doctorManagement.canApproveDoctorSchedules"
+                          }
+                          label="Approve doctor schedules"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"doctorManagement.canAssignPatientToDoctors"}
+                          label="Assign patient to doctors"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.doctorManagement
+                              .canAssignPatientToDoctors
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.doctorManagement.canAssignPatientToDoctors"
+                          }
+                          label="Assign patient to doctors"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* PATIENT RECORDS */}
+              <div className="border-secondary mt-10 flex flex-wrap gap-1 border-y py-5 *:flex-1">
+                <div className="flex flex-col">
+                  <h4 className="text-sm">Patient Records</h4>
+                  <p className="text-xs opacity-60">
+                    Configure whether the role can configure organization
+                    details and Single Sign-On.
+                  </p>
+                </div>
+                <div className="rounded-xl border p-3">
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"patientRecords.canViewAllPatientRecords"}
+                          label="View all patient records"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.patientRecords
+                              .canViewAllPatientRecords
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.patientRecords.canViewAllPatientRecords"
+                          }
+                          label="View all patient records"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"patientRecords.canModifyOrCancelAppointments"}
+                          label="Modify or cancel any appointment"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.patientRecords
+                              .canModifyOrCancelAppointments
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.patientRecords.canModifyOrCancelAppointments"
+                          }
+                          label="Modify or cancel any appointment"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"patientRecords.canViewBasicPatientInfo"}
+                          label="View basic patient info (contact, insurance, etc)"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.patientRecords
+                              .canViewBasicPatientInfo
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.patientRecords.canViewBasicPatientInfo"
+                          }
+                          label="View basic patient info (contact, insurance, etc)"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"patientRecords.canUploadCaseFiles"}
+                          label="Upload X-rays/case files"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.patientRecords
+                              .canUploadCaseFiles
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={"permissions.patientRecords.canUploadCaseFiles"}
+                          label="Upload X-rays/case files"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"patientRecords.canAccessAppointmentAnalytics"}
+                          label="Access appointment analytics"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.patientRecords
+                              .canAccessAppointmentAnalytics
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.patientRecords.canAccessAppointmentAnalytics"
+                          }
+                          label="Access appointment analytics"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* BILLING/FINANCE */}
+              <div className="border-secondary mt-10 flex flex-wrap gap-1 border-y py-5 *:flex-1">
+                <div className="flex flex-col">
+                  <h4 className="text-sm">Billings/Finance</h4>
+                  <p className="text-xs opacity-60">
+                    Configure whether the role can configure organization
+                    details and Single Sign-On.
+                  </p>
+                </div>
+                <div className="rounded-xl border p-3">
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"billingFinance.canViewAllRecords"}
+                          label="View all payment records"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.billingFinance
+                              .canViewAllRecords
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={"permissions.billingFinance.canViewAllRecords"}
+                          label="View all payment records"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"billingFinance.canExportFinancialData"}
+                          label="Export financial data"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.billingFinance
+                              .canExportFinancialData
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.billingFinance.canExportFinancialData"
+                          }
+                          label="Export financial data"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"billingFinance.canManageInsurancePolicies"}
+                          label="Manage insurance policies"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.billingFinance
+                              .canManageInsurancePolicies
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.billingFinance.canManageInsurancePolicies"
+                          }
+                          label="Manage insurance policies"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"billingFinance.canManageInsurancePolicies"}
+                          label="Manage insurance polices"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.billingFinance
+                              .canManageInsurancePolicies
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.billingFinance.canManageInsurancePolicies"
+                          }
+                          label="Manage insurance polices"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"billingFinance.canMarkPaymentAsReceived"}
+                          label="Mark payment as received"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.billingFinance
+                              .canMarkPaymentAsReceived
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.billingFinance.canMarkPaymentAsReceived"
+                          }
+                          label="Mark payment as received"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* SYSTEM SETTINGS */}
+              <div className="border-secondary mt-10 flex flex-wrap gap-1 border-y py-5 *:flex-1">
+                <div className="flex flex-col">
+                  <h4 className="text-sm">System Settings</h4>
+                  <p className="text-xs opacity-60">
+                    Configure whether the role can configure organization
+                    details and Single Sign-On.
+                  </p>
+                </div>
+                <div className="rounded-xl border p-3">
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"systemSettings.canConfigureGlobalSettings"}
+                          label="Configure global settings"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.systemSettings
+                              .canConfigureGlobalSettings
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.systemSettings.canConfigureGlobalSettings"
+                          }
+                          label="Configure global settings"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={
+                            "systemSettings.canManageClinicBranchesAndHours"
+                          }
+                          label="Manage clinic branches and hours"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.systemSettings
+                              .canManageClinicBranchesAndHours
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.systemSettings.canManageClinicBranchesAndHours"
+                          }
+                          label="Manage clinic branches and hours"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"systemSettings.canSetNotificationPreferences"}
+                          label="Set notification preferences (global)"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.systemSettings
+                              .canSetNotificationPreferences
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.systemSettings.canSetNotificationPreferences"
+                          }
+                          label="Set notification preferences (global)"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* NOTIFICATIONS */}
+              <div className="border-secondary mt-10 flex flex-wrap gap-1 border-y py-5 *:flex-1">
+                <div className="flex flex-col">
+                  <h4 className="text-sm">Notifications</h4>
+                  <p className="text-xs opacity-60">
+                    Configure whether the role can configure organization
+                    details and Single Sign-On.
+                  </p>
+                </div>
+                <div className="rounded-xl border p-3">
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"notifications.canSendNotifications"}
+                          label="Send system wide notifications"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.notifications
+                              .canSendNotifications
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.notifications.canSendNotifications"
+                          }
+                          label="Send system wide notifications"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"notifications.canManageEmailAndSMSSettings"}
+                          label="Manage email/SMS settings"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.notifications
+                              .canManageEmailAndSMSSettings
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.notifications.canManageEmailAndSMSSettings"
+                          }
+                          label="Manage email/SMS settings"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"notifications.canReceiveAppointmentAlert"}
+                          label="Receive appointment alerts"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.notifications
+                              .canReceiveAppointmentAlert
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.notifications.canReceiveAppointmentAlert"
+                          }
+                          label="Receive appointment alerts"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"notifications.canReceivePatientFeedback"}
+                          label="Receive patient feedback alerts"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.notifications
+                              .canReceivePatientFeedback
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.notifications.canReceivePatientFeedback"
+                          }
+                          label="Receive patient feedback alerts"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"notifications.canNotifyPatientOnAppointment"}
+                          label="Notify patient on reschedules or cancellations"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.notifications
+                              .canNotifyPatientOnAppointment
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.notifications.canNotifyPatientOnAppointment"
+                          }
+                          label="Notify patient on reschedules or cancellations"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"notifications.canControlAutoNotifications"}
+                          label="Control who receives automated reminders"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.notifications
+                              .canControlAutoNotifications
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.notifications.canControlAutoNotifications"
+                          }
+                          label="Control who receives automated reminders"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"notifications.canReceiveScheduleNotifications"}
+                          label="Receive schedule change notifications"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.notifications
+                              .canReceiveScheduleNotifications
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={
+                            "permissions.notifications.canReceiveScheduleNotifications"
+                          }
+                          label="Receive schedule change notifications"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* DATA & SECURITY */}
+              <div className="border-secondary mt-10 flex flex-wrap gap-1 border-y py-5 *:flex-1">
+                <div className="flex flex-col">
+                  <h4 className="text-sm">Data & Security</h4>
+                  <p className="text-xs opacity-60">
+                    Configure whether the role can configure organization
+                    details and Single Sign-On.
+                  </p>
+                </div>
+                <div className="rounded-xl border p-3">
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"security.canAccessLogs"}
+                          label="Can access logs and backups"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.security.canAccessLogs
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={"permissions.security.canAccessLogs"}
+                          label="Can access logs and backups"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-b-secondary border-b py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"security.canEnforcePasswordPolicy"}
+                          label="Enable/disable user 2FA"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.security
+                              .canEnforcePasswordPolicy
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={"permissions.security.canEnforcePasswordPolicy"}
+                          label="Enable/disable user 2FA"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="py-2">
+                    <div className="px-1">
+                      {pageState === "edit" ? (
+                        <CustomCheckboxField
+                          control={editRoleForm.control}
+                          name={"security.canViewComplianceReports"}
+                          label="View compliance records"
+                          labelClassName="text-xs opacity-70"
+                          defaultChecked={
+                            editStateInfo?.permissions.security
+                              .canViewComplianceReports
+                          }
+                        />
+                      ) : (
+                        <CustomCheckboxField
+                          control={createRoleForm.control}
+                          name={"permissions.security.canViewComplianceReports"}
+                          label="View compliance records"
+                        />
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </FormWrapper>
