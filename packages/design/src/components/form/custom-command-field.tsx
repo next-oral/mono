@@ -109,7 +109,7 @@ export function CustomCommandField<T extends FieldValues>({
                   aria-expanded={open}
                   disabled={disabled || readOnly}
                   className={cn(
-                    "border-secondary-foreground/30 w-full justify-between rounded-lg border bg-transparent px-3 py-5 shadow-none transition-all duration-200 hover:bg-transparent focus:border-transparent focus:ring-0 focus:outline-none focus-visible:ring-0",
+                    +"border-secondary-foreground/30 focus-visible:ring-ring w-full justify-between rounded-lg border bg-transparent px-3 py-5 shadow-none transition-all duration-200 hover:bg-transparent focus-visible:ring-2 focus-visible:ring-offset-2",
                     triggerClassName,
                     {
                       "border-destructive/5 focus:ring-destructive/10 bg-destructive/10":

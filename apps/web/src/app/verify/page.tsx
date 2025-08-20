@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
-import { z, ZodError } from "zod";
+import { z, ZodError } from "zod/v4";
 
 import { VerifyForm } from "@repo/design/components/verify-form";
 import { Button } from "@repo/design/src/components/ui/button";
@@ -24,7 +24,16 @@ const Loading = () => {
     </div>
   );
 };
-export default function VerifyPage() {
+
+export default function Verify() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <VerifyPage />
+    </Suspense>
+  );
+}
+
+export function VerifyPage() {
   const router = useRouter();
   const search = useSearchParams();
   const [isPending, setIsPending] = useState(false);
@@ -42,6 +51,8 @@ export default function VerifyPage() {
   if (organizations?.data?.length) {
     const org = organizations.data[0];
     if (!org) return void router.replace("/onboarding");
+
+    console.log(org);
 
     void authClient.organization.setActive({
       organizationId: org.id,
