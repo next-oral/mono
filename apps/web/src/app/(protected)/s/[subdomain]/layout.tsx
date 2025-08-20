@@ -96,6 +96,7 @@ export async function SubdomainLayoutWithAuth({
   //   headers: heads,
   // });
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   await auth.api.listOrganizations({
     headers: heads,
   });

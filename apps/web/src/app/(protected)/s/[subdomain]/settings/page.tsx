@@ -4,7 +4,7 @@ import { AccountSettings } from "@repo/design/components/settings/account-settin
 import { Billings } from "@repo/design/components/settings/billings";
 import { Clinic } from "@repo/design/components/settings/clinic";
 import { LogInSecurity } from "@repo/design/components/settings/log-in-security";
-import { Organization } from "@repo/design/components/settings/organization";
+import { Teams } from "@repo/design/components/settings/teams";
 import {
   Tabs,
   TabsContent,
@@ -20,7 +20,7 @@ export default function Settings() {
         <TabsList className="no-scrollbar *:border-secondary *:data-[state=active]:bg-secondary h-fit gap-1 overflow-x-auto bg-transparent *:cursor-pointer *:border-2 *:px-3 *:py-2 *:font-medium *:opacity-80 *:data-[state=active]:opacity-100 sm:gap-3">
           <TabsTrigger value="account">Account Settings</TabsTrigger>
           <TabsTrigger value="log-in-security">Log in & Security</TabsTrigger>
-          <TabsTrigger value="organization">Organization</TabsTrigger>
+          <TabsTrigger value="teams">Teams</TabsTrigger>
           <TabsTrigger value="clinic">Clinic</TabsTrigger>
           <TabsTrigger value="billings">Billings</TabsTrigger>
         </TabsList>
@@ -31,8 +31,8 @@ export default function Settings() {
       <TabsContent value="log-in-security">
         <LogInSecurity />
       </TabsContent>
-      <TabsContent value="organization">
-        <Organization />
+      <TabsContent value="teams">
+        <Teams />
       </TabsContent>
       <TabsContent value="clinic">
         <Clinic />
