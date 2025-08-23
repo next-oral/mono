@@ -1,7 +1,7 @@
-import { MonthView } from "@repo/design/components/calendar/month-view";
+import { YearView } from "@repo/design/components/calendar/year-view";
 
 const Calendar = () => {
-  return <MonthView />;
+  return <YearView />;
 };
 
 export default Calendar;
