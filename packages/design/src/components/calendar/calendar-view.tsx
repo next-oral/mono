@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "../../icons"
 import { cn, truncateText } from "../../lib/utils"
-import { Stethoscope } from "lucide-react"
+import { ArrowUpDown, ReplaceAllIcon, ReplaceIcon, Stethoscope } from "lucide-react"
 import {
     DndContext,
     DragOverlay,
@@ -20,14 +20,11 @@ import {
     useSensors,
     closestCenter,
     pointerWithin,
-
-
-
-
     useDraggable,
-    useDroppable
+    useDroppable,
+    rectIntersection
 } from "@dnd-kit/core"
-import type { DragStartEvent, DragMoveEvent, DragEndEvent, UniqueIdentifier } from "@dnd-kit/core";
+import type { DragStartEvent, DragMoveEvent, DragEndEvent, UniqueIdentifier, CollisionDetection, Modifier } from "@dnd-kit/core";
 import { restrictToVerticalAxis, restrictToParentElement } from "@dnd-kit/modifiers"
 import { CSS } from "@dnd-kit/utilities"
 
@@ -83,41 +80,41 @@ const DAY_MAX_END = DAY_MINUTES - MIN_APPOINTMENT_MINUTES
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
 const roundToQuarter = (minutes: number) => Math.round(minutes / 15) * 15
 
-const snapToGrid = (args: any) => {
-    const { transform } = args
-    if (!transform) return transform
-    const snappedY = Math.round(transform.y / SNAP_GRID) * SNAP_GRID
-    return { ...transform, y: snappedY }
+const snapToGrid = (args: { transform?: { y: number } }) => {
+    const { transform } = args;
+    if (!transform) return transform;
+    const snappedY = Math.round(transform.y / SNAP_GRID) * SNAP_GRID;
+    return { ...transform, y: snappedY };
 }
 
-type Appointment = (typeof dummyAppointments)[0]
+type Appointment = (typeof dummyAppointments)[0];
 
 function minutesToTime(minutes: number) {
-    minutes = clamp(Math.round(minutes), 0, DAY_MINUTES - 1)
-    const hh = Math.floor(minutes / 60)
-    const mm = minutes % 60
-    return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`
+    minutes = clamp(Math.round(minutes), 0, DAY_MINUTES - 1);
+    const hh = Math.floor(minutes / 60);
+    const mm = minutes % 60;
+    return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 }
 
 export const Calendar = () => {
-    const [selectedView, setSelectedView] = useState<"Day" | "Week">("Day")
-    const [selectedDentist, setSelectedDentist] = useState<string | number>("All dentists")
-    const [currentDate, setCurrentDate] = useState(new Date())
+    const [selectedView, setSelectedView] = useState<"Day" | "Week">("Day");
+    const [selectedDentist, setSelectedDentist] = useState<string | number>("All dentists");
+    const [currentDate, setCurrentDate] = useState(new Date());
 
-    const [showNewAppointmentDialog, setShowNewAppointmentDialog] = useState(false)
-    const [showEditAppointmentDialog, setShowEditAppointmentDialog] = useState(false)
-    const [appointments, setAppointments] = useState<Appointment[]>(dummyAppointments)
-    const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
+    const [showNewAppointmentDialog, setShowNewAppointmentDialog] = useState(false);
+    const [showEditAppointmentDialog, setShowEditAppointmentDialog] = useState(false);
+    const [appointments, setAppointments] = useState<Appointment[]>(dummyAppointments);
+    const [_selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
-    // DnD state
-    const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
-    const [originalAppointment, setOriginalAppointment] = useState<Appointment | null>(null)
-    const [newStartTime, setNewStartTime] = useState<string | null>(null)
+    // DnD states
+    const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+    const [originalAppointment, setOriginalAppointment] = useState<Appointment | null>(null);
+    const [newStartTime, setNewStartTime] = useState<string | null>(null);
 
     // confirm dialog
-    const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-    const [targetAppointment, setTargetAppointment] = useState<Appointment | null>(null)
-    const [pendingNewStartMinutes, setPendingNewStartMinutes] = useState<number | null>(null)
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const [targetAppointment, setTargetAppointment] = useState<Appointment | null>(null);
+    const [pendingNewStartMinutes, setPendingNewStartMinutes] = useState<number | null>(null);
 
     // generate time labels 12AM -> 11PM
     const timeSlots = Array.from({ length: 24 }).map((_, i) => {
@@ -228,36 +225,36 @@ export const Calendar = () => {
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { delay: 120, tolerance: 5 } }))
     const modifiers = [restrictToVerticalAxis, restrictToParentElement, snapToGrid]
 
-    const customCollisionDetection = (args: any) => {
-        // Get droppables that contain the pointer
+    const customCollisionDetection = (args: never) => {
+
+        // RectIntersection to be able to detect even when schedule edges touch
+        const rectCollisions = rectIntersection(args)
+        if (rectCollisions.length > 0) {
+            const appointmentCollisions = rectCollisions.filter((c: unknown) => {
+                return !(typeof (c as { id: string }).id === "string" && (c as { id: string }).id.startsWith("slot-"))
+            })
+            if (appointmentCollisions.length > 0) return appointmentCollisions
+            return rectCollisions
+        }
+
+        // Detect pointer-within in-case if rect intersection fails
         const pointerCollisions = pointerWithin(args)
 
         if (pointerCollisions.length > 0) {
-            // Prioritize appointment droppables (ids that are NOT "slot-...").
-            // pointerWithin may return overlapping droppables (slot + appointment),
-            // so prefer appointments so dropping on a visible appointment triggers replace/swap.
-            const appointmentCollisions = pointerCollisions.filter((c: any) => {
-                // If id is a string and starts with "slot-" it's a slot; otherwise treat as appointment.
-                if (typeof c.id === "string") {
-                    return !c.id.startsWith("slot-")
-                }
-                // numeric ids (or other types) are appointment ids — keep them.
-                return true
+            // Prioritize appointment collisions
+            const appointmentCollisions = pointerCollisions.filter((c: unknown) => {
+                return !(typeof (c as { id: string }).id === "string" && (c as { id: string }).id.startsWith("slot-"))
             })
-
-            if (appointmentCollisions.length > 0) {
-                return appointmentCollisions
-            }
-
-            // No appointment under pointer — return slot collisions
+            if (appointmentCollisions.length > 0) return appointmentCollisions
             return pointerCollisions
         }
 
-        // If pointerWithin found nothing, fallback to closestCenter (old behavior)
+
+        // Fallback to closest center
         return closestCenter(args)
     }
 
-    // Drag handlers
+    // ------ Drag handlers
     function handleDragStart(event: DragStartEvent) {
         const { active } = event
         const appointment = appointments.find((a) => String(a.id) === String(active.id))
@@ -275,22 +272,22 @@ export const Calendar = () => {
 
     function handleDragMove(event: DragMoveEvent) {
         const { delta } = event
-        if (!originalAppointment) return
+        if (!originalAppointment) return;
 
-        const snappedDeltaY = Math.round(delta.y / SNAP_GRID) * SNAP_GRID
-        const minutesDelta = (snappedDeltaY / TIME_SLOT_HEIGHT) * 60
+        const snappedDeltaY = Math.round(delta.y / SNAP_GRID) * SNAP_GRID; // snap at every 15 minutes (25 px) on vertical axis
+        const minutesDelta = (snappedDeltaY / TIME_SLOT_HEIGHT) * 60;
 
-        let tentativeStart = timeToMinutes(originalAppointment.startTime) + minutesDelta
-        tentativeStart = roundToQuarter(tentativeStart)
-        tentativeStart = clamp(tentativeStart, DAY_MIN_START, DAY_MAX_END)
+        let tentativeStart = timeToMinutes(originalAppointment.startTime) + minutesDelta;
+        tentativeStart = roundToQuarter(tentativeStart);
+        tentativeStart = clamp(tentativeStart, DAY_MIN_START, DAY_MAX_END);
 
-        setPendingNewStartMinutes(tentativeStart)
-        setNewStartTime(minutesToTime(tentativeStart))
+        setPendingNewStartMinutes(tentativeStart);
+        setNewStartTime(minutesToTime(tentativeStart));
     }
 
     function handleDragEnd(event: DragEndEvent) {
-        const { active, over } = event
-        setActiveId(null)
+        const { active, over } = event;
+        setActiveId(null);
 
         if (!originalAppointment) {
             setNewStartTime(null)
@@ -352,7 +349,7 @@ export const Calendar = () => {
     }
 
     // Handle the user's choice from the dialog
-    const handleConfirmChoice = (choice: "replace" | "replace_preserve_time" | "swap" | "no" | "move") => {
+    const handleConfirmChoice = (choice: "replace" | "replace_preserve_time" | "swap" | "cancel" | "move") => {
         if (!originalAppointment) {
             setShowConfirmDialog(false)
             setOriginalAppointment(null)
@@ -364,70 +361,70 @@ export const Calendar = () => {
 
         const draggedId = originalAppointment.id
 
-        if (choice === "no") {
+        if (choice === "cancel") {
             // revert
-            setShowConfirmDialog(false)
-            setOriginalAppointment(null)
-            setNewStartTime(null)
-            setPendingNewStartMinutes(null)
-            setTargetAppointment(null)
-            return
+            setShowConfirmDialog(false);
+            setOriginalAppointment(null);
+            setNewStartTime(null);
+            setPendingNewStartMinutes(null);
+            setTargetAppointment(null);
+            return;
         }
 
         setAppointments((prev) => {
-            let next = prev.map((p) => ({ ...p }))
+            let next = prev.map((p) => ({ ...p }));
 
-            const draggedIndex = next.findIndex((p) => p.id === draggedId)
-            if (draggedIndex === -1) return prev
+            const draggedIndex = next.findIndex((p) => p.id === draggedId);
+            if (draggedIndex === -1) return prev;
 
-            const dragged = next[draggedIndex]
+            const dragged = next[draggedIndex];
 
-            // Move to empty timeslot
+            // Move to empty time slot
             if (choice === "move") {
-                if (pendingNewStartMinutes === null) return prev
-                const duration = getAppointmentDuration(dragged.startTime, dragged.endTime)
-                const newStart = minutesToTime(pendingNewStartMinutes)
-                const newEnd = minutesToTime(pendingNewStartMinutes + duration)
-                next[draggedIndex] = { ...dragged, startTime: newStart, endTime: newEnd }
-                return next
+                if (pendingNewStartMinutes === null) return prev;
+                const duration = getAppointmentDuration(String(dragged?.startTime), String(dragged?.endTime));
+                const newStart = minutesToTime(pendingNewStartMinutes);
+                const newEnd = minutesToTime(pendingNewStartMinutes + duration);
+                // @ts-expect-error ts(2322)
+                next[draggedIndex] = { ...dragged, startTime: newStart, endTime: newEnd };
+                return next;
             }
 
             // actions that need a target
-            if (!targetAppointment) return prev
-            const targetIndex = next.findIndex((p) => p.id === targetAppointment.id)
-            if (targetIndex === -1) return prev
-            const target = next[targetIndex]
+            if (!targetAppointment) return prev;
+            const targetIndex = next.findIndex((p) => p.id === targetAppointment.id);
+            if (targetIndex === -1) return prev;
+            const target = next[targetIndex];
 
             if (choice === "replace") {
                 // dragged takes target's time & dentist; remove target
-                next[draggedIndex] = { ...dragged, startTime: target.startTime, endTime: target.endTime, dentistId: target.dentistId }
-                next = next.filter((p) => p.id !== target.id)
-                return next
-            }
-
-            if (choice === "replace_preserve_time") {
+                // @ts-expect-error ts(2322)
+                next[draggedIndex] = { ...dragged, startTime: String(target?.startTime), endTime: String(target?.endTime), dentistId: Number(target?.dentistId) };
+                next = next.filter((p) => p.id !== target?.id);
+                return next;
+            } else if (choice === "replace_preserve_time") {
                 // delete target; dragged keeps its time
-                next = next.filter((p) => p.id !== target.id)
-                return next
-            }
-
-            if (choice === "swap") {
+                next = next.filter((p) => p.id !== target?.id);
+                return next;
+            } else {
+                // if choice is swap
                 // swap times between dragged and target
-                const draggedTimes = { startTime: dragged.startTime, endTime: dragged.endTime }
+                const draggedTimes = { startTime: dragged?.startTime, endTime: String(dragged?.endTime) }
+                // @ts-expect-error ts(2322)
                 next[draggedIndex] = { ...dragged, startTime: target.startTime, endTime: target.endTime }
+                // @ts-expect-error ts(2322)
                 next[targetIndex] = { ...target, startTime: draggedTimes.startTime, endTime: draggedTimes.endTime }
                 return next
             }
-
-            return prev
-        })
+            // return prev
+        });
 
         // clear state
-        setShowConfirmDialog(false)
-        setOriginalAppointment(null)
-        setTargetAppointment(null)
-        setNewStartTime(null)
-        setPendingNewStartMinutes(null)
+        setShowConfirmDialog(false);
+        setOriginalAppointment(null);
+        setTargetAppointment(null);
+        setNewStartTime(null);
+        setPendingNewStartMinutes(null);
     }
 
     // active appointment for overlay
@@ -436,11 +433,11 @@ export const Calendar = () => {
     return (
         <DndContext
             sensors={sensors}
-            modifiers={modifiers}
+            modifiers={modifiers as unknown as Modifier[]}
             onDragStart={handleDragStart}
             onDragMove={handleDragMove}
             onDragEnd={handleDragEnd}
-            collisionDetection={customCollisionDetection}
+            collisionDetection={customCollisionDetection as unknown as CollisionDetection}
         >
             <div className="w-full min-w-2xl mx-auto p-4">
                 {/* Header */}
@@ -469,7 +466,7 @@ export const Calendar = () => {
                         <Popover>
                             <PopoverTrigger asChild><Button variant={"outline"} className="text-xs">{formatDate(currentDate)}</Button></PopoverTrigger>
                             <PopoverContent className="size-fit p-0 border-0">
-                                <CalendarUI mode="single" selected={currentDate} onSelect={(date) => date && setCurrentDate(date)} today={new Date()} className="rounded-md border shadow-sm" required />
+                                <CalendarUI mode="single" selected={currentDate} onSelect={(date) => setCurrentDate(date)} today={new Date()} className="rounded-md border shadow-sm" required />
                             </PopoverContent>
                         </Popover>
 
@@ -579,7 +576,7 @@ export const Calendar = () => {
                                                             key={slotId}
                                                             id={slotId}
                                                             dentistId={dentist.id}
-                                                            minutes={minutes}
+                                                            // minutes={minutes}
                                                             top={top}
                                                             leftPx={left}
                                                             width={width}
@@ -593,11 +590,11 @@ export const Calendar = () => {
 
                                     {/* appointments (on top of slots) */}
                                     {getFilteredAppointments().map((appointment) => {
-                                        const top = getAppointmentTop(appointment.startTime)
-                                        const height = getAppointmentHeight(appointment.startTime, appointment.endTime)
-                                        const left = getAppointmentLeft(appointment.dentistId)
-                                        const width = getAppointmentWidth()
-                                        const duration = getAppointmentDuration(appointment.startTime, appointment.endTime)
+                                        const top = getAppointmentTop(appointment.startTime);
+                                        const height = getAppointmentHeight(appointment.startTime, appointment.endTime);
+                                        const left = getAppointmentLeft(appointment.dentistId);
+                                        const width = getAppointmentWidth();
+                                        const duration = getAppointmentDuration(appointment.startTime, appointment.endTime);
                                         const showFullInfo = duration >= 30
 
                                         return (
@@ -630,7 +627,7 @@ export const Calendar = () => {
 
                 <DragOverlay>
                     {activeAppointment && (
-                        <div className={cn("rounded-md p-2 flex pointer-events-none", activeAppointment.color?.stickerColor)} style={{ width: typeof getAppointmentWidth() === "string" ? getAppointmentWidth() : `${getAppointmentWidth()}px`, height: activeAppointment ? getAppointmentHeight(activeAppointment.startTime, activeAppointment.endTime) : undefined }}>
+                        <div className={cn("rounded-md p-2 flex pointer-events-none", activeAppointment.color?.stickerColor)} style={{ width: typeof getAppointmentWidth() === "string" ? getAppointmentWidth() : `${getAppointmentWidth()}px`, height: getAppointmentHeight(activeAppointment.startTime, activeAppointment.endTime) }}>
                             <div className={cn("w-1 rounded-full mr-2 flex-shrink-0", activeAppointment.color?.lineColor)} />
                             <div className="flex-1 overflow-hidden">
                                 <div className="text-xs font-medium leading-tight">{activeAppointment.patientName}</div>
@@ -641,47 +638,60 @@ export const Calendar = () => {
                 </DragOverlay>
 
                 {/* Confirm dialog for replace/swap/move */}
-                <Dialog open={showConfirmDialog} onOpenChange={(open) => { if (!open) handleConfirmChoice("no") }}>
+                <Dialog open={showConfirmDialog} onOpenChange={(open) => { if (!open) handleConfirmChoice("cancel") }}>
                     <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>
-                                {targetAppointment ? `Confirm action with ${targetAppointment.patientName}` : "Confirm move"}
-                            </DialogTitle>
-                        </DialogHeader>
+                        <ScrollArea className="max-h-[80vh]">
+                            <DialogHeader>
+                                <DialogTitle className="text-sm capitalize">
+                                    {targetAppointment ? `Confirm action with ${targetAppointment.patientName} on Dr ${dentistSample.find((dentist) => dentist.id === targetAppointment.dentistId)?.name}'s Column` : "Confirm move"}
+                                </DialogTitle>
+                            </DialogHeader>
 
-                        <div className="p-4">
-                            {targetAppointment ? (
-                                <div>
-                                    <p className="mb-3">You dropped <strong>{originalAppointment?.patientName}</strong> onto <strong>{targetAppointment.patientName}</strong>. Choose an action:</p>
-                                    <ul className="list-disc pl-5 text-sm">
-                                        <li><strong>Replace:</strong> Remove the target; dragged appointment moves to the target's time.</li>
-                                        <li><strong>Replace & keep time:</strong> Remove the target; dragged appointment keeps its own time.</li>
-                                        <li><strong>Swap:</strong> Swap the time ranges of the two appointments.</li>
-                                        <li><strong>No:</strong> Cancel and revert to original position.</li>
-                                    </ul>
-                                </div>
-                            ) : (
-                                <div>
-                                    <p>Move <strong>{originalAppointment?.patientName}</strong> to <strong>{newStartTime}</strong>?</p>
-                                </div>
-                            )}
-                        </div>
+                            <div className="p-4">
+                                {targetAppointment ? (
+                                    <div>
+                                        <p className="mb-3 text-sm">You dropped <strong className="capitalize">{originalAppointment?.patientName}</strong> on <strong className="capitalize">{targetAppointment.patientName}</strong>. Choose an action:</p>
+                                        <div className="flex flex-col gap-4">
+                                            <div className="border-b rounded-sm pb-3 flex flex-col gap-2">
+                                                <div className="flex item-center gap-1">
+                                                    <div className="border p-1 flex items-center rounded-sm"> <ReplaceIcon /></div>
+                                                    {/* <strong className="font-semibold text-sm">Replace:</strong> */}
+                                                    <p className="text-sm">Remove the target; dragged appointment keeps its own time.</p>
+                                                </div>
+                                                <Button variant="secondary" onClick={() => handleConfirmChoice("replace")}>Replace</Button>
+                                            </div>
+                                            <div className="border-b rounded-sm pb-3 flex flex-col gap-2">
+                                                <div className="flex item-center gap-1">
+                                                    <div className="border bg-primary text-background p-1 flex items-center rounded-sm"> <ReplaceAllIcon /></div>
+                                                    <p className="text-sm">Remove the target; dragged appointment moves to the target's time.</p>
+                                                </div>
+                                                <Button onClick={() => handleConfirmChoice("replace_preserve_time")}>Replace & keep time</Button>
+                                            </div>
+                                            <div className="border-b rounded-sm pb-3 flex flex-col gap-2">
+                                                <div className="flex item-center gap-1">
+                                                    <div className="border  p-1 flex items-center rounded-sm"> <ArrowUpDown /></div>
+                                                    <p className="text-sm">Swap the time ranges of the two appointments.</p>
+                                                </div>
+                                                <Button variant={"outline"} onClick={() => handleConfirmChoice("swap")}>Swap</Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <p>Move <strong>{originalAppointment?.patientName}</strong> to <strong>{newStartTime}</strong>?</p>
+                                    </div>
+                                )}
+                            </div>
 
-                        <DialogFooter>
-                            {targetAppointment ? (
-                                <>
-                                    <Button variant="destructive" onClick={() => handleConfirmChoice("replace")}>Replace</Button>
-                                    <Button onClick={() => handleConfirmChoice("replace_preserve_time")}>Replace & keep time</Button>
-                                    <Button onClick={() => handleConfirmChoice("swap")}>Swap</Button>
-                                    <Button variant="outline" onClick={() => handleConfirmChoice("no")}>No</Button>
-                                </>
-                            ) : (
-                                <>
-                                    <Button onClick={() => handleConfirmChoice("move")}>Move</Button>
-                                    <Button variant="outline" onClick={() => handleConfirmChoice("no")}>No</Button>
-                                </>
-                            )}
-                        </DialogFooter>
+                            <DialogFooter>
+                                {!targetAppointment && (
+                                    <>
+                                        <Button onClick={() => handleConfirmChoice("move")}>Move</Button>
+                                    </>
+                                )}
+                                            <Button variant="destructive" onClick={() => handleConfirmChoice("cancel")}>Cancel and close</Button>
+                            </DialogFooter>
+                        </ScrollArea>
                     </DialogContent>
                 </Dialog>
 
@@ -705,11 +715,12 @@ export const Calendar = () => {
 
 /* ---------- SlotDroppable component ---------- */
 
-function SlotDroppable({ id, dentistId, minutes, top, leftPx, width, height }: { id: string; dentistId: number; minutes: number; top: number; leftPx: number; width: string | number; height: number }) {
-    const { setNodeRef, isOver } = useDroppable({ id })
+function SlotDroppable({ id, dentistId, top, leftPx, width, height }: { id: string; dentistId: number; top: number; leftPx: number; width: string | number; height: number }) {
+    const { setNodeRef, isOver } = useDroppable({ id });
 
     return (
         <div
+            key={dentistId}
             ref={setNodeRef}
             data-slot-id={id}
             className={cn("absolute transition-colors pointer-events-auto", { "bg-primary/10": isOver })}
@@ -772,13 +783,13 @@ function DraggableAppointment({
             {...attributes}
             className="absolute pointer-events-auto"
             style={{
-                top: `${top}px`,
+                top: `${top + 6.5}px`,
                 left: `${left}px`,
                 width: typeof width === "string" ? width : `${width}px`,
                 height: `${height}px`,
                 transform: transformStyle,
                 position: "absolute",
-                zIndex: 2, // above slots
+                zIndex: 2, // schedule being dragged moves above slots
             }}
         >
             <div
