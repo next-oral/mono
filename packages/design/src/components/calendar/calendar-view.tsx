@@ -10,7 +10,7 @@ import { ScrollArea, ScrollBar } from "../ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "../../icons"
-import { cn, truncateText } from "../../lib/utils"
+import { cn, convert12hTo24h, truncateText } from "../../lib/utils"
 import { ArrowUpDown, ReplaceAllIcon, ReplaceIcon, Stethoscope } from "lucide-react"
 import {
     DndContext,
@@ -123,12 +123,12 @@ export const Calendar = () => {
         return ampm
     })
 
-    const timeToMinutes = (time: string) => {
+    function timeToMinutes(time: string) {
         const [hours, minutes] = time.split(":").map(Number)
         return Number(hours) * 60 + Number(minutes)
     }
 
-    const getAppointmentHeight = (startTime: string, endTime: string) => {
+    function getAppointmentHeight(startTime: string, endTime: string) {
         const startMinutes = timeToMinutes(startTime)
         const endMinutes = timeToMinutes(endTime)
         const durationMinutes = endMinutes - startMinutes
@@ -136,39 +136,46 @@ export const Calendar = () => {
         return (minDuration / 60) * TIME_SLOT_HEIGHT
     }
 
-    const getAppointmentTop = (startTime: string) => {
+    function getAppointmentTop(startTime: string) {
         const startMinutes = timeToMinutes(startTime)
         return (startMinutes / 60) * TIME_SLOT_HEIGHT
     }
 
-    const getWeekDates = (date: Date) => {
+    function getWeekDates(date: Date) {
         const week = []
         const startOfWeek = new Date(date)
         const day = startOfWeek.getDay()
         const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1)
-        startOfWeek.setDate(diff)
+        startOfWeek.setDate(diff);
         for (let i = 0; i < 7; i++) {
-            const weekDate = new Date(startOfWeek)
-            weekDate.setDate(startOfWeek.getDate() + i)
-            week.push(weekDate)
+            const weekDate = new Date(startOfWeek);
+            weekDate.setDate(startOfWeek.getDate() + i);
+            week.push(weekDate);
         }
-        return week
+        return week;
     }
 
-    const weekDates = getWeekDates(currentDate)
-    const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    const weekDates = getWeekDates(currentDate);
+    const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-    const formatDate = (date: Date) => {
-        const options: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short", year: "numeric" }
-        return date.toLocaleDateString("en-US", options)
+    function formatDate(date: Date) {
+        const options: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short", year: "numeric" };
+        return date.toLocaleDateString("en-US", options);
     }
 
-    const isToday = (date: Date) => {
-        const today = new Date()
-        return date.toDateString() === today.toDateString()
+    function isToday(date: Date) {
+        const today = new Date();
+        return date.toDateString() === today.toDateString();
     }
 
-    const handlePrev = () => {
+    function isThisHour(hour: string) {
+        console.log(hour, new Date().getUTCHours())
+        const currentHour = new Date().getHours();
+        const targetHour = convert12hTo24h(hour);
+        return currentHour === targetHour;
+    }
+
+    function handlePrev() {
         if (selectedView === "Day") {
             const oneDayAgo = new Date(currentDate); oneDayAgo.setDate(oneDayAgo.getDate() - 1); setCurrentDate(oneDayAgo)
         } else {
@@ -176,7 +183,7 @@ export const Calendar = () => {
         }
     }
 
-    const handleNext = () => {
+    function handleNext() {
         if (selectedView === "Day") {
             const oneDayFuture = new Date(currentDate); oneDayFuture.setDate(oneDayFuture.getDate() + 1); setCurrentDate(oneDayFuture)
         } else {
@@ -187,21 +194,21 @@ export const Calendar = () => {
     const handleNewAppointmentDialogClose = () => setShowNewAppointmentDialog(false)
     const handleEditAppointmentDialogClose = () => { setShowEditAppointmentDialog(false); setSelectedAppointment(null) }
 
-    const handleSlotDoubleClick = (e: React.MouseEvent, dentistId: number, index: number) => {
+    function handleSlotDoubleClick(e: React.MouseEvent, dentistId: number, index: number) {
         console.log(e, dentistId, index)
     }
 
-    const handleAppointmentClick = (e: React.MouseEvent, appointment: Appointment) => {
+    function handleAppointmentClick(e: React.MouseEvent, appointment: Appointment) {
         console.log(e, appointment)
     }
 
-    const getAppointmentLeft = (dentistId: number) => {
+    function getAppointmentLeft(dentistId: number) {
         if (selectedDentist !== "All dentists") return 4
         const dentistIndex = dentistSample.findIndex((d) => d.id === dentistId)
         return dentistIndex * COLUMN_WIDTH + 4
     }
 
-    const getAppointmentWidth = () => {
+    function getAppointmentWidth() {
         if (selectedDentist !== "All dentists") return "calc(100% - 56px)"
         return COLUMN_WIDTH - 8
     }
@@ -212,11 +219,11 @@ export const Calendar = () => {
         return endMinutes - startMinutes
     }
 
-    const getFilteredDentists = () => (selectedDentist === "All dentists" ? dentistSample : dentistSample.filter((d) => d.id === selectedDentist))
+    const getFilteredDentists = () => (selectedDentist === "All dentists" ? dentistSample : dentistSample.filter((d) => d.id === selectedDentist));
 
-    const getFilteredAppointments = () => {
-        const currentDateString = currentDate.toISOString().split("T")[0]
-        let filtered = appointments.filter((appointment) => appointment.date === currentDateString)
+    function getFilteredAppointments() {
+        const currentDateString = currentDate.toISOString().split("T")[0];
+        let filtered = appointments.filter((appointment) => appointment.date === currentDateString);
         if (selectedDentist !== "All dentists") filtered = filtered.filter((appointment) => appointment.dentistId === selectedDentist)
         return filtered
     }
@@ -225,7 +232,7 @@ export const Calendar = () => {
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { delay: 120, tolerance: 5 } }))
     const modifiers = [restrictToVerticalAxis, restrictToParentElement, snapToGrid]
 
-    const customCollisionDetection = (args: never) => {
+    function customCollisionDetection(args: never) {
 
         // RectIntersection to be able to detect even when schedule edges touch
         const rectCollisions = rectIntersection(args)
@@ -349,7 +356,7 @@ export const Calendar = () => {
     }
 
     // Handle the user's choice from the dialog
-    const handleConfirmChoice = (choice: "replace" | "replace_preserve_time" | "swap" | "cancel" | "move") => {
+    function handleConfirmChoice(choice: "replace" | "replace_preserve_time" | "swap" | "cancel" | "move") {
         if (!originalAppointment) {
             setShowConfirmDialog(false)
             setOriginalAppointment(null)
@@ -492,7 +499,7 @@ export const Calendar = () => {
                                         <div key={index} className={cn("text-center py-2 border border-primary/5", { "bg-primary/20": isToday(date) })}>
                                             <div className={cn("flex flex-col items-center")}>
                                                 <span className={cn("text-xs font-medium text-muted-foreground", { "text-primary": isToday(date) })}>{dayNames[index]} {date.getDate()}</span>
-                                                {isToday(date) && <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1"></div>}
+                                                {isToday(date) && <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1"></div>}
                                             </div>
                                         </div>
                                     ))}
@@ -537,7 +544,11 @@ export const Calendar = () => {
                         <div className="space-y-0 border-t border-primary/10 relative">
                             {timeSlots.map((time, index) => (
                                 <div key={index} className="flex border-t border-primary/10 first:border-t-0 relative">
-                                    <div className="flex items-start border border-b-0 border-l-0 border-primary/5 sticky left-0 z-10 bg-background"><div className="w-12 text-xs text-muted-foreground pr-2 text-right">{time}</div></div>
+                                    <div className={cn("flex flex-col items-start border border-b-0 border-l-0 border-primary/5 sticky left-0 z-10 bg-background", { "bg-primary/20": isThisHour(time) })}>
+                                        <div className="w-12 text-xs text-muted-foreground pr-2 text-right">{time}</div>
+                                        {isThisHour(time) && isToday(currentDate) && <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1 mx-auto"></div>}
+
+                                    </div>
 
                                     {selectedView === "Day" ? (
                                         <div className="flex relative" style={{ height: `${TIME_SLOT_HEIGHT}px` }}>
@@ -689,7 +700,7 @@ export const Calendar = () => {
                                         <Button onClick={() => handleConfirmChoice("move")}>Move</Button>
                                     </>
                                 )}
-                                            <Button variant="destructive" onClick={() => handleConfirmChoice("cancel")}>Cancel and close</Button>
+                                <Button variant="destructive" onClick={() => handleConfirmChoice("cancel")}>Cancel and close</Button>
                             </DialogFooter>
                         </ScrollArea>
                     </DialogContent>
@@ -717,7 +728,6 @@ export const Calendar = () => {
 
 function SlotDroppable({ id, dentistId, top, leftPx, width, height }: { id: string; dentistId: number; top: number; leftPx: number; width: string | number; height: number }) {
     const { setNodeRef, isOver } = useDroppable({ id });
-
     return (
         <div
             key={dentistId}

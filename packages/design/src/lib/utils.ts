@@ -145,7 +145,6 @@ export const truncateFileName = (fileName: string, maxLength: number) => {
   return `${truncatedName}...${extension}`;
 };
 
-// lib/utils.ts
 export function parseTimeToMinutes(timeStr: string): number {
   const match = /^(\d{1,2}):(\d{2})\s?(AM|PM)$/i.exec(timeStr);
   if (!match) throw new Error(`Invalid time format: ${timeStr}`);
@@ -160,4 +159,21 @@ export function parseTimeToMinutes(timeStr: string): number {
   }
 
   return hours * 60 + minutes;
+}
+
+export function convert12hTo24h(timeString: string) {
+  const time = timeString.trim().toLowerCase();
+  const [hourString, modifier] = time.split(/(am|pm)/);
+  let hours = parseInt(String(hourString), 10);
+
+  // Handle PM conversion (and 12:xx PM)
+  if (modifier === 'pm' && hours !== 12) {
+    hours += 12;
+  }
+  // Handle 12:xx AM (midnight)
+  if (modifier === 'am' && hours === 12) {
+    hours = 0;
+  }
+
+  return hours;
 }
