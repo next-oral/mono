@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "../../icons"
 import { cn, convert12hTo24h, truncateText } from "../../lib/utils"
-import { ArrowUpDown, ReplaceAllIcon, ReplaceIcon, Stethoscope } from "lucide-react"
+import { ArrowUpDown, ChevronsUpDown, ReplaceAllIcon, ReplaceIcon, Stethoscope } from "lucide-react"
 import {
     DndContext,
     DragOverlay,
@@ -27,6 +27,11 @@ import {
 import type { DragStartEvent, DragMoveEvent, DragEndEvent, UniqueIdentifier, CollisionDetection, Modifier } from "@dnd-kit/core";
 import { restrictToVerticalAxis, restrictToParentElement } from "@dnd-kit/modifiers"
 import { CSS } from "@dnd-kit/utilities"
+import Selecto from "react-selecto";
+import { compareAsc, endOfWeek, isToday, startOfWeek } from "date-fns"
+import { Command, CommandGroup, CommandInput, CommandItem } from "../ui/command"
+import { Checkbox } from "../ui/checkbox"
+import { Badge } from "../ui/badge"
 
 const dentistSample = [
     { id: 1, name: "josh keneddy", avatar: "https://github.com/shadcn.png", startDate: "2023-08-25" },
@@ -88,6 +93,7 @@ const snapToGrid = (args: { transform?: { y: number } }) => {
 }
 
 type Appointment = (typeof dummyAppointments)[0];
+type Dentist = (typeof dentistSample)[0];
 
 function minutesToTime(minutes: number) {
     minutes = clamp(Math.round(minutes), 0, DAY_MINUTES - 1);
@@ -98,13 +104,14 @@ function minutesToTime(minutes: number) {
 
 export const Calendar = () => {
     const [selectedView, setSelectedView] = useState<"Day" | "Week">("Day");
-    const [selectedDentist, setSelectedDentist] = useState<string | number>("All dentists");
+    const [selectedDentists, setSelectedDentists] = useState<Dentist[]>([])
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [isDentistsSelectorOpen, setIsDentistsSelectorOpen] = useState(false);
 
     const [showNewAppointmentDialog, setShowNewAppointmentDialog] = useState(false);
     const [showEditAppointmentDialog, setShowEditAppointmentDialog] = useState(false);
     const [appointments, setAppointments] = useState<Appointment[]>(dummyAppointments);
-    const [_selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+    const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
     // DnD states
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -158,18 +165,17 @@ export const Calendar = () => {
     const weekDates = getWeekDates(currentDate);
     const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-    function formatDate(date: Date) {
-        const options: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short", year: "numeric" };
+    function formatDate(date: Date, withYear: boolean) {
+        // formats dates to readable format like Mon 12, 2025
+        let options: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short" };
+        if (withYear) {
+            options = { ...options, year: "numeric" }
+        }
         return date.toLocaleDateString("en-US", options);
     }
 
-    function isToday(date: Date) {
-        const today = new Date();
-        return date.toDateString() === today.toDateString();
-    }
-
     function isThisHour(hour: string) {
-        console.log(hour, new Date().getUTCHours())
+        // Gets the current hour for the day
         const currentHour = new Date().getHours();
         const targetHour = convert12hTo24h(hour);
         return currentHour === targetHour;
@@ -202,15 +208,17 @@ export const Calendar = () => {
         console.log(e, appointment)
     }
 
+    const getDisplayedDentists = () => (selectedDentists.length === 0 ? dentistSample : dentistSample.filter(d => selectedDentists.some(s => s.id === d.id)))
+
     function getAppointmentLeft(dentistId: number) {
-        if (selectedDentist !== "All dentists") return 4
-        const dentistIndex = dentistSample.findIndex((d) => d.id === dentistId)
-        return dentistIndex * COLUMN_WIDTH + 4
+        const displayed = getDisplayedDentists()
+        if (displayed.length === 1) return 4
+        const idx = displayed.findIndex(d => d.id === dentistId)
+        return idx * COLUMN_WIDTH + 4
     }
 
     function getAppointmentWidth() {
-        if (selectedDentist !== "All dentists") return "calc(100% - 56px)"
-        return COLUMN_WIDTH - 8
+        return getDisplayedDentists().length === 1 ? "calc(100% - 56px)" : COLUMN_WIDTH - 8
     }
 
     const getAppointmentDuration = (startTime: string, endTime: string) => {
@@ -219,12 +227,20 @@ export const Calendar = () => {
         return endMinutes - startMinutes
     }
 
-    const getFilteredDentists = () => (selectedDentist === "All dentists" ? dentistSample : dentistSample.filter((d) => d.id === selectedDentist));
+    const getFilteredDentists = () => {
+        // function to filter dentists
+        return selectedDentists.length === 0
+            ? dentistSample
+            : dentistSample.filter((d) => selectedDentists.some((sd) => sd.id === d.id));
+    }
 
     function getFilteredAppointments() {
-        const currentDateString = currentDate.toISOString().split("T")[0];
-        let filtered = appointments.filter((appointment) => appointment.date === currentDateString);
-        if (selectedDentist !== "All dentists") filtered = filtered.filter((appointment) => appointment.dentistId === selectedDentist)
+        // Function for filtering appointments by date and dentists selected
+        const today = currentDate.toISOString().split("T")[0]
+        let filtered = appointments.filter(a => a.date === today)
+        // show only displayed dentists (lookup by id)
+        const displayedIds = getDisplayedDentists().map(d => d.id)
+        filtered = filtered.filter(a => displayedIds.includes(a.dentistId))
         return filtered
     }
 
@@ -436,6 +452,30 @@ export const Calendar = () => {
 
     // active appointment for overlay
     const activeAppointment = activeId ? appointments.find((a) => String(a.id) === String(activeId)) : null
+    /* ---------------------- Dentists selection helpers ---------------------- */
+    function toggleDentistSelectionObject(dentist: Dentist) {
+        setSelectedDentists(prev => {
+            // if currently "all" (empty array), selecting a dentist narrows to that dentist only (store the dentist object)
+            if (prev.length === 0) return [dentist]
+            // otherwise toggle by id
+            const exists = prev.some(d => d.id === dentist.id)
+            const next = exists ? prev.filter(x => x.id !== dentist.id) : [...prev, dentist]
+            // if user removed all, return [] (meaning all)
+            if (next.length === 0) return []
+            return next
+        })
+    }
+
+    function selectAllDentistsObjects() {
+        setSelectedDentists([]) // empty array = all
+    }
+
+    const selectedDentistNamesLabel = () => {
+        if (selectedDentists.length === 0) return "All Dentists"
+        const names = selectedDentists.map(d => `Dr. ${truncateText(d.name, 10)}`)
+        if (names.length <= 2) return names.join(", ")
+        return `${names[0]} + ${names.length - 1} more`
+    }
 
     return (
         <DndContext
@@ -451,17 +491,51 @@ export const Calendar = () => {
                 <div className="flex items-center justify-between mb-6 gap-4">
                     <div className="flex items-center gap-3">
                         <span className="text-xs font-medium text-muted-foreground">Show</span>
-                        <Select value={selectedDentist.toString()} onValueChange={(value) => setSelectedDentist(value === "All dentists" ? "All dentists" : Number(value))}>
-                            <SelectTrigger className="h-8 text-xs">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem defaultChecked value="All dentists">All dentists</SelectItem>
-                                {dentistSample.map((dentist) => (
-                                    <SelectItem key={dentist.id} value={dentist.id.toString()} className="capitalize">Dr. {dentist.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        {/* Popover + Command (combobox-like) for selecting dentists (store objects) */}
+                        <Popover open={isDentistsSelectorOpen} onOpenChange={setIsDentistsSelectorOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={isDentistsSelectorOpen}
+                                    className="w-[240px] justify-between text-xs"
+                                >
+                                    {selectedDentistNamesLabel()}
+                                    <ChevronsUpDown className="opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="size-fit p-0">
+                                <Command>
+                                    <CommandInput placeholder="Search dentist..." className="h-9" />
+                                    <CommandGroup className="border-b">
+                                        <CommandItem onSelect={() => selectAllDentistsObjects()} className="data-[selected=true]:bg-transparent">
+                                            <div className="flex items-center gap-2">
+                                                <Checkbox checked={selectedDentists.length === 0} />
+                                                <span>All Dentists</span>
+                                            </div>
+                                        </CommandItem>
+                                    </CommandGroup>
+
+                                    <CommandGroup>
+                                        {dentistSample.map((dentist) => {
+                                            const checked = selectedDentists.length === 0 || selectedDentists.some(s => s.id === dentist.id)
+                                            return (
+                                                <CommandItem
+                                                    key={dentist.id}
+                                                    onSelect={() => toggleDentistSelectionObject(dentist)}
+                                                    className="capitalize data-[selected=true]:bg-transparent"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <Checkbox checked={checked} readOnly />
+                                                        <span>Dr. {dentist.name}</span>
+                                                    </div>
+                                                </CommandItem>
+                                            )
+                                        })}
+                                    </CommandGroup>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
                     </div>
 
                     <div className="flex items-center gap-3">
@@ -471,9 +545,24 @@ export const Calendar = () => {
                         </div>
 
                         <Popover>
-                            <PopoverTrigger asChild><Button variant={"outline"} className="text-xs">{formatDate(currentDate)}</Button></PopoverTrigger>
+                            <PopoverTrigger asChild>
+                                <Button variant={"outline"} className="text-xs">
+                                    {selectedView === "Day" && formatDate(currentDate, true)}
+                                    {selectedView === "Week" && `${formatDate(startOfWeek(currentDate, { weekStartsOn: 1 }), false)} - 
+                                    ${formatDate(endOfWeek(currentDate, { weekStartsOn: 1 }), false)}, ${currentDate.getFullYear()}`}
+                                </Button>
+                            </PopoverTrigger>
                             <PopoverContent className="size-fit p-0 border-0">
-                                <CalendarUI mode="single" selected={currentDate} onSelect={(date) => setCurrentDate(date)} today={new Date()} className="rounded-md border shadow-sm" required />
+                                <CalendarUI
+                                    mode={"single"}
+                                    selected={currentDate}
+                                    onSelect={(date) => {
+                                        console.log(date)
+                                        if(date)
+                                            setCurrentDate(new Date(date));
+                                    }}
+                                    today={new Date()}
+                                    className="rounded-md border shadow-sm" />
                             </PopoverContent>
                         </Popover>
 
@@ -483,10 +572,10 @@ export const Calendar = () => {
                         </div>
 
                         <Button className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 text-xs">New Appointment</Button>
-
                         <Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal className="h-3 w-3" /></Button>
                     </div>
                 </div>
+
 
                 {/* Calendar Content */}
                 <ScrollArea className="w-auto h-[100vh]">
@@ -507,23 +596,27 @@ export const Calendar = () => {
                             </div>
                         )}
 
-                        {/* All Day Section */}
-                        <div className={cn("bg-background z-10", { "sticky top-0": selectedView === "Day" })}>
-                            <div className="flex items-center border border-primary/10 border-l-0 border-b-0">
-                                <div className="text-xs font-medium text-muted-foreground text-right pl-[1.7px] pr-2 min-w-12">{selectedView === "Day" ? <Stethoscope className="h-4 w-4" /> : "All day"}</div>
+                        <div className={cn("bg-background z-[12]", { "sticky top-0": selectedView === "Day" })}>
+                            <div className="flex items-center border-t first:border-b border-secondary">
+                                <div className="text-xs font-medium text-muted-foreground text-right w-12">{selectedView === "Day" ? <Stethoscope className="h-4 w-4" /> : "All day"}</div>
+                                {/* Doctors section*/}
                                 {selectedView === "Day" ? (
-                                    <div className="flex flex-row overflow-x-auto text-center items-center">
+                                    <div className={cn("flex flex-row overflow-x-auto text-center items-center", { "w-full": selectedDentists.length === 1 })}>
                                         {getFilteredDentists().map(({ id, name, avatar, startDate }) => (
                                             <Tooltip key={id}>
-                                                <TooltipTrigger>
-                                                    <div className="flex items-center h-8 justify-center border border-primary/5 capitalize text-xs font-medium" style={{ width: selectedDentist === "All dentists" ? `${COLUMN_WIDTH}px` : "100%" }}>
-                                                        Dr. {selectedDentist === "All dentists" ? truncateText(name, 10) : name}
+                                                <TooltipTrigger className={cn({ "w-full": selectedDentists.length === 1 })}>
+                                                    <div className="flex items-center h-8 justify-center border border-primary/5 capitalize text-xs font-medium" style={{ width: selectedDentists.length !== 1 ? `${COLUMN_WIDTH}px` : "100%" }} >
+                                                        Dr. {selectedDentists.length != 1 ? truncateText(String(name.split(" ")[0]), 10) : name}
+                                                        <Badge className="size-4 text-[9px] ml-2">{dummyAppointments.filter((appt) => appt.dentistId === id && appt.date === new Date(currentDate).toISOString().slice(0, 10)).length}</Badge>
                                                     </div>
                                                 </TooltipTrigger>
                                                 <TooltipContent content="bg-lime-100 fill-lime-100 dark:bg-lime-700 dark:fill-lime-700" className="bg-lime-100 dark:bg-lime-700">
                                                     <div>
                                                         <div className="flex gap-1 items-center">
-                                                            <Avatar><AvatarImage src={avatar || "/placeholder.svg"} /><AvatarFallback className="uppercase bg-background text-foreground font-medium">{name.split(" ")[0]?.charAt(0)}{name.split(" ")[1]?.charAt(0)}</AvatarFallback></Avatar>
+                                                            <Avatar>
+                                                                <AvatarImage src={avatar} />
+                                                                <AvatarFallback className="uppercase bg-background text-foreground font-medium">{name.split(" ")[0]?.charAt(0)}{name.split(" ")[1]?.charAt(0)}</AvatarFallback>
+                                                            </Avatar>
                                                             <span className="capitalize text-foreground">{name}</span>
                                                         </div>
                                                         <span className="font-medium text-foreground">Since: {startDate}</span>
@@ -540,26 +633,31 @@ export const Calendar = () => {
                             </div>
                         </div>
 
+
                         {/* Time Slots */}
-                        <div className="space-y-0 border-t border-primary/10 relative">
+                        <div className="space-y-0 relative">
                             {timeSlots.map((time, index) => (
-                                <div key={index} className="flex border-t border-primary/10 first:border-t-0 relative">
-                                    <div className={cn("flex flex-col items-start border border-b-0 border-l-0 border-primary/5 sticky left-0 z-10 bg-background", { "bg-primary/20": isThisHour(time) })}>
+                                <div key={index} className="flex relative">
+                                    <div className={cn("flex flex-col items-start border-b border-r border-secondary sticky left-0 z-10 bg-background/80 backdrop-blur-xl", { "bg-primary/20": isThisHour(time) && isToday(currentDate) })}>
                                         <div className="w-12 text-xs text-muted-foreground pr-2 text-right">{time}</div>
                                         {isThisHour(time) && isToday(currentDate) && <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1 mx-auto"></div>}
-
                                     </div>
 
                                     {selectedView === "Day" ? (
-                                        <div className="flex relative" style={{ height: `${TIME_SLOT_HEIGHT}px` }}>
+                                        <div className="flex relative w-full" style={{ height: `${TIME_SLOT_HEIGHT}px` }} >
                                             {getFilteredDentists().map((dentist) => (
-                                                <div key={dentist.id} className="border-r border-t border-primary/10 last:border-r-0 cursor-pointer transition-colors relative" style={{ width: selectedDentist === "All dentists" ? `${COLUMN_WIDTH}px` : "100%" }} onDoubleClick={(e) => handleSlotDoubleClick(e, dentist.id, index)} />
+                                                <div key={dentist.id} className="border-r border-t border-primary/10 last:border-r-0 cursor-pointer transition-colors relative" style={{ width: selectedDentists.length !== 1 ? `${COLUMN_WIDTH}px` : "100%" }} onDoubleClick={(e) => handleSlotDoubleClick(e, dentist.id, index)} >
+                                                    {Array.from({ length: 4 }).map(() => (
+                                                        <div className={"w-full"} style={{ height: `${TIME_SLOT_HEIGHT / 4}px` }} />
+                                                    ))}
+                                                    {isThisHour(time) && isToday(currentDate) && <div className="absolute w-full h-[0.1px] border-primary/20 border-dashed border-2 rounded-sm bg-primary/20 z-[0] top-[48%]" />}
+                                                </div>
                                             ))}
                                         </div>
                                     ) : (
                                         <div className="flex-1 grid grid-cols-7">
                                             {weekDates.map((date, dayIndex) => (
-                                                <div key={dayIndex} className={cn("min-h-[60px] relative border-r border-primary/10 last:border-r-0", { "bg-primary/20": isToday(date) })}>
+                                                <div key={dayIndex} className={cn("min-h-[60px] relative border-r border-secondary last:border-r-0", { "bg-primary/20": isToday(date) })}>
                                                     <div className="absolute inset-0 hover:bg-muted/20 transition-colors cursor-pointer hover:rounded-md hover:border-2 hover:border-primary" />
                                                 </div>
                                             ))}
@@ -606,7 +704,7 @@ export const Calendar = () => {
                                         const left = getAppointmentLeft(appointment.dentistId);
                                         const width = getAppointmentWidth();
                                         const duration = getAppointmentDuration(appointment.startTime, appointment.endTime);
-                                        const showFullInfo = duration >= 30
+                                        const showFullInfo = duration >= 30;
 
                                         return (
                                             <DraggableAppointment
@@ -733,7 +831,7 @@ function SlotDroppable({ id, dentistId, top, leftPx, width, height }: { id: stri
             key={dentistId}
             ref={setNodeRef}
             data-slot-id={id}
-            className={cn("absolute transition-colors pointer-events-auto", { "bg-primary/10": isOver })}
+            className={cn("absolute transition-colors pointer-events-auto", { "bg-secondary/40 border-dashed": isOver })}
             style={{
                 top: `${top}px`,
                 left: typeof leftPx === "string" ? leftPx : `${leftPx}px`,
@@ -793,7 +891,7 @@ function DraggableAppointment({
             {...attributes}
             className="absolute pointer-events-auto"
             style={{
-                top: `${top + 6.5}px`,
+                top: `${top}px`,
                 left: `${left}px`,
                 width: typeof width === "string" ? width : `${width}px`,
                 height: `${height}px`,
