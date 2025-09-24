@@ -1,360 +1,195 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+import React, { useRef, useState } from "react";
 
-/**
- * CalendarGrid with:
- * - 24 hour rows (each 100px), each row has 4 mini-slots (25px each)
- * - Pointer-based hold (300ms) to start selection, touch fallback
- * - No single-click selection (clicks won't create highlights)
- * - Live range badge at the start of highlighted area, showing AM/PM times
- * - JS confirm dialog after selection to accept or cancel the new schedule
- */
+// Define interfaces for type safety
+// This helps in maintaining the code by clearly defining expected props
+interface Person {
+    id: string;
+    name: string;
+}
 
-const columns = ["Alice", "Bob", "Charlie"];
-const THRESHOLD_MS = 300;
+interface CalendarProps {
+    people: Person[]; // Array of people for whom columns will be created
+}
 
-// Helpers for time formatting
-const pad = (n: number) => n.toString().padStart(2, "0");
-const absoluteSlotToMinutes = (slot: number) => slot * 15; // each slot = 15 mins
-const minutesToTimeParts = (minutesFromMidnight: number) => {
-    const mins = minutesFromMidnight % 60;
-    const hours24 = Math.floor(minutesFromMidnight / 60) % 24;
-    return { hours24, mins };
+// Constants for calendar configuration
+// These make the code more readable and easier to maintain if values change
+const HOURS = [
+    "12 AM", "1 AM", "2 AM", "3 AM", "4 AM", "5 AM", "6 AM", "7 AM", "8 AM", "9 AM", "10 AM", "11 AM",
+    "12 PM", "1 PM", "2 PM", "3 PM", "4 PM", "5 PM", "6 PM", "7 PM", "8 PM", "9 PM", "10 PM", "11 PM"
+];
+const TOTAL_HOURS = HOURS.length;
+const HOUR_HEIGHT = 100; // Height per hour in pixels
+const MINUTE_INTERVAL = 15; // Interval for slots in minutes
+const SLOTS_PER_HOUR = 60 / MINUTE_INTERVAL; // 4 slots per hour
+const SLOT_HEIGHT = HOUR_HEIGHT / SLOTS_PER_HOUR; // 25px per 15-min slot
+
+// Utility function to convert pixel position to time
+// This calculates the start/end time based on y-position in the calendar
+const getTimeFromPosition = (y: number, containerHeight: number): { hour: number; minute: number } => {
+    const totalMinutes = (y / containerHeight) * (TOTAL_HOURS * 60);
+    const hour = Math.floor(totalMinutes / 60);
+    const minute = Math.floor((totalMinutes % 60) / MINUTE_INTERVAL) * MINUTE_INTERVAL;
+    return { hour, minute };
 };
-const formatAMPM = (minutesFromMidnight: number) => {
-    const { hours24, mins } = minutesToTimeParts(minutesFromMidnight);
-    const period = hours24 >= 12 ? "PM" : "AM";
-    let hour12 = hours24 % 12;
-    if (hour12 === 0) hour12 = 12;
-    return `${hour12}:${pad(mins)} ${period}`;
+
+// Utility function to format time as string (e.g., 9:15 AM)
+// This ensures consistent time display across the component
+const formatTime = (hour: number, minute: number): string => {
+    const period = hour < 12 ? "AM" : "PM";
+    const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+    const displayMinute = minute.toString().padStart(2, "0");
+    return `${displayHour}:${displayMinute} ${period}`;
 };
 
-// Generate labels for hour rows: 12:00 AM, 1:00 AM, ... 11:00 PM
-const hourLabels = Array.from({ length: 24 }).map((_, i) => formatAMPM(i * 60));
+// Main Calendar component
+// This is the root component that renders the multi-column calendar with selection highlighting
+const Calendar: React.FC<CalendarProps> = ({ people }) => {
+    // State for selection per person (since each column is independent)
+    // We use an object where key is person.id, value is the selection range
+    const [selections, setSelections] = useState<Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>>({});
 
-type Highlight = { col: number; start: number; end: number } | null;
+    // Refs for each column's container to calculate positions
+    // This allows us to get bounding rect for accurate position calculations
+    const columnRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-export default function CalendarGrid() {
-    const [highlight, setHighlight] = useState<Highlight>(null);
+    // Function to start selection on mouse down
+    // This initializes the selection for a specific person/column
+    const handleMouseDown = (personId: string, e: React.MouseEvent) => {
+        const columnRef = columnRefs.current[personId];
+        if (!columnRef) return;
 
-    // mutable refs for the pointer/touch logic
-    const timerRef = useRef<number | null>(null);
-    const pendingStartRef = useRef<{ col: number; slot: number } | null>(null);
-    const isSelectingRef = useRef(false);
+        const rect = columnRef.getBoundingClientRect();
+        const y = e.clientY - rect.top;
+        const { hour, minute } = getTimeFromPosition(y, rect.height);
 
-    // Find the slot element (walk up DOM) that contains data-slot & data-col
-    const findSlotElement = (el: Element | null) => {
-        while (el && !(el instanceof HTMLElement && el.dataset.slot && el.dataset.col)) {
-            el = el.parentElement;
-        }
-        return el;
-    };
+        // Set initial start time, end is null until mouse up
+        setSelections(prev => ({
+            ...prev,
+            [personId]: { start: { hour, minute }, end: null }
+        }));
 
-    // ensure highlight stored as start <= end (both inclusive)
-    const normalizeHighlight = (col: number, a: number, b: number): Highlight => {
-        const s = Math.min(a, b);
-        const e = Math.max(a, b);
-        return { col, start: s, end: e };
-    };
+        // Set up mouse move and up listeners for dragging
+        const handleMouseMove = (moveE: MouseEvent) => {
+            const moveY = moveE.clientY - rect.top;
+            const { hour: endHour, minute: endMinute } = getTimeFromPosition(moveY, rect.height);
 
-    // helper to update highlight during pointermove
-    const updateHighlight = (col: number, start: number, end: number) => {
-        setHighlight(normalizeHighlight(col, start, end));
-    };
-
-    // compute absolute slot index for given hourIndex and mini slot (0..95)
-    const getAbsoluteSlot = (hourIndex: number, miniIndex: number) => hourIndex * 4 + miniIndex;
-
-    // pointer down on a slot -> start pending hold timer
-    const handlePointerDownOnSlot = (e: React.PointerEvent, col: number, slot: number) => {
-        e.preventDefault();
-        (e.target as Element).setPointerCapture?.((e as any).pointerId);
-
-        // start "pending" but DO NOT create selection until hold threshold
-        pendingStartRef.current = { col, slot };
-        isSelectingRef.current = false;
-
-        if (timerRef.current) {
-            window.clearTimeout(timerRef.current);
-        }
-        timerRef.current = window.setTimeout(() => {
-            // after THRESHOLD_MS, start selecting and set initial highlight
-            isSelectingRef.current = true;
-            setHighlight(normalizeHighlight(col, slot, slot));
-            timerRef.current = null;
-        }, THRESHOLD_MS);
-
-        // global listeners
-        window.addEventListener("pointermove", globalPointerMove);
-        window.addEventListener("pointerup", globalPointerUp);
-        window.addEventListener("pointercancel", globalPointerUp);
-    };
-
-    // pointer move -> update highlight only if selecting and same column
-    const globalPointerMove = (ev: PointerEvent) => {
-        if (!pendingStartRef.current) return;
-
-        const { clientX, clientY } = ev;
-        const elUnder = document.elementFromPoint(clientX, clientY);
-        const slotEl = findSlotElement(elUnder);
-        if (!slotEl) return;
-
-        const colAttr = slotEl.dataset.col;
-        const slotAttr = slotEl.dataset.slot;
-        if (!colAttr || !slotAttr) return;
-        const col = parseInt(colAttr, 10);
-        const slot = parseInt(slotAttr, 10);
-
-        const startInfo = pendingStartRef.current;
-
-        // restrict selection to same column
-        if (col !== startInfo.col) return;
-
-        if (isSelectingRef.current) {
-            updateHighlight(col, startInfo.slot, slot);
-        } else {
-            // If user moves significantly BEFORE threshold, cancel the pending hold (prevent accidental drag)
-            const displacementTolerance = 8;
-            const startEl = document.querySelector(
-                `[data-col="${startInfo.col}"][data-slot="${startInfo.slot}"]`
-            );
-            if (startEl) {
-                const rect = startEl.getBoundingClientRect();
-                const dx = Math.abs(rect.left + rect.width / 2 - clientX);
-                const dy = Math.abs(rect.top + rect.height / 2 - clientY);
-                if (dx > displacementTolerance || dy > displacementTolerance) {
-                    if (timerRef.current) {
-                        window.clearTimeout(timerRef.current);
-                        timerRef.current = null;
-                    }
-                    pendingStartRef.current = null;
-                    cleanupGlobalListeners();
-                }
-            }
-        }
-    };
-
-    // pointer up -> either finalize selection (if selecting) or do nothing (we removed quick-click selection)
-    const globalPointerUp = (ev: PointerEvent) => {
-        // clear any pending timer
-        if (timerRef.current) {
-            window.clearTimeout(timerRef.current);
-            timerRef.current = null;
-        }
-
-        if (!pendingStartRef.current) {
-            cleanupGlobalListeners();
-            return;
-        }
-
-        const startInfo = pendingStartRef.current;
-        pendingStartRef.current = null;
-
-        if (isSelectingRef.current) {
-            // finalize current highlight state (it was updated during pointermove)
-            isSelectingRef.current = false;
-
-            // highlight should already be set in state; get it and show confirm dialog
-            const current = highlight;
-            if (current && current.col === startInfo.col) {
-                // compute displayed times:
-                // start minutes = startSlot * 15
-                // end minutes = (endSlot + 1) * 15  (end is exclusive)
-                const startMinutes = absoluteSlotToMinutes(current.start);
-                const endMinutes = absoluteSlotToMinutes(current.end + 1);
-                const label = `${formatAMPM(startMinutes)} - ${formatAMPM(endMinutes)}`;
-                alert()
-                // JS confirm dialog
-                const ok = confirm(`Create schedule for ${label}?`);
-                if (!ok) {
-                    // user cancelled -> clear highlight
-                    setHighlight(null);
-                } else {
-                    // user confirmed -> you can call your createSchedule handler here
-                    // For now we just keep the highlight as-is and leave it on the grid.
-                    // TODO: integrate with your scheduling API / state
-                }
-            }
-        } else {
-            // Released before threshold — quick click: do nothing (no highlight)
-            // (This was changed per your request to prevent click-from-highlighting.)
-            // Optionally you might want to clear existing highlight on quick click outside:
-            // setHighlight(null);
-        }
-
-        cleanupGlobalListeners();
-    };
-
-    const cleanupGlobalListeners = () => {
-        window.removeEventListener("pointermove", globalPointerMove);
-        window.removeEventListener("pointerup", globalPointerUp);
-        window.removeEventListener("pointercancel", globalPointerUp);
-    };
-
-    // Touch fallback for environments without PointerEvent support
-    useEffect(() => {
-        const supportsPointer = window.PointerEvent !== undefined;
-        if (supportsPointer) return;
-
-        // touch fallback mimics pointer logic
-        const touchStartHandler = (ev: TouchEvent) => {
-            if (ev.touches.length > 1) return;
-            const t = ev.touches[0];
-            const elUnder = document.elementFromPoint(t.clientX, t.clientY);
-            const slotEl = findSlotElement(elUnder);
-            if (!slotEl) return;
-            const col = parseInt(slotEl.dataset.col!, 10);
-            const slot = parseInt(slotEl.dataset.slot!, 10);
-            pendingStartRef.current = { col, slot };
-            isSelectingRef.current = false;
-
-            timerRef.current = window.setTimeout(() => {
-                isSelectingRef.current = true;
-                setHighlight(normalizeHighlight(col, slot, slot));
-                timerRef.current = null;
-            }, THRESHOLD_MS);
+            // Update end time in real-time as user drags
+            setSelections(prev => ({
+                ...prev,
+                [personId]: { ...prev[personId], end: { hour: endHour, minute: endMinute } }
+            }));
         };
 
-        const touchMoveHandler = (ev: TouchEvent) => {
-            if (!pendingStartRef.current) return;
-            const t = ev.touches[0];
-            const elUnder = document.elementFromPoint(t.clientX, t.clientY);
-            const slotEl = findSlotElement(elUnder);
-            if (!slotEl) return;
-            const col = parseInt(slotEl.dataset.col!, 10);
-            const slot = parseInt(slotEl.dataset.slot!, 10);
-            if (col !== pendingStartRef.current.col) return;
-            if (isSelectingRef.current) {
-                updateHighlight(col, pendingStartRef.current.slot, slot);
-            }
+        const handleMouseUp = () => {
+            // Clean up listeners after selection is complete
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
         };
 
-        const touchEndHandler = (ev: TouchEvent) => {
-            if (timerRef.current) {
-                window.clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
-            if (!pendingStartRef.current) return;
-            if (isSelectingRef.current) {
-                // finalize selection similar to pointerup
-                isSelectingRef.current = false;
-                const current = highlight;
-                if (current && current.col === pendingStartRef.current.col) {
-                    const startMinutes = absoluteSlotToMinutes(current.start);
-                    const endMinutes = absoluteSlotToMinutes(current.end + 1);
-                    const label = `${formatAMPM(startMinutes)} - ${formatAMPM(endMinutes)}`;
-                    alert()
-                    const ok = window.confirm(`Create schedule for ${label}?`);
-                    if (!ok) setHighlight(null);
-                }
-            } else {
-                // quick tap -> do nothing (no highlight)
-            }
-            pendingStartRef.current = null;
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+    };
+
+    // Function to calculate the style for the highlight div
+    // This computes position and height based on start/end times
+    const getHighlightStyle = (personId: string): CSSProperties => {
+        const selection = selections[personId];
+        if (!selection?.end) return { display: "none" };
+
+        // Determine min and max for start/end (allow dragging up or down)
+        const startHour = Math.min(selection.start.hour, selection.end.hour);
+        const startMinute = selection.start.hour === startHour ? selection.start.minute : selection.end.minute;
+        const endHour = Math.max(selection.start.hour, selection.end.hour);
+        const endMinute = selection.start.hour === startHour ? selection.end.minute : selection.start.minute;
+
+        // Calculate top position and height in pixels
+        const top = (startHour * HOUR_HEIGHT) + (startMinute / MINUTE_INTERVAL) * SLOT_HEIGHT;
+        const durationMinutes = ((endHour - startHour) * 60) + (endMinute - startMinute);
+        const height = (durationMinutes / MINUTE_INTERVAL) * SLOT_HEIGHT;
+
+        return {
+            position: "absolute",
+            top: `${top}px`,
+            left: 0,
+            width: "100%",
+            height: `${height}px`,
+            backgroundColor: "rgba(0, 123, 255, 0.5)", // Blue like Google Calendar
+            borderRadius: "4px",
+            color: "white",
+            padding: "8px",
+            boxSizing: "border-box",
+            zIndex: 10,
+            pointerEvents: "none" // Allow clicks to pass through if needed
         };
+    };
 
-        document.addEventListener("touchstart", touchStartHandler, { passive: false });
-        document.addEventListener("touchmove", touchMoveHandler, { passive: false });
-        document.addEventListener("touchend", touchEndHandler);
+    // Function to get the label text for the highlight
+    // This shows "(No title)" and the time range like in the image
+    const getLabel = (personId: string): string => {
+        const selection = selections[personId];
+        if (!selection?.end) return "";
 
-        return () => {
-            document.removeEventListener("touchstart", touchStartHandler);
-            document.removeEventListener("touchmove", touchMoveHandler);
-            document.removeEventListener("touchend", touchEndHandler);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        // Sort start and end times
+        const start = selection.start.hour < selection.end.hour ||
+            (selection.start.hour === selection.end.hour && selection.start.minute < selection.end.minute)
+            ? selection.start : selection.end;
+        const end = start === selection.start ? selection.end : selection.start;
 
-    // cleanup on unmount
-    useEffect(() => {
-        return () => {
-            if (timerRef.current) {
-                window.clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
-            cleanupGlobalListeners();
-        };
-    }, []);
+        const startStr = formatTime(start.hour, start.minute);
+        const endStr = formatTime(end.hour, end.minute);
+        return `(No title)\n${startStr} - ${endStr}`;
+    };
 
-    // render
     return (
-        <div className="w-full overflow-auto select-none">
-            {/* Column headers */}
-            <div className="grid" style={{ gridTemplateColumns: `100px repeat(${columns.length}, 1fr)` }}>
-                <div />
-                {columns.map((col, i) => (
-                    <div key={i} className="p-2 font-bold text-center border-b border-gray-300">
-                        {col}
+        <div style={{ display: "flex", position: "relative" }}>
+            {/* Render time labels column */}
+            {/* This is the leftmost column showing hours */}
+            <div style={{ width: "60px", flexShrink: 0 }}>
+                {HOURS.map((hour, index) => (
+                    <div key={index} style={{ height: `${HOUR_HEIGHT}px`, borderBottom: "1px solid #ddd", display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: "8px" }}>
+                        {hour}
                     </div>
                 ))}
             </div>
 
-            {/* Time rows */}
-            <div>
-                {hourLabels.map((hourLabel, hourIdx) => (
-                    <div
-                        key={hourIdx}
-                        className="grid"
-                        style={{ gridTemplateColumns: `100px repeat(${columns.length}, 1fr)` }}
-                    >
-                        {/* Time label */}
-                        <div className="border-r border-gray-300 flex items-center justify-center text-sm h-[100px]">
-                            {hourLabel}
+            {/* Render columns for each person */}
+            {/* Each column is interactive for selection */}
+            {people.map(person => (
+                <div
+                    key={person.id}
+                    ref={el => columnRefs.current[person.id] = el}
+                    style={{ flex: 1, position: "relative", borderLeft: "1px solid #ddd" }}
+                    onMouseDown={e => handleMouseDown(person.id, e)}
+                >
+                    {/* Render hour slots for the column */}
+                    {HOURS.map((_, index) => (
+                        <div key={index} style={{ height: `${HOUR_HEIGHT}px`, borderBottom: "1px solid #ddd", position: "relative", background: "blue" }}>
+                            {/* Optional: Render sub-slots for 15-min intervals */}
+                            {Array.from({ length: SLOTS_PER_HOUR }).map((_, slotIndex) => (
+                                <div key={slotIndex} style={{ height: `${SLOT_HEIGHT}px`, borderBottom: slotIndex < SLOTS_PER_HOUR - 1 ? "1px dotted #eee" : "none" }} />
+                            ))}
                         </div>
+                    ))}
 
-                        {/* Columns */}
-                        {columns.map((_, colIndex) => (
-                            <div key={colIndex} className="border-l border-gray-200 relative h-[100px]">
-                                {Array.from({ length: 4 }).map((_, miniIdx) => {
-                                    const absoluteSlot = getAbsoluteSlot(hourIdx, miniIdx);
-                                    const isHighlighted =
-                                        highlight &&
-                                        highlight.col === colIndex &&
-                                        absoluteSlot >= highlight.start &&
-                                        absoluteSlot <= highlight.end;
-
-                                    // If this mini-slot is the start of the highlight, prepare the badge text
-                                    const renderBadge =
-                                        highlight && highlight.col === colIndex && absoluteSlot === highlight.start;
-
-                                    // Compute badge text if needed
-                                    let badgeText = "";
-                                    if (renderBadge && highlight) {
-                                        const startMinutes = absoluteSlotToMinutes(highlight.start);
-                                        const endMinutes = absoluteSlotToMinutes(highlight.end + 1); // exclusive
-                                        badgeText = `${formatAMPM(startMinutes)} - ${formatAMPM(endMinutes)}`;
-                                    }
-
-                                    return (
-                                        <div
-                                            key={miniIdx}
-                                            data-col={String(colIndex)}
-                                            data-slot={String(absoluteSlot)}
-                                            // make each mini-slot relatively positioned so badge can be absolute inside it
-                                            className={`h-[25px] border-b border-gray-100 cursor-pointer relative ${isHighlighted ? "bg-blue-400/70" : "hover:bg-blue-100"
-                                                }`}
-                                            onPointerDown={(e) => handlePointerDownOnSlot(e, colIndex, absoluteSlot)}
-                                            role="button"
-                                            tabIndex={0}
-                                        >
-                                            {/* Badge shown at start of highlight */}
-                                            {renderBadge && badgeText && (
-                                                <div
-                                                    className="absolute -left-2 -top-8 whitespace-nowrap text-xs font-semibold bg-white border border-gray-300 rounded px-2 py-1 shadow-sm"
-                                                // keep the badge visually near the start box (adjust styling as needed)
-                                                >
-                                                    {badgeText}
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ))}
+                    {/* Render highlight if selection exists */}
+                    <div style={getHighlightStyle(person.id)}>
+                        <div style={{ whiteSpace: "pre-line" }}>{getLabel(person.id)}</div>
                     </div>
-                ))}
-            </div>
+                </div>
+            ))}
         </div>
     );
-}
+};
+
+
+// Usage example (not part of the component, for reference):
+export default function TestPage() {
+    return (
+        <div>
+            <Calendar people={[{ id: "1", name: "Person A" }, { id: "2", name: "Person B" }]} />
+        </div>
+    );
+};
 

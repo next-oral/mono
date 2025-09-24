@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useState } from "react"
+import type { CSSProperties } from "react";
+import React, { useRef, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { Button } from "../ui/button"
 import { Calendar as CalendarUI } from "../ui/calendar"
@@ -78,6 +79,9 @@ const COLUMN_WIDTH = 160 // px per dentist column
 const TIME_SLOT_HEIGHT = 100 // px per hour
 const SNAP_GRID = 25 // px snap => 15 minutes
 const MIN_APPOINTMENT_MINUTES = 15
+const SLOTS_PER_HOUR = 60 / MIN_APPOINTMENT_MINUTES; // 4 slots per hour
+const SLOT_HEIGHT = TIME_SLOT_HEIGHT / SLOTS_PER_HOUR; // 25px per 15-min slot
+
 const DAY_MINUTES = 24 * 60
 const DAY_MIN_START = 0
 const DAY_MAX_END = DAY_MINUTES - MIN_APPOINTMENT_MINUTES
@@ -91,6 +95,13 @@ const snapToGrid = (args: { transform?: { y: number } }) => {
     const snappedY = Math.round(transform.y / SNAP_GRID) * SNAP_GRID;
     return { ...transform, y: snappedY };
 }
+
+// generate time labels 12AM -> 11PM
+const timeSlots = Array.from({ length: 24 }).map((_, i) => {
+    const hour = i
+    const ampm = hour === 0 ? "12 AM" : hour < 12 ? `${hour} AM` : hour === 12 ? "12 PM" : `${hour - 12} PM`
+    return ampm
+});
 
 type Appointment = (typeof dummyAppointments)[0];
 type Dentist = (typeof dentistSample)[0];
@@ -113,7 +124,11 @@ export const Calendar = () => {
     const [appointments, setAppointments] = useState<Appointment[]>(dummyAppointments);
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
+    const [slotsSelection, setSlotsSelection] = useState<Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>>({});
+    const dentistColumnRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
     // DnD states
+    const [isDragging, setIsDragging] = useState(false);
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
     const [originalAppointment, setOriginalAppointment] = useState<Appointment | null>(null);
     const [newStartTime, setNewStartTime] = useState<string | null>(null);
@@ -122,13 +137,6 @@ export const Calendar = () => {
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [targetAppointment, setTargetAppointment] = useState<Appointment | null>(null);
     const [pendingNewStartMinutes, setPendingNewStartMinutes] = useState<number | null>(null);
-
-    // generate time labels 12AM -> 11PM
-    const timeSlots = Array.from({ length: 24 }).map((_, i) => {
-        const hour = i
-        const ampm = hour === 0 ? "12 AM" : hour < 12 ? `${hour} AM` : hour === 12 ? "12 PM" : `${hour - 12} PM`
-        return ampm
-    })
 
     function timeToMinutes(time: string) {
         const [hours, minutes] = time.split(":").map(Number)
@@ -211,14 +219,13 @@ export const Calendar = () => {
     const getDisplayedDentists = () => (selectedDentists.length === 0 ? dentistSample : dentistSample.filter(d => selectedDentists.some(s => s.id === d.id)))
 
     function getAppointmentLeft(dentistId: number) {
-        const displayed = getDisplayedDentists()
-        if (displayed.length === 1) return 4
-        const idx = displayed.findIndex(d => d.id === dentistId)
-        return idx * COLUMN_WIDTH + 4
+        // Since nested per column, left is always 0
+        return 0
     }
 
     function getAppointmentWidth() {
-        return getDisplayedDentists().length === 1 ? "calc(100% - 56px)" : COLUMN_WIDTH - 8
+        // Width is 100% minus padding (4px each side)
+        return "calc(100%)"
     }
 
     const getAppointmentDuration = (startTime: string, endTime: string) => {
@@ -248,13 +255,12 @@ export const Calendar = () => {
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { delay: 120, tolerance: 5 } }))
     const modifiers = [restrictToVerticalAxis, restrictToParentElement, snapToGrid]
 
-    function customCollisionDetection(args: never) {
-
+    function customCollisionDetection(args: any) {  // Typing as any for compatibility
         // RectIntersection to be able to detect even when schedule edges touch
         const rectCollisions = rectIntersection(args)
         if (rectCollisions.length > 0) {
-            const appointmentCollisions = rectCollisions.filter((c: unknown) => {
-                return !(typeof (c as { id: string }).id === "string" && (c as { id: string }).id.startsWith("slot-"))
+            const appointmentCollisions = rectCollisions.filter((c: { id: string }) => {
+                return !(c.id && c.id.startsWith("slot-"))
             })
             if (appointmentCollisions.length > 0) return appointmentCollisions
             return rectCollisions
@@ -265,13 +271,12 @@ export const Calendar = () => {
 
         if (pointerCollisions.length > 0) {
             // Prioritize appointment collisions
-            const appointmentCollisions = pointerCollisions.filter((c: unknown) => {
-                return !(typeof (c as { id: string }).id === "string" && (c as { id: string }).id.startsWith("slot-"))
+            const appointmentCollisions = pointerCollisions.filter((c: { id: string }) => {
+                return !(c.id && c.id.startsWith("slot-"))
             })
             if (appointmentCollisions.length > 0) return appointmentCollisions
             return pointerCollisions
         }
-
 
         // Fallback to closest center
         return closestCenter(args)
@@ -288,9 +293,9 @@ export const Calendar = () => {
         // initialize pendingNewStartMinutes baseline
         const origMinutes = timeToMinutes(appointment.startTime)
         setPendingNewStartMinutes(origMinutes)
-        setNewStartTime(minutesToTime(origMinutes))
+        setNewStartTime(minutesToTime(origMinutes));
 
-        setTargetAppointment(null)
+        setIsDragging(true);
     }
 
     function handleDragMove(event: DragMoveEvent) {
@@ -311,6 +316,7 @@ export const Calendar = () => {
     function handleDragEnd(event: DragEndEvent) {
         const { active, over } = event;
         setActiveId(null);
+        setIsDragging(false)
 
         if (!originalAppointment) {
             setNewStartTime(null)
@@ -333,8 +339,6 @@ export const Calendar = () => {
 
         // If over is a slot (id like "slot-{dentistId}-{minutes}") => treat as empty slot
         if (over && typeof over.id === "string" && over.id.startsWith("slot-")) {
-            // parse for extra safety (but we already used pendingNewStartMinutes)
-            // const [, dentistIdStr, minutesStr] = String(over.id).split("-")
             setTargetAppointment(null)
             setPendingNewStartMinutes(newStartMinutes)
             setNewStartTime(newStart)
@@ -408,7 +412,6 @@ export const Calendar = () => {
                 const duration = getAppointmentDuration(String(dragged?.startTime), String(dragged?.endTime));
                 const newStart = minutesToTime(pendingNewStartMinutes);
                 const newEnd = minutesToTime(pendingNewStartMinutes + duration);
-                // @ts-expect-error ts(2322)
                 next[draggedIndex] = { ...dragged, startTime: newStart, endTime: newEnd };
                 return next;
             }
@@ -421,7 +424,6 @@ export const Calendar = () => {
 
             if (choice === "replace") {
                 // dragged takes target's time & dentist; remove target
-                // @ts-expect-error ts(2322)
                 next[draggedIndex] = { ...dragged, startTime: String(target?.startTime), endTime: String(target?.endTime), dentistId: Number(target?.dentistId) };
                 next = next.filter((p) => p.id !== target?.id);
                 return next;
@@ -433,13 +435,10 @@ export const Calendar = () => {
                 // if choice is swap
                 // swap times between dragged and target
                 const draggedTimes = { startTime: dragged?.startTime, endTime: String(dragged?.endTime) }
-                // @ts-expect-error ts(2322)
                 next[draggedIndex] = { ...dragged, startTime: target.startTime, endTime: target.endTime }
-                // @ts-expect-error ts(2322)
                 next[targetIndex] = { ...target, startTime: draggedTimes.startTime, endTime: draggedTimes.endTime }
                 return next
             }
-            // return prev
         });
 
         // clear state
@@ -477,6 +476,113 @@ export const Calendar = () => {
         return `${names[0]} + ${names.length - 1} more`
     }
 
+
+    // Utility function to convert pixel position to time
+    // This calculates the start/end time based on y-position in the calendar
+    const getTimeFromPixelPosition = (y: number, containerHeight: number): { hour: number; minute: number } => {
+        const totalMinutes = (y / containerHeight) * (timeSlots.length * 60);
+        const hour = Math.floor(totalMinutes / 60);
+        const minute = Math.floor((totalMinutes % 60) / MIN_APPOINTMENT_MINUTES) * MIN_APPOINTMENT_MINUTES;
+        return { hour, minute };
+    };
+
+    function handleSlotHighlightMouseDown(dentistId: number | string, e: React.MouseEvent) {
+        // Prevent if the target is an appointment
+        setSlotsSelection({})
+        if ((e.target as HTMLElement).closest("[data-is-appointment]")) {
+            return;
+        }
+
+        const columnRef = dentistColumnRefs.current[dentistId];
+        if (!columnRef) return;
+
+        const rect = columnRef.getBoundingClientRect();
+        const y = e.clientY - rect.top;
+        const { hour, minute } = getTimeFromPixelPosition(y, rect.height);
+
+        // Set initial start time, end is null until mouse up
+        setSlotsSelection(prev => ({
+            ...prev,
+            [dentistId]: { start: { hour, minute }, end: null }
+        }));
+
+        // Set up mouse move and up listeners for dragging
+        const handleMouseMove = (moveEvent: MouseEvent) => {
+            const moveY = moveEvent.clientY - rect.top;
+            const { hour: endHour, minute: endMinute } = getTimeFromPixelPosition(moveY, rect.height);
+
+            // Update end time in real-time as user drags
+            setSlotsSelection(prev => ({
+                ...prev,
+                [dentistId]: { ...prev[dentistId], end: { hour: endHour, minute: endMinute } }
+            }));
+        }
+
+        const handleMouseUp = () => {
+            // Clean up listeners after selection is complete
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+        }
+
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+    }
+
+    const getHighlightStyle = (dentistId: number | string): CSSProperties => {
+        const selection = slotsSelection[dentistId];
+        if (!selection?.end) return { display: "none" };
+
+        // Determine min and max for start/end (allow dragging up or down)
+        const startHour = Math.min(selection.start.hour, selection.end.hour);
+        const startMinute = selection.start.hour === startHour ? selection.start.minute : selection.end.minute;
+        const endHour = Math.max(selection.start.hour, selection.end.hour);
+        const endMinute = selection.start.hour === startHour ? selection.end.minute : selection.start.minute;
+
+        // Calculate top position and height in pixels
+        const top = (startHour * TIME_SLOT_HEIGHT) + (startMinute / MIN_APPOINTMENT_MINUTES) * SLOT_HEIGHT;
+        const durationMinutes = ((endHour - startHour) * 60) + (endMinute - startMinute);
+        const height = (durationMinutes / MIN_APPOINTMENT_MINUTES) * SLOT_HEIGHT;
+
+        return {
+            position: "absolute",
+            top: `${top}px`,
+            left: 0,
+            width: "100%",
+            height: `${height}px`,
+            backgroundColor: "rgba(0, 125, 255, 0.5)",
+            borderRadius: "4px",
+            color: "white",
+            padding: "8px",
+            boxSizing: "border-box",
+            zIndex: 5,
+            pointerEvents: "none"
+        }
+    }
+
+    // Function to get the label text for the highlight
+    // This shows "(No title)" and the time range like in the image
+    const getLabel = (dentistId: string): string => {
+        const selection = slotsSelection[dentistId];
+        if (!selection?.end) return "";
+
+        // Sort start and end times
+        const start = selection.start.hour < selection.end.hour ||
+            (selection.start.hour === selection.end.hour && selection.start.minute < selection.end.minute)
+            ? selection.start : selection.end;
+        const end = start === selection.start ? selection.end : selection.start;
+
+        const formatTime = (hour: number, minute: number): string => {
+            const period = hour < 12 ? "AM" : "PM";
+            const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+            const displayMinute = minute.toString().padStart(2, "0");
+            return `${displayHour}:${displayMinute} ${period}`;
+        };
+
+        const startStr = formatTime(start.hour, start.minute);
+        const endStr = formatTime(end.hour, end.minute);
+        return `(No title)\n${startStr} - ${endStr}`;
+    };
+
     return (
         <DndContext
             sensors={sensors}
@@ -484,7 +590,7 @@ export const Calendar = () => {
             onDragStart={handleDragStart}
             onDragMove={handleDragMove}
             onDragEnd={handleDragEnd}
-            collisionDetection={customCollisionDetection as unknown as CollisionDetection}
+            collisionDetection={customCollisionDetection as CollisionDetection}
         >
             <div className="w-full min-w-2xl mx-auto p-4">
                 {/* Header */}
@@ -526,7 +632,7 @@ export const Calendar = () => {
                                                     className="capitalize data-[selected=true]:bg-transparent"
                                                 >
                                                     <div className="flex items-center gap-2">
-                                                        <Checkbox checked={checked} readOnly />
+                                                        <Checkbox checked={checked} />
                                                         <span>Dr. {dentist.name}</span>
                                                     </div>
                                                 </CommandItem>
@@ -558,7 +664,7 @@ export const Calendar = () => {
                                     selected={currentDate}
                                     onSelect={(date) => {
                                         console.log(date)
-                                        if(date)
+                                        if (date)
                                             setCurrentDate(new Date(date));
                                     }}
                                     today={new Date()}
@@ -636,103 +742,100 @@ export const Calendar = () => {
 
                         {/* Time Slots */}
                         <div className="space-y-0 relative">
-                            {timeSlots.map((time, index) => (
-                                <div key={index} className="flex relative">
-                                    <div className={cn("flex flex-col items-start border-b border-r border-secondary sticky left-0 z-10 bg-background/80 backdrop-blur-xl", { "bg-primary/20": isThisHour(time) && isToday(currentDate) })}>
-                                        <div className="w-12 text-xs text-muted-foreground pr-2 text-right">{time}</div>
-                                        {isThisHour(time) && isToday(currentDate) && <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1 mx-auto"></div>}
-                                    </div>
 
-                                    {selectedView === "Day" ? (
-                                        <div className="flex relative w-full" style={{ height: `${TIME_SLOT_HEIGHT}px` }} >
-                                            {getFilteredDentists().map((dentist) => (
-                                                <div key={dentist.id} className="border-r border-t border-primary/10 last:border-r-0 cursor-pointer transition-colors relative" style={{ width: selectedDentists.length !== 1 ? `${COLUMN_WIDTH}px` : "100%" }} onDoubleClick={(e) => handleSlotDoubleClick(e, dentist.id, index)} >
-                                                    {Array.from({ length: 4 }).map(() => (
-                                                        <div className={"w-full"} style={{ height: `${TIME_SLOT_HEIGHT / 4}px` }} />
-                                                    ))}
+                            <div className="flex">
+                                {/* Time labels column (sticky) */}
+                                <div className="w-12 sticky left-0 z-10 bg-background/80 backdrop-blur-xl">
+                                    {timeSlots.map((time, index) => (
+                                        <div key={index} style={{ height: `${TIME_SLOT_HEIGHT}px` }} className="border-b border-secondary text-xs text-muted-foreground pr-2 text-right">
+                                            {time}
+                                            {isThisHour(time) && isToday(currentDate) && <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1 mx-auto"></div>}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Dentist columns */}
+                                {getFilteredDentists().map((dentist, index) => {
+                                    // Filter appointments for this dentist only
+                                    const appointmentsForDentist = getFilteredAppointments().filter(appt => appt.dentistId === dentist.id);
+
+                                    return (
+                                        <div
+                                            key={dentist.id}
+                                            ref={(el) => (dentistColumnRefs.current[dentist.id] = el)}
+                                            className="flex-1 relative border-l border-secondary"
+                                            style={{ width: selectedDentists.length !== 1 ? `${COLUMN_WIDTH}px` : "100%" }}
+                                            onMouseDown={(e) => {
+                                                if (!isDragging) handleSlotHighlightMouseDown(dentist.id, e);
+                                            }}
+                                        >
+                                            {/* Render hour slots for the column */}
+                                            {timeSlots.map((time, timeIndex) => (
+                                                <div key={timeIndex} style={{ height: `${TIME_SLOT_HEIGHT}px` }} className="border-b border-secondary relative">
+                                                    {/* Render sub-slots as droppable zones */}
+                                                    {Array.from({ length: SLOTS_PER_HOUR }).map((_, slotIndex) => {
+                                                        const minutes = (timeIndex * 60) + (slotIndex * 15);
+                                                        const slotId = `slot-${dentist.id}-${minutes}`;
+                                                        return (
+                                                            <SlotDroppable
+                                                                key={slotId}
+                                                                id={slotId}
+                                                                dentistId={dentist.id}
+                                                                height={SLOT_HEIGHT}
+                                                                isDragging={isDragging}
+                                                            />
+                                                        );
+                                                    })}
                                                     {isThisHour(time) && isToday(currentDate) && <div className="absolute w-full h-[0.1px] border-primary/20 border-dashed border-2 rounded-sm bg-primary/20 z-[0] top-[48%]" />}
                                                 </div>
                                             ))}
-                                        </div>
-                                    ) : (
-                                        <div className="flex-1 grid grid-cols-7">
-                                            {weekDates.map((date, dayIndex) => (
-                                                <div key={dayIndex} className={cn("min-h-[60px] relative border-r border-secondary last:border-r-0", { "bg-primary/20": isToday(date) })}>
-                                                    <div className="absolute inset-0 hover:bg-muted/20 transition-colors cursor-pointer hover:rounded-md hover:border-2 hover:border-primary" />
+
+                                            {/* Render appointments absolute within the column */}
+                                            {appointmentsForDentist.map((appointment) => {
+                                                const top = getAppointmentTop(appointment.startTime);
+                                                const height = getAppointmentHeight(appointment.startTime, appointment.endTime);
+                                                const width = getAppointmentWidth();
+                                                const duration = getAppointmentDuration(appointment.startTime, appointment.endTime);
+                                                const showFullInfo = duration >= 30;
+
+                                                return (
+                                                    <DraggableAppointment
+                                                        key={appointment.id}
+                                                        appointment={appointment}
+                                                        top={top}
+                                                        left={getAppointmentLeft(appointment.dentistId)}
+                                                        width={width}
+                                                        height={height}
+                                                        showFullInfo={showFullInfo}
+                                                        onClick={handleAppointmentClick}
+                                                        activeId={activeId}
+                                                    />
+                                                );
+                                            })}
+
+                                            {/* Render highlight if selection exists */}
+                                            {slotsSelection[dentist.id] && (
+                                                <div style={getHighlightStyle(dentist.id)}>
+                                                    <div style={{ whiteSpace: "pre-line" }}>{getLabel(String(dentist.id))}</div>
                                                 </div>
-                                            ))}
+                                            )}
                                         </div>
-                                    )}
-                                </div>
-                            ))}
-
-                            {/* SLOTS + SCHEDULES: Render slots first (so appointments appear above them) */}
-                            {selectedView === "Day" && (
-                                <div className="absolute inset-0" style={{ left: "48px" }}>
-                                    {/* droppable slots grid */}
-                                    {getFilteredDentists().map((dentist) => {
-                                        const left = getAppointmentLeft(dentist.id)
-                                        const width = getAppointmentWidth()
-                                        return (
-                                            <React.Fragment key={`slots-${dentist.id}`}>
-                                                {Array.from({ length: 24 * 4 }).map((_, i) => {
-                                                    const minutes = i * 15
-                                                    const slotId = `slot-${dentist.id}-${minutes}`
-                                                    const top = (minutes / 60) * TIME_SLOT_HEIGHT
-                                                    const height = (15 / 60) * TIME_SLOT_HEIGHT
-                                                    return (
-                                                        <SlotDroppable
-                                                            key={slotId}
-                                                            id={slotId}
-                                                            dentistId={dentist.id}
-                                                            // minutes={minutes}
-                                                            top={top}
-                                                            leftPx={left}
-                                                            width={width}
-                                                            height={height}
-                                                        />
-                                                    )
-                                                })}
-                                            </React.Fragment>
-                                        )
-                                    })}
-
-                                    {/* appointments (on top of slots) */}
-                                    {getFilteredAppointments().map((appointment) => {
-                                        const top = getAppointmentTop(appointment.startTime);
-                                        const height = getAppointmentHeight(appointment.startTime, appointment.endTime);
-                                        const left = getAppointmentLeft(appointment.dentistId);
-                                        const width = getAppointmentWidth();
-                                        const duration = getAppointmentDuration(appointment.startTime, appointment.endTime);
-                                        const showFullInfo = duration >= 30;
-
-                                        return (
-                                            <DraggableAppointment
-                                                key={appointment.id}
-                                                appointment={appointment}
-                                                top={top}
-                                                left={left}
-                                                width={width}
-                                                height={height}
-                                                showFullInfo={showFullInfo}
-                                                onClick={handleAppointmentClick}
-                                                activeId={activeId}
-                                            />
-                                        )
-                                    })}
-                                </div>
-                            )}
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
                     <ScrollBar orientation="horizontal" />
                 </ScrollArea>
 
                 {/* floating preview badge */}
-                {activeAppointment && newStartTime && (
-                    <div className="fixed z-[999] pointer-events-none top-24 right-6 bg-muted px-3 py-1 rounded shadow">
-                        Moving {activeAppointment.patientName} → <strong>{newStartTime}</strong>
-                    </div>
-                )}
+                {
+                    activeAppointment && newStartTime && (
+                        <div className="fixed z-[999] pointer-events-none top-24 right-6 bg-muted px-3 py-1 rounded shadow">
+                            Moving {activeAppointment.patientName} → <strong>{newStartTime}</strong>
+                        </div>
+                    )
+                }
 
                 <DragOverlay>
                     {activeAppointment && (
@@ -817,28 +920,25 @@ export const Calendar = () => {
                         <div className="p-4"><p>Edit appointment dialog content will be implemented here.</p><div className="flex gap-2 mt-4"><Button onClick={() => handleEditAppointmentDialogClose()}>Save Changes</Button><Button variant="outline" onClick={() => handleEditAppointmentDialogClose()}>Cancel</Button></div></div>
                     </DialogContent>
                 </Dialog>
-            </div>
-        </DndContext>
+            </div >
+        </DndContext >
     )
 }
 
 /* ---------- SlotDroppable component ---------- */
 
-function SlotDroppable({ id, dentistId, top, leftPx, width, height }: { id: string; dentistId: number; top: number; leftPx: number; width: string | number; height: number }) {
+function SlotDroppable({ id, dentistId, height, isDragging }: { id: string; dentistId: number; height: number; isDragging: boolean }) {
     const { setNodeRef, isOver } = useDroppable({ id });
     return (
         <div
-            key={dentistId}
             ref={setNodeRef}
             data-slot-id={id}
-            className={cn("absolute transition-colors pointer-events-auto", { "bg-secondary/40 border-dashed": isOver })}
-            style={{
-                top: `${top}px`,
-                left: typeof leftPx === "string" ? leftPx : `${leftPx}px`,
-                width: typeof width === "string" ? width : `${width}px`,
-                height: `${height}px`,
-                zIndex: 1, // slots behind appointments
-            }}
+            className={cn(
+                "w-full border-b border-dotted border-secondary/50 last:border-b-0 transition-colors",
+                isOver && "bg-secondary/40 border-dashed",
+                !isDragging && "pointer-events-none"  // Disable interactions when not dragging to allow bubbling
+            )}
+            style={{ height: `${height}px` }}
         />
     )
 }
@@ -896,9 +996,9 @@ function DraggableAppointment({
                 width: typeof width === "string" ? width : `${width}px`,
                 height: `${height}px`,
                 transform: transformStyle,
-                position: "absolute",
-                zIndex: 2, // schedule being dragged moves above slots
+                zIndex: 2, // Above slots and highlights
             }}
+            data-is-appointment="true"  // Marker for event delegation
         >
             <div
                 className={cn("rounded-md p-2 cursor-move flex", appointment.color?.stickerColor)}
