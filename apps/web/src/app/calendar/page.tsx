@@ -1,7 +1,9 @@
-import { Calendar } from "@repo/design/src/components/calendar/calendar-view";
+import { Calendar, CalendarHeader } from "@repo/design/src/components/calendar/calendar";
 
 export default function CalendarPage() {
   return (
-   <Calendar/>
+    <Calendar>
+      <CalendarHeader />
+    </Calendar>
   );
 };

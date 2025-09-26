@@ -45,7 +45,8 @@
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "^4.1.6",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

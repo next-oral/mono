@@ -28,52 +28,15 @@ import {
 import type { DragStartEvent, DragMoveEvent, DragEndEvent, UniqueIdentifier, CollisionDetection, Modifier } from "@dnd-kit/core";
 import { restrictToVerticalAxis, restrictToParentElement } from "@dnd-kit/modifiers"
 import { CSS } from "@dnd-kit/utilities"
-import Selecto from "react-selecto";
-import { compareAsc, endOfWeek, isToday, startOfWeek } from "date-fns"
+import { eachDayOfInterval, endOfWeek, format, isToday, startOfWeek } from "date-fns"
 import { Command, CommandGroup, CommandInput, CommandItem } from "../ui/command"
 import { Checkbox } from "../ui/checkbox"
 import { Badge } from "../ui/badge"
+import { useCalendarStore } from "./store/store";
+import type { Dentist } from "@repo/design/types/calendar";
+import { WeekViewDates } from "./components/week-view-days";
 
-const dentistSample = [
-    { id: 1, name: "josh keneddy", avatar: "https://github.com/shadcn.png", startDate: "2023-08-25" },
-    { id: 2, name: "princewill maximillian", avatar: "https://placehold.co/100x100/F0F8FF/333?text=PM", startDate: "2021-05-12" },
-    { id: 3, name: "ebere adeotun", avatar: "https://github.com/evilrabbit.png", startDate: "2022-03-04" },
-    { id: 4, name: "john doe", avatar: "https://github.com/shadcn.png", startDate: "2020-07-19" },
-    { id: 5, name: "harry simmons", avatar: "https://github.com/leerob.png", startDate: "2023-01-20" },
-    { id: 6, name: "beatrice salvador", avatar: "https://github.com/evilrabbit.png", startDate: "2021-09-08" },
-    { id: 7, name: "joy madueke", avatar: "https://github.com/leerob.png", startDate: "2022-11-15" },
-    { id: 8, name: "santiago de-lima", avatar: "https://placehold.co/100x100/F0F8FF/333?text=SDL", startDate: "2023-04-30" },
-    { id: 9, name: "tola oluwatosin", avatar: "https://placehold.co/100x100/F0F8FF/333?text=TO", startDate: "2020-06-22" },
-    { id: 10, name: "kvicha belmond kvarakeslia", avatar: "https://placehold.co/100x100/F0F8FF/333?text=KBK", startDate: "2023-07-07" },
-]
-
-const colorClasses = [
-    { stickerColor: "bg-blue-50 dark:bg-blue-700 text-foreground dark:text-background", lineColor: "bg-blue-700 dark:bg-blue-50" },
-    { stickerColor: "bg-lime-50 dark:bg-lime-700 text-foreground dark:text-background", lineColor: "bg-lime-700 dark:bg-lime-50" },
-    { stickerColor: "bg-orange-50 dark:bg-orange-700 text-foreground dark:text-background", lineColor: "bg-orange-700 dark:bg-orange-50" },
-    { stickerColor: "bg-red-50 dark:bg-red-700 text-foreground dark:text-background", lineColor: "bg-red-700 dark:bg-red-50" },
-    { stickerColor: "bg-amber-50 dark:bg-amber-700 text-foreground dark:text-background", lineColor: "bg-amber-700 dark:bg-amber-50" },
-    { stickerColor: "bg-green-50 dark:bg-green-700 text-foreground dark:text-background", lineColor: "bg-green-700 dark:bg-green-50" },
-]
-
-const getRandomColor = () => colorClasses[Math.floor(Math.random() * colorClasses.length)]
-
-const dummyAppointments = [
-    { id: 1, dentistId: 1, patientName: "victor osimhen", startTime: "08:00", endTime: "10:15", date: new Date().toISOString().slice(0, 10), color: getRandomColor() },
-    { id: 2, dentistId: 2, patientName: "Sarah Johnson", startTime: "09:00", endTime: "10:00", date: new Date().toISOString().slice(0, 10), color: getRandomColor() },
-    { id: 3, dentistId: 1, patientName: "Mike Wilson", startTime: "14:00", endTime: "15:30", date: new Date().toISOString().slice(0, 10), color: getRandomColor() },
-    { id: 4, dentistId: 3, patientName: "Emma Davis", startTime: "11:00", endTime: "12:00", date: new Date().toISOString().slice(0, 10), color: getRandomColor() },
-    { id: 5, dentistId: 1, patientName: "Ikay Gundogan", startTime: "12:00", endTime: "14:00", date: new Date().toISOString().slice(0, 10), color: getRandomColor() },
-    { id: 6, dentistId: 4, patientName: "Ikay Gundogan", startTime: "12:00", endTime: "13:55", date: new Date().toISOString().slice(0, 10), color: getRandomColor() },
-    { id: 7, dentistId: 5, patientName: "Ikay Gundogan", startTime: "12:00", endTime: "13:55", date: new Date().toISOString().slice(0, 10), color: getRandomColor() },
-    { id: 8, dentistId: 1, patientName: "Mavins Bernado", startTime: "08:00", endTime: "10:15", date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10), color: getRandomColor() },
-    { id: 9, dentistId: 2, patientName: "Sarah Johnson", startTime: "09:00", endTime: "10:00", date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10), color: getRandomColor() },
-    { id: 10, dentistId: 1, patientName: "Mike Wilson", startTime: "14:00", endTime: "15:30", date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().slice(0, 10), color: getRandomColor() },
-    { id: 11, dentistId: 3, patientName: "Emma Davis", startTime: "11:00", endTime: "12:00", date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().slice(0, 10), color: getRandomColor() },
-    { id: 12, dentistId: 1, patientName: "Ikay Gundogan", startTime: "12:00", endTime: "14:00", date: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().slice(0, 10), color: getRandomColor() },
-    { id: 13, dentistId: 4, patientName: "Ikay Gundogan", startTime: "12:00", endTime: "13:55", date: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString().slice(0, 10), color: getRandomColor() },
-    { id: 14, dentistId: 5, patientName: "james rodriguez", startTime: "12:00", endTime: "13:55", date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10), color: getRandomColor() },
-]
+const dentists = useCalendarStore.getState().dentists;
 
 const COLUMN_WIDTH = 160 // px per dentist column
 const TIME_SLOT_HEIGHT = 100 // px per hour
@@ -86,8 +49,8 @@ const DAY_MINUTES = 24 * 60
 const DAY_MIN_START = 0
 const DAY_MAX_END = DAY_MINUTES - MIN_APPOINTMENT_MINUTES
 
-const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
-const roundToQuarter = (minutes: number) => Math.round(minutes / 15) * 15
+const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+const roundToQuarter = (minutes: number) => Math.round(minutes / 15) * 15;
 
 const snapToGrid = (args: { transform?: { y: number } }) => {
     const { transform } = args;
@@ -103,9 +66,6 @@ const timeSlots = Array.from({ length: 24 }).map((_, i) => {
     return ampm
 });
 
-type Appointment = (typeof dummyAppointments)[0];
-type Dentist = (typeof dentistSample)[0];
-
 function minutesToTime(minutes: number) {
     minutes = clamp(Math.round(minutes), 0, DAY_MINUTES - 1);
     const hh = Math.floor(minutes / 60);
@@ -113,30 +73,46 @@ function minutesToTime(minutes: number) {
     return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 }
 
-export const Calendar = () => {
-    const [selectedView, setSelectedView] = useState<"Day" | "Week">("Day");
-    const [selectedDentists, setSelectedDentists] = useState<Dentist[]>([])
-    const [currentDate, setCurrentDate] = useState(new Date());
-    const [isDentistsSelectorOpen, setIsDentistsSelectorOpen] = useState(false);
+function Calendar({ children }: { children: React.ReactNode }) {
+    const {
+        selectedView,
+        currentDate,
+        selectedDentists,
+        showNewAppointmentDialog,
+        setShowNewAppointmentDialog,
+        showEditAppointmentDialog,
+        setShowEditAppointmentDialog,
+        setSelectedAppointment,
+    } = useCalendarStore();
 
-    const [showNewAppointmentDialog, setShowNewAppointmentDialog] = useState(false);
-    const [showEditAppointmentDialog, setShowEditAppointmentDialog] = useState(false);
-    const [appointments, setAppointments] = useState<Appointment[]>(dummyAppointments);
-    const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
-
-    const [slotsSelection, setSlotsSelection] = useState<Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>>({});
+    const appointments = useCalendarStore(state => state.appointments);
+    const setAppointments = useCalendarStore(state => state.setAppointments);
+    // Slot Selection Helpers
+    const slotsSelection = useCalendarStore(state => state.slotsSelection);
+    const setSlotsSelection = useCalendarStore(state => state.setSlotsSelection);
     const dentistColumnRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
     // DnD states
-    const [isDragging, setIsDragging] = useState(false);
-    const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-    const [originalAppointment, setOriginalAppointment] = useState<Appointment | null>(null);
-    const [newStartTime, setNewStartTime] = useState<string | null>(null);
+    const {
+        isDragging,
+        setIsDragging,
+        activeId,
+        setActiveId,
+        originalAppointment,
+        setOriginalAppointment,
+        newStartTime,
+        setNewStartTime
+    } = useCalendarStore();
 
     // confirm dialog
-    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-    const [targetAppointment, setTargetAppointment] = useState<Appointment | null>(null);
-    const [pendingNewStartMinutes, setPendingNewStartMinutes] = useState<number | null>(null);
+    const {
+        showConfirmDialog,
+        setShowConfirmDialog,
+        targetAppointment,
+        setTargetAppointment,
+        pendingNewStartMinutes,
+        setPendingNewStartMinutes,
+    } = useCalendarStore();
 
     function timeToMinutes(time: string) {
         const [hours, minutes] = time.split(":").map(Number)
@@ -156,53 +132,27 @@ export const Calendar = () => {
         return (startMinutes / 60) * TIME_SLOT_HEIGHT
     }
 
+    // FIXME: Get rid of this function later, use date-fns instead 
     function getWeekDates(date: Date) {
-        const week = []
-        const startOfWeek = new Date(date)
-        const day = startOfWeek.getDay()
-        const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1)
-        startOfWeek.setDate(diff);
-        for (let i = 0; i < 7; i++) {
-            const weekDate = new Date(startOfWeek);
-            weekDate.setDate(startOfWeek.getDate() + i);
-            week.push(weekDate);
-        }
+        const startDate = startOfWeek(date, { weekStartsOn: 1 });
+        const endDate = endOfWeek(date, { weekStartsOn: 1 });
+
+        const week = eachDayOfInterval({
+            start: startDate,
+            end: endDate,
+        });
+
         return week;
     }
 
     const weekDates = getWeekDates(currentDate);
     const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-    function formatDate(date: Date, withYear: boolean) {
-        // formats dates to readable format like Mon 12, 2025
-        let options: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short" };
-        if (withYear) {
-            options = { ...options, year: "numeric" }
-        }
-        return date.toLocaleDateString("en-US", options);
-    }
-
     function isThisHour(hour: string) {
         // Gets the current hour for the day
         const currentHour = new Date().getHours();
         const targetHour = convert12hTo24h(hour);
         return currentHour === targetHour;
-    }
-
-    function handlePrev() {
-        if (selectedView === "Day") {
-            const oneDayAgo = new Date(currentDate); oneDayAgo.setDate(oneDayAgo.getDate() - 1); setCurrentDate(oneDayAgo)
-        } else {
-            const oneWeekAgo = new Date(currentDate); oneWeekAgo.setDate(oneWeekAgo.getDate() - 7); setCurrentDate(oneWeekAgo)
-        }
-    }
-
-    function handleNext() {
-        if (selectedView === "Day") {
-            const oneDayFuture = new Date(currentDate); oneDayFuture.setDate(oneDayFuture.getDate() + 1); setCurrentDate(oneDayFuture)
-        } else {
-            const oneWeekFuture = new Date(currentDate); oneWeekFuture.setDate(oneWeekFuture.getDate() + 7); setCurrentDate(oneWeekFuture)
-        }
     }
 
     const handleNewAppointmentDialogClose = () => setShowNewAppointmentDialog(false)
@@ -216,7 +166,7 @@ export const Calendar = () => {
         console.log(e, appointment)
     }
 
-    const getDisplayedDentists = () => (selectedDentists.length === 0 ? dentistSample : dentistSample.filter(d => selectedDentists.some(s => s.id === d.id)))
+    const getDisplayedDentists = () => (selectedDentists.length === 0 ? dentists : dentists.filter(d => selectedDentists.some(s => s.id === d.id)))
 
     function getAppointmentLeft(dentistId: number) {
         // Since nested per column, left is always 0
@@ -237,8 +187,8 @@ export const Calendar = () => {
     const getFilteredDentists = () => {
         // function to filter dentists
         return selectedDentists.length === 0
-            ? dentistSample
-            : dentistSample.filter((d) => selectedDentists.some((sd) => sd.id === d.id));
+            ? dentists
+            : dentists.filter((d) => selectedDentists.some((sd) => sd.id === d.id));
     }
 
     function getFilteredAppointments() {
@@ -452,29 +402,6 @@ export const Calendar = () => {
     // active appointment for overlay
     const activeAppointment = activeId ? appointments.find((a) => String(a.id) === String(activeId)) : null
     /* ---------------------- Dentists selection helpers ---------------------- */
-    function toggleDentistSelectionObject(dentist: Dentist) {
-        setSelectedDentists(prev => {
-            // if currently "all" (empty array), selecting a dentist narrows to that dentist only (store the dentist object)
-            if (prev.length === 0) return [dentist]
-            // otherwise toggle by id
-            const exists = prev.some(d => d.id === dentist.id)
-            const next = exists ? prev.filter(x => x.id !== dentist.id) : [...prev, dentist]
-            // if user removed all, return [] (meaning all)
-            if (next.length === 0) return []
-            return next
-        })
-    }
-
-    function selectAllDentistsObjects() {
-        setSelectedDentists([]) // empty array = all
-    }
-
-    const selectedDentistNamesLabel = () => {
-        if (selectedDentists.length === 0) return "All Dentists"
-        const names = selectedDentists.map(d => `Dr. ${truncateText(d.name, 10)}`)
-        if (names.length <= 2) return names.join(", ")
-        return `${names[0]} + ${names.length - 1} more`
-    }
 
 
     // Utility function to convert pixel position to time
@@ -483,6 +410,7 @@ export const Calendar = () => {
         const totalMinutes = (y / containerHeight) * (timeSlots.length * 60);
         const hour = Math.floor(totalMinutes / 60);
         const minute = Math.floor((totalMinutes % 60) / MIN_APPOINTMENT_MINUTES) * MIN_APPOINTMENT_MINUTES;
+
         return { hour, minute };
     };
 
@@ -501,7 +429,7 @@ export const Calendar = () => {
         const { hour, minute } = getTimeFromPixelPosition(y, rect.height);
 
         // Set initial start time, end is null until mouse up
-        setSlotsSelection(prev => ({
+        setSlotsSelection((prev: Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>) => ({
             ...prev,
             [dentistId]: { start: { hour, minute }, end: null }
         }));
@@ -512,10 +440,10 @@ export const Calendar = () => {
             const { hour: endHour, minute: endMinute } = getTimeFromPixelPosition(moveY, rect.height);
 
             // Update end time in real-time as user drags
-            setSlotsSelection(prev => ({
+            setSlotsSelection((prev) => (({
                 ...prev,
                 [dentistId]: { ...prev[dentistId], end: { hour: endHour, minute: endMinute } }
-            }));
+            })));
         }
 
         const handleMouseUp = () => {
@@ -593,94 +521,7 @@ export const Calendar = () => {
             collisionDetection={customCollisionDetection as CollisionDetection}
         >
             <div className="w-full min-w-2xl mx-auto p-4">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6 gap-4">
-                    <div className="flex items-center gap-3">
-                        <span className="text-xs font-medium text-muted-foreground">Show</span>
-                        {/* Popover + Command (combobox-like) for selecting dentists (store objects) */}
-                        <Popover open={isDentistsSelectorOpen} onOpenChange={setIsDentistsSelectorOpen}>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    aria-expanded={isDentistsSelectorOpen}
-                                    className="w-[240px] justify-between text-xs"
-                                >
-                                    {selectedDentistNamesLabel()}
-                                    <ChevronsUpDown className="opacity-50" />
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="size-fit p-0">
-                                <Command>
-                                    <CommandInput placeholder="Search dentist..." className="h-9" />
-                                    <CommandGroup className="border-b">
-                                        <CommandItem onSelect={() => selectAllDentistsObjects()} className="data-[selected=true]:bg-transparent">
-                                            <div className="flex items-center gap-2">
-                                                <Checkbox checked={selectedDentists.length === 0} />
-                                                <span>All Dentists</span>
-                                            </div>
-                                        </CommandItem>
-                                    </CommandGroup>
-
-                                    <CommandGroup>
-                                        {dentistSample.map((dentist) => {
-                                            const checked = selectedDentists.length === 0 || selectedDentists.some(s => s.id === dentist.id)
-                                            return (
-                                                <CommandItem
-                                                    key={dentist.id}
-                                                    onSelect={() => toggleDentistSelectionObject(dentist)}
-                                                    className="capitalize data-[selected=true]:bg-transparent"
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        <Checkbox checked={checked} />
-                                                        <span>Dr. {dentist.name}</span>
-                                                    </div>
-                                                </CommandItem>
-                                            )
-                                        })}
-                                    </CommandGroup>
-                                </Command>
-                            </PopoverContent>
-                        </Popover>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handlePrev}><ChevronLeft className="h-3 w-3" /></Button>
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleNext}><ChevronRight className="h-3 w-3" /></Button>
-                        </div>
-
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant={"outline"} className="text-xs">
-                                    {selectedView === "Day" && formatDate(currentDate, true)}
-                                    {selectedView === "Week" && `${formatDate(startOfWeek(currentDate, { weekStartsOn: 1 }), false)} - 
-                                    ${formatDate(endOfWeek(currentDate, { weekStartsOn: 1 }), false)}, ${currentDate.getFullYear()}`}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="size-fit p-0 border-0">
-                                <CalendarUI
-                                    mode={"single"}
-                                    selected={currentDate}
-                                    onSelect={(date) => {
-                                        console.log(date)
-                                        if (date)
-                                            setCurrentDate(new Date(date));
-                                    }}
-                                    today={new Date()}
-                                    className="rounded-md border shadow-sm" />
-                            </PopoverContent>
-                        </Popover>
-
-                        <div className="flex items-center bg-muted rounded-lg p-0.5">
-                            <Button variant={selectedView === "Day" ? "secondary" : "ghost"} size="sm" onClick={() => setSelectedView("Day")} className={cn("h-7 px-3 text-xs", { "bg-popover shadow-sm": selectedView === "Day" })}>Day</Button>
-                            <Button variant={selectedView === "Week" ? "secondary" : "ghost"} size="sm" onClick={() => setSelectedView("Week")} className={cn("h-7 px-3 text-xs", { "bg-popover shadow-sm": selectedView === "Week" })}>Week</Button>
-                        </div>
-
-                        <Button className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 text-xs">New Appointment</Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal className="h-3 w-3" /></Button>
-                    </div>
-                </div>
+                {children}
 
 
                 {/* Calendar Content */}
@@ -713,7 +554,7 @@ export const Calendar = () => {
                                                 <TooltipTrigger className={cn({ "w-full": selectedDentists.length === 1 })}>
                                                     <div className="flex items-center h-8 justify-center border border-primary/5 capitalize text-xs font-medium" style={{ width: selectedDentists.length !== 1 ? `${COLUMN_WIDTH}px` : "100%" }} >
                                                         Dr. {selectedDentists.length != 1 ? truncateText(String(name.split(" ")[0]), 10) : name}
-                                                        <Badge className="size-4 text-[9px] ml-2">{dummyAppointments.filter((appt) => appt.dentistId === id && appt.date === new Date(currentDate).toISOString().slice(0, 10)).length}</Badge>
+                                                        <Badge className="size-4 text-[9px] ml-2">{appointments.filter((appt) => appt.dentistId === id && appt.date === new Date(currentDate).toISOString().slice(0, 10)).length}</Badge>
                                                     </div>
                                                 </TooltipTrigger>
                                                 <TooltipContent content="bg-lime-100 fill-lime-100 dark:bg-lime-700 dark:fill-lime-700" className="bg-lime-100 dark:bg-lime-700">
@@ -855,7 +696,7 @@ export const Calendar = () => {
                         <ScrollArea className="max-h-[80vh]">
                             <DialogHeader>
                                 <DialogTitle className="text-sm capitalize">
-                                    {targetAppointment ? `Confirm action with ${targetAppointment.patientName} on Dr ${dentistSample.find((dentist) => dentist.id === targetAppointment.dentistId)?.name}'s Column` : "Confirm move"}
+                                    {targetAppointment ? `Confirm action with ${targetAppointment.patientName} on Dr ${dentists.find((dentist) => dentist.id === targetAppointment.dentistId)?.name}'s Column` : "Confirm move"}
                                 </DialogTitle>
                             </DialogHeader>
 
@@ -923,6 +764,168 @@ export const Calendar = () => {
             </div >
         </DndContext >
     )
+}
+
+function CalendarHeader() {
+    const {
+        selectedView,
+        setSelectedView,
+        currentDate,
+        setCurrentDate,
+        selectedDentists,
+        setSelectedDentists,
+        isDentistsSelectorOpen,
+        setIsDentistsSelectorOpen
+    } = useCalendarStore();
+
+    const selectedDentistNamesLabel = () => {
+        if (selectedDentists.length === 0) return "All Dentists"
+        const names = selectedDentists.map(d => `Dr. ${truncateText(d.name, 10)}`)
+        if (names.length <= 2) return names.join(", ")
+        return `${names[0]} + ${names.length - 1} more`
+    }
+
+    function handlePrev() {
+        if (selectedView === "Day") {
+            const oneDayAgo = new Date(currentDate); oneDayAgo.setDate(oneDayAgo.getDate() - 1); setCurrentDate(oneDayAgo)
+        } else {
+            const oneWeekAgo = new Date(currentDate); oneWeekAgo.setDate(oneWeekAgo.getDate() - 7); setCurrentDate(oneWeekAgo)
+        }
+    }
+
+    function handleNext() {
+        if (selectedView === "Day") {
+            const oneDayFuture = new Date(currentDate); oneDayFuture.setDate(oneDayFuture.getDate() + 1); setCurrentDate(oneDayFuture)
+        } else {
+            const oneWeekFuture = new Date(currentDate); oneWeekFuture.setDate(oneWeekFuture.getDate() + 7); setCurrentDate(oneWeekFuture)
+        }
+    }
+
+    function toggleDentistSelectionObject(dentist: Dentist) {
+        setSelectedDentists(prev => {
+            // if currently "all" (empty array), selecting a dentist narrows to that dentist only (store the dentist object)
+            if (prev.length === 0) return [dentist]
+            // otherwise toggle by id
+            const exists = prev.some(d => d.id === dentist.id)
+            const next = exists ? prev.filter(x => x.id !== dentist.id) : [...prev, dentist]
+            // if user removed all, return [] (meaning all)
+            if (next.length === 0) return []
+            return next
+        })
+    }
+
+    function selectAllDentistsObjects() {
+        setSelectedDentists([]) // empty array = all
+    }
+
+    return (
+        <div className="flex items-center justify-between mb-6 gap-4" >
+            <div className="flex items-center gap-3">
+                <span className="text-xs font-medium text-muted-foreground">Show</span>
+                {/* Popover + Command (combobox-like) for selecting dentists (store objects) */}
+                <Popover open={isDentistsSelectorOpen} onOpenChange={setIsDentistsSelectorOpen}>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={isDentistsSelectorOpen}
+                            className="w-[240px] justify-between text-xs"
+                        >
+                            {selectedDentistNamesLabel()}
+                            <ChevronsUpDown className="opacity-50" />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="size-fit p-0">
+                        <Command>
+                            <CommandInput placeholder="Search dentist..." className="h-9" />
+                            <CommandGroup className="border-b">
+                                <CommandItem onSelect={() => selectAllDentistsObjects()} className="data-[selected=true]:bg-transparent">
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox checked={selectedDentists.length === 0} />
+                                        <span>All Dentists</span>
+                                    </div>
+                                </CommandItem>
+                            </CommandGroup>
+
+                            <CommandGroup>
+                                {dentists.map((dentist) => {
+                                    const checked = selectedDentists.length === 0 || selectedDentists.some(s => s.id === dentist.id)
+                                    return (
+                                        <CommandItem
+                                            key={dentist.id}
+                                            onSelect={() => toggleDentistSelectionObject(dentist)}
+                                            className="capitalize data-[selected=true]:bg-transparent"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <Checkbox checked={checked} />
+                                                <span>Dr. {dentist.name}</span>
+                                            </div>
+                                        </CommandItem>
+                                    )
+                                })}
+                            </CommandGroup>
+                        </Command>
+                    </PopoverContent>
+                </Popover>
+            </div>
+
+            <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handlePrev}><ChevronLeft className="h-3 w-3" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleNext}><ChevronRight className="h-3 w-3" /></Button>
+                </div>
+
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant={"outline"} className="text-xs">
+                            {selectedView === "Day" && format(currentDate, "MMM d, yyyy")}
+                            {selectedView === "Week" &&
+                                (`${format(startOfWeek(currentDate, { weekStartsOn: 1 }), "MMM d")} - 
+                                    ${format(endOfWeek(currentDate, { weekStartsOn: 1 }), "MMM d")}, ${currentDate.getFullYear()}`)}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="size-fit p-0 border-0">
+                        <CalendarUI
+                            mode={"single"}
+                            selected={currentDate}
+                            onSelect={(date) => {
+                                console.log(date)
+                                if (date)
+                                    setCurrentDate(new Date(date));
+                            }}
+                            today={new Date()}
+                            className="rounded-md border shadow-sm" />
+                    </PopoverContent>
+                </Popover>
+
+                <div className="flex items-center bg-muted rounded-lg p-0.5">
+                    <Button variant={selectedView === "Day" ? "secondary" : "ghost"} size="sm" onClick={() => setSelectedView("Day")} className={cn("h-7 px-3 text-xs", { "bg-popover shadow-sm": selectedView === "Day" })}>Day</Button>
+                    <Button variant={selectedView === "Week" ? "secondary" : "ghost"} size="sm" onClick={() => setSelectedView("Week")} className={cn("h-7 px-3 text-xs", { "bg-popover shadow-sm": selectedView === "Week" })}>Week</Button>
+                </div>
+
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 text-xs">New Appointment</Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal className="h-3 w-3" /></Button>
+            </div>
+        </div >
+    )
+}
+
+function CalendarBody() {
+    const { selectedView } = useCalendarStore();
+
+    return (
+        <ScrollArea className="w-auto h-[100vh]">
+            <div className="min-w-[800px] relative">
+                {selectedView === "Week" && (
+                    <WeekViewDates />
+                )}
+                <div className={cn("bg-background z-[12]", { "sticky top-0": selectedView === "Day" })}>
+                </div>
+            </div>
+        </ScrollArea>
+
+    )
+
 }
 
 /* ---------- SlotDroppable component ---------- */
@@ -1013,7 +1016,7 @@ function DraggableAppointment({
                 <div className="flex-1 overflow-hidden">
                     {showFullInfo ? (
                         <>
-                            <div className="text-xs font-medium leading-tight">Dr. {dentistSample.find((d) => d.id === appointment.dentistId)?.name.split(" ")[0]} /w {appointment.patientName}</div>
+                            <div className="text-xs font-medium leading-tight">Dr. {dentists.find((d) => d.id === appointment.dentistId)?.name.split(" ")[0]} /w {appointment.patientName}</div>
                             <div className="text-xs opacity-75 leading-tight">{appointment.startTime} - {appointment.endTime}</div>
                         </>
                     ) : (
@@ -1023,4 +1026,10 @@ function DraggableAppointment({
             </div>
         </div>
     )
+}
+
+export {
+    Calendar,
+    CalendarHeader,
+    CalendarBody
 }
