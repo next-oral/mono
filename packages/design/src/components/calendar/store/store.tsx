@@ -2,8 +2,12 @@ import type { CalendarView, Dentist, Appointment } from "@repo/design/types/cale
 import { create } from "zustand";
 import { dentistSample, dummyAppointments } from "../dummy";
 import type { UniqueIdentifier } from "@dnd-kit/core";
+import { startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
+import type { EachDayOfIntervalResult } from "date-fns";
+import { MIN_APPOINTMENT_MINUTES, TIME_SLOT_HEIGHT } from "../constants";
 
 interface CalendarState {
+  // Constants
   dentists: Dentist[];
   selectedView: CalendarView;
   setSelectedView: (view: CalendarView) => void;
@@ -13,6 +17,9 @@ interface CalendarState {
   setAppointments: (appointments: Appointment[]) => void;
   selectedDentists: Dentist[];
   setSelectedDentists: (dentists: Dentist[]) => void;
+
+  toggleDentistSelectionObject: (dentist: Dentist) => void; // returns the new array after toggling
+
   isDentistsSelectorOpen: boolean;
   setIsDentistsSelectorOpen: (isOpen: boolean) => void;
   showNewAppointmentDialog: boolean;
@@ -42,16 +49,36 @@ interface CalendarState {
   setTargetAppointment: (appointment: Appointment | null) => void;
   pendingNewStartMinutes: number | null;
   setPendingNewStartMinutes: (minutes: number | null) => void;
+
+  // -----------
+  getFilteredDentists: () => Dentist[];
+  getWeekDates: () => EachDayOfIntervalResult<{
+    start: Date;
+    end: Date;
+  }, undefined>;
+  getDisplayedDentists: () => Dentist[];
+  getFilteredAppointments: () => Appointment[];
+  getTimeFromPixelPosition: (y: number, containerHeight: number, timeSlots: string[]) => { hour: number; minute: number };
+  timeToMinutes: (time: string) => number;
+  findActiveAppointment: () => Appointment | null | undefined;
+  getAppointmentHeight: (startTime: string, endTime: string) => number;
+  getAppointmentDuration: (startTime: string, endTime: string) => number;
+  getAppointmentTop: (startTime: string) => number;
+  getAppointmentWidth: () => string;
+  getAppointmentLeft: (dentistId: number) => number;
 }
 
-export const useCalendarStore = create<CalendarState>((set): CalendarState => ({
+export const useCalendarStore = create((set, get): CalendarState => ({
+
+  // generate time labels 12AM -> 11PM
+
   dentists: dentistSample,
   selectedView: "Day",
   setSelectedView: (date) => set({ selectedView: date }),
   currentDate: new Date(),
   setCurrentDate: (date) => set({ currentDate: date }),
 
-  appointments: dummyAppointments,
+  appointments: dummyAppointments, // supposed be an sync function to retrieve server request
   setAppointments: (appointments) => set({ appointments }),
   selectedDentists: [],
   setSelectedDentists: (
@@ -67,6 +94,19 @@ export const useCalendarStore = create<CalendarState>((set): CalendarState => ({
           ? updater(state.selectedDentists)
           : updater,
     })),
+
+  toggleDentistSelectionObject: (dentist: Dentist) => {
+    const { selectedDentists: dentists } = get();
+
+    // if currently "all" (empty array), selecting a dentist narrows to that dentist only (store the dentist object)
+    if (dentists.length === 0) set({ selectedDentists: [dentist] });
+    // otherwise toggle by id
+    const exists = dentists.some(d => d.id === dentist.id)
+    const next = exists ? dentists.filter(x => x.id !== dentist.id) : [...dentists, dentist]
+    // if user removed all, return [] (meaning all)
+    // if (next.length === 0) return [];
+    set({ selectedDentists: next });
+  },
 
   isDentistsSelectorOpen: false,
   setIsDentistsSelectorOpen: (isOpen) => set({ isDentistsSelectorOpen: isOpen }),
@@ -122,5 +162,87 @@ export const useCalendarStore = create<CalendarState>((set): CalendarState => ({
   pendingNewStartMinutes: null,
   setPendingNewStartMinutes: (minutes) => set({ pendingNewStartMinutes: minutes }),
 
+  // -------------
 
+  getFilteredDentists: function () {
+    const selectedDentists = get().selectedDentists;
+    const dentists = get().dentists;
+    // function to filter dentists
+    console.log(dentists);
+    // return selectedDentists;
+    return selectedDentists.length === 0
+      ? dentists
+      : dentists.filter((d) => selectedDentists.some((sd) => sd.id === d.id));
+  },
+  getWeekDates: () => {
+    const startDate = startOfWeek(get().currentDate, { weekStartsOn: 1 }); // get the start of the week (Monday)
+    const endDate = endOfWeek(get().currentDate, { weekStartsOn: 1 }); // get the end of the week.
+
+    const week = eachDayOfInterval({
+      start: startDate,
+      end: endDate,
+    });
+
+    return week;
+  },
+  getTimeFromPixelPosition: (y: number, containerHeight: number, timeSlots: string[]) => {
+    const totalMinutes = (y / containerHeight) * (timeSlots.length * 60);
+    const hour = Math.floor(totalMinutes / 60);
+    const minute = Math.floor((totalMinutes % 60) / MIN_APPOINTMENT_MINUTES) * MIN_APPOINTMENT_MINUTES;
+
+    return { hour, minute };
+
+  },
+  getDisplayedDentists: () => {
+    const { dentists, selectedDentists } = get();
+    return selectedDentists.length === 0
+      ? dentists
+      : dentists.filter(d => selectedDentists.some(s => s.id === d.id));
+  },
+
+  getFilteredAppointments: () => {
+    const { currentDate, appointments, getDisplayedDentists } = get();
+    // Function for filtering appointments by date and dentists selected
+    const today = currentDate.toISOString().split("T")[0]
+    let filtered = appointments.filter(a => a.date === today)
+    // show only displayed dentists (lookup by id)
+    const displayedIds = getDisplayedDentists().map(d => d.id)
+    filtered = filtered.filter(a => displayedIds.includes(a.dentistId))
+    return filtered
+  },
+  timeToMinutes(time: string) {
+    const [hours, minutes] = time.split(":").map(Number)
+    return Number(hours) * 60 + Number(minutes)
+  },
+  findActiveAppointment: () => {
+    const activeId = get().activeId;
+    const appointments = get().appointments;
+    return activeId ? appointments.find((a) => String(a.id) === String(activeId)) : null;
+  },
+  getAppointmentHeight: (startTime: string, endTime: string) => {
+    const timeToMinutes = get().timeToMinutes;
+    const startMinutes = timeToMinutes(startTime);
+    const endMinutes = timeToMinutes(endTime);
+    const durationMinutes = endMinutes - startMinutes;
+    const minDuration = Math.max(durationMinutes, MIN_APPOINTMENT_MINUTES);
+    return (minDuration / 60) * TIME_SLOT_HEIGHT;
+  },
+  getAppointmentDuration: (startTime: string, endTime: string) => {
+    const timeToMinutes = get().timeToMinutes;
+    const startMinutes = timeToMinutes(startTime);
+    const endMinutes = timeToMinutes(endTime);
+    return endMinutes - startMinutes;
+  },
+  getAppointmentTop: (startTime: string) => {
+    const startMinutes = get().timeToMinutes(startTime);
+    return (startMinutes / 60) * TIME_SLOT_HEIGHT;
+  },
+  getAppointmentWidth: () => {
+    // TODO: Width is 100% minus padding (4px each side)
+    return "calc(100%)";
+  },
+  getAppointmentLeft: (/*dentistId: number*/) => {
+    // TODO: Since nested per column, left is always 0
+    return 0;
+  }
 }));

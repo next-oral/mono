@@ -167,13 +167,20 @@ export function convert12hTo24h(timeString: string) {
   let hours = parseInt(String(hourString), 10);
 
   // Handle PM conversion (and 12:xx PM)
-  if (modifier === 'pm' && hours !== 12) {
+  if (modifier === "pm" && hours !== 12) {
     hours += 12;
   }
   // Handle 12:xx AM (midnight)
-  if (modifier === 'am' && hours === 12) {
+  if (modifier === "am" && hours === 12) {
     hours = 0;
   }
 
   return hours;
+}
+
+export function isAmPmThisHour(hour: string /* in AM/PM format */) {
+  // Gets the current hour for the day
+  const currentHour = new Date().getHours();
+  const targetHour = convert12hTo24h(hour);
+  return currentHour === targetHour;
 }

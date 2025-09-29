@@ -1,22 +1,12 @@
-import { startOfWeek, endOfWeek, eachDayOfInterval, isToday } from "date-fns";
+import { isToday } from "date-fns";
 import { useCalendarStore } from "../store/store";
 import { cn } from "@repo/design/lib/utils";
 
+// This Shows the days and Dates on the header of the week view calender usually in this format (MON 17) 
+
 export const WeekViewDays = () => {
     const namesOfDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const { currentDate } = useCalendarStore();
-
-    function getWeekDates() {
-        const startDate = startOfWeek(currentDate, { weekStartsOn: 1 });
-        const endDate = endOfWeek(currentDate, { weekStartsOn: 1 });
-
-        const week = eachDayOfInterval({
-            start: startDate,
-            end: endDate,
-        });
-
-        return week;
-    }
+    const { getWeekDates } = useCalendarStore();
 
     const weekDates = getWeekDates();
 
