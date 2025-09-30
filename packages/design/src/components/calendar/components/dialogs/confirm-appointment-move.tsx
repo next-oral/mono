@@ -1,8 +1,8 @@
 import { ScrollArea } from "@repo/design/components/ui/scroll-area";
 import { useCalendarStore } from "../../store/store";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog"
 import { Button } from "@repo/design/components/ui/button";
 import { ArrowUpDown, ReplaceAllIcon, ReplaceIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@repo/design/components/ui/dialog";
 
 {/* Confirm dialog for replace/swap/move */ }
 export function ConfirmAppointmentMove() {
@@ -21,6 +21,8 @@ export function ConfirmAppointmentMove() {
     const dentists = useCalendarStore(state => state.dentists);
     const newStartTime = useCalendarStore(state => state.newStartTime);
     const setAppointments = useCalendarStore(state => state.setAppointments);
+    const getAppointmentDuration = useCalendarStore(state => state.getAppointmentDuration);
+    const getAppointmentDuration = useCalendarStore(state => state.getAppointmentDuration);
 
     function handleConfirmChoice(choice: "replace" | "replace_preserve_time" | "swap" | "cancel" | "move") {
         if (!originalAppointment) {

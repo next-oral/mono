@@ -4,7 +4,7 @@ import { dentistSample, dummyAppointments } from "../dummy";
 import type { UniqueIdentifier } from "@dnd-kit/core";
 import { startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
 import type { EachDayOfIntervalResult } from "date-fns";
-import { MIN_APPOINTMENT_MINUTES, TIME_SLOT_HEIGHT } from "../constants";
+import { MIN_APPOINTMENT_MINUTES, TIME_SLOT_HEIGHT, timeSlots } from "../constants";
 
 interface CalendarState {
   // Constants
@@ -14,7 +14,12 @@ interface CalendarState {
   currentDate: Date;
   setCurrentDate: (date: Date) => void;
   appointments: Appointment[];
-  setAppointments: (appointments: Appointment[]) => void;
+  setAppointments: (
+    updater:
+      | Appointment[]
+      | ((prev: Appointment[]) => Appointment[])
+  ) => void;
+
   selectedDentists: Dentist[];
   setSelectedDentists: (dentists: Dentist[]) => void;
 
@@ -30,7 +35,13 @@ interface CalendarState {
   selectedAppointment: Appointment | null;
   setSelectedAppointment: (appointment: Appointment | null) => void;
   slotsSelection: Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>;
-  setSlotsSelection: (selection: Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>) => void;
+  setSlotsSelection: (
+    selection:
+      | Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>
+      | ((
+        prev: Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>
+      ) => Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>)
+  ) => void;
 
   // DND States
   isDragging: boolean;
@@ -58,7 +69,7 @@ interface CalendarState {
   }, undefined>;
   getDisplayedDentists: () => Dentist[];
   getFilteredAppointments: () => Appointment[];
-  getTimeFromPixelPosition: (y: number, containerHeight: number, timeSlots: string[]) => { hour: number; minute: number };
+  getTimeFromPixelPosition: (y: number, containerHeight: number) => { hour: number; minute: number };
   timeToMinutes: (time: string) => number;
   findActiveAppointment: () => Appointment | null | undefined;
   getAppointmentHeight: (startTime: string, endTime: string) => number;
@@ -133,9 +144,7 @@ export const useCalendarStore = create((set, get): CalendarState => ({
   setSlotsSelection: (
     updater:
       | Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>
-      | ((
-        prev: Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>
-      ) => Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>)
+      | ((prev: Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>) => Record<string, { start: { hour: number; minute: number }; end: { hour: number; minute: number } | null }>)
   ) =>
     set((state) => ({
       slotsSelection:
@@ -165,15 +174,14 @@ export const useCalendarStore = create((set, get): CalendarState => ({
   // -------------
 
   getFilteredDentists: function () {
+    // function to filter dentists
     const selectedDentists = get().selectedDentists;
     const dentists = get().dentists;
-    // function to filter dentists
-    console.log(dentists);
-    // return selectedDentists;
     return selectedDentists.length === 0
       ? dentists
       : dentists.filter((d) => selectedDentists.some((sd) => sd.id === d.id));
   },
+
   getWeekDates: () => {
     const startDate = startOfWeek(get().currentDate, { weekStartsOn: 1 }); // get the start of the week (Monday)
     const endDate = endOfWeek(get().currentDate, { weekStartsOn: 1 }); // get the end of the week.
@@ -185,7 +193,7 @@ export const useCalendarStore = create((set, get): CalendarState => ({
 
     return week;
   },
-  getTimeFromPixelPosition: (y: number, containerHeight: number, timeSlots: string[]) => {
+  getTimeFromPixelPosition: (y: number, containerHeight: number) => {
     const totalMinutes = (y / containerHeight) * (timeSlots.length * 60);
     const hour = Math.floor(totalMinutes / 60);
     const minute = Math.floor((totalMinutes % 60) / MIN_APPOINTMENT_MINUTES) * MIN_APPOINTMENT_MINUTES;

@@ -3,11 +3,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Badge } from "../../ui/badge";
 import { useCalendarStore } from "../store/store";
 import { cn, truncateText } from "@repo/design/lib/utils";
+import { COLUMN_WIDTH } from "../constants";
 
 
 // This Shows the dentists in a row at the top of the calendar with their appointment count for the day.
 export function DentistsRow() {
-    const { COLUMN_WIDTH, selectedDentists, appointments, currentDate, getFilteredDentists } = useCalendarStore();
+    const { selectedDentists, appointments, currentDate, getFilteredDentists } = useCalendarStore();
 
     return (
         <div className={cn("flex flex-row overflow-x-auto text-center items-center", { "w-full": selectedDentists.length === 1 })}>
