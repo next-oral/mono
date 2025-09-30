@@ -90,7 +90,17 @@ export const useCalendarStore = create((set, get): CalendarState => ({
   setCurrentDate: (date) => set({ currentDate: date }),
 
   appointments: dummyAppointments, // supposed be an sync function to retrieve server request
-  setAppointments: (appointments) => set({ appointments }),
+  setAppointments: (
+    updater:
+      | Appointment[]
+      | ((prev: Appointment[]) => Appointment[])
+  ) =>
+    set((state) => ({
+      appointments:
+        typeof updater === "function"
+          ? updater(state.appointments)
+          : updater,
+    })),
   selectedDentists: [],
   setSelectedDentists: (
     updater:

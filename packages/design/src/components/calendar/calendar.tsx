@@ -5,7 +5,7 @@ import React, { useRef } from "react"
 import { Button } from "../ui/button"
 import { ScrollArea } from "../ui/scroll-area"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "../../icons"
-import { cn, isAmPmThisHour } from "../../lib/utils"
+import { cn } from "../../lib/utils"
 import { Stethoscope } from "lucide-react"
 import {
     DndContext,
@@ -28,7 +28,6 @@ import {
     MIN_APPOINTMENT_MINUTES,
     SLOTS_PER_HOUR, // 4 slots per hour
     SLOT_HEIGHT, // 25px per 15-min slot
-    DAY_MINUTES,
     DAY_MIN_START,
     DAY_MAX_END,
     timeSlots
@@ -42,24 +41,7 @@ import { CreateAppointmentDialog } from "./components/dialogs/create-appointment
 import { AppointmentEditDialog } from "./components/dialogs/appointment-delete-dialog";
 import { DentistsSelector } from "./components/dentists-selector";
 import { DateSelector } from "./components/date-selector";
-
-// This is used to keep computed minutes or pixel offsets within valid bounds
-// (for example, preventing appointment start times or visual offsets from moving
-// outside the allowed day range or visible area).
-const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-const roundToQuarter = (minutes: number) => Math.round(minutes / 15) * 15;
-
-const snapToGrid: Modifier = ({ transform }) => {
-    const snappedY = Math.round(transform.y / SNAP_GRID) * SNAP_GRID;
-    return { ...transform, y: snappedY };
-}
-
-function minutesToTime(minutes: number) {
-    minutes = clamp(Math.round(minutes), 0, DAY_MINUTES - 1);
-    const hh = Math.floor(minutes / 60);
-    const mm = minutes % 60;
-    return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
-}
+import { clampBounds, isAmPmThisHour, minutesToTime, roundToQuarter, snapToGrid } from "@repo/design/lib/calendar";
 
 function Calendar({ children }: { children: React.ReactNode }) {
     return (
@@ -336,7 +318,7 @@ function CalendarBody() {
 
         let tentativeStart = timeToMinutes(originalAppointment.startTime) + minutesDelta;
         tentativeStart = roundToQuarter(tentativeStart);
-        tentativeStart = clamp(tentativeStart, DAY_MIN_START, DAY_MAX_END);
+        tentativeStart = clampBounds(tentativeStart, DAY_MIN_START, DAY_MAX_END);
 
         setPendingNewStartMinutes(tentativeStart);
         setNewStartTime(minutesToTime(tentativeStart));

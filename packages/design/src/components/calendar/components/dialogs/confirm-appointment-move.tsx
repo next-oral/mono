@@ -3,6 +3,7 @@ import { useCalendarStore } from "../../store/store";
 import { Button } from "@repo/design/components/ui/button";
 import { ArrowUpDown, ReplaceAllIcon, ReplaceIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@repo/design/components/ui/dialog";
+import { minutesToTime } from "@repo/design/lib/calendar";
 
 {/* Confirm dialog for replace/swap/move */ }
 export function ConfirmAppointmentMove() {
@@ -21,7 +22,6 @@ export function ConfirmAppointmentMove() {
     const dentists = useCalendarStore(state => state.dentists);
     const newStartTime = useCalendarStore(state => state.newStartTime);
     const setAppointments = useCalendarStore(state => state.setAppointments);
-    const getAppointmentDuration = useCalendarStore(state => state.getAppointmentDuration);
     const getAppointmentDuration = useCalendarStore(state => state.getAppointmentDuration);
 
     function handleConfirmChoice(choice: "replace" | "replace_preserve_time" | "swap" | "cancel" | "move") {
@@ -53,11 +53,12 @@ export function ConfirmAppointmentMove() {
             if (draggedIndex === -1) return prev;
 
             const dragged = next[draggedIndex];
+            if (!dragged) return prev;
 
             // Move to empty time slot
             if (choice === "move") {
                 if (pendingNewStartMinutes === null) return prev;
-                const duration = getAppointmentDuration(String(dragged?.startTime), String(dragged?.endTime));
+                const duration = getAppointmentDuration(String(dragged.startTime), String(dragged.endTime));
                 const newStart = minutesToTime(pendingNewStartMinutes);
                 const newEnd = minutesToTime(pendingNewStartMinutes + duration);
                 next[draggedIndex] = { ...dragged, startTime: newStart, endTime: newEnd };
@@ -82,9 +83,17 @@ export function ConfirmAppointmentMove() {
             } else {
                 // if choice is swap
                 // swap times between dragged and target
-                const draggedTimes = { startTime: dragged?.startTime, endTime: String(dragged?.endTime) }
-                next[draggedIndex] = { ...dragged, startTime: target.startTime, endTime: target.endTime }
-                next[targetIndex] = { ...target, startTime: draggedTimes.startTime, endTime: draggedTimes.endTime }
+                const draggedTimes = { startTime: dragged.startTime, endTime: String(dragged.endTime) }
+                next[draggedIndex] = { ...dragged, startTime: String(target?.startTime), endTime: String(target?.endTime) }
+                next[targetIndex] = {
+                    id: Number(target?.id),
+                    dentistId: Number(target?.dentistId),
+                    patientName: String(target?.patientName),
+                    date: String(target?.date),
+                    color: target?.color,
+                    startTime: draggedTimes.startTime,
+                    endTime: draggedTimes.endTime
+                }
                 return next
             }
         });
