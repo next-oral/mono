@@ -3,7 +3,7 @@
 import type { CSSProperties } from "react";
 import React, { useRef } from "react"
 import { Button } from "../ui/button"
-import { ScrollArea } from "../ui/scroll-area"
+import { ScrollArea, ScrollBar } from "../ui/scroll-area"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "../../icons"
 import { cn } from "../../lib/utils"
 import { Stethoscope } from "lucide-react"
@@ -221,18 +221,10 @@ function CalendarBody() {
         const height = (durationMinutes / MIN_APPOINTMENT_MINUTES) * SLOT_HEIGHT;
 
         return {
-            position: "absolute",
             top: `${top}px`,
             left: 0,
-            width: "100%",
             height: `${height}px`,
-            backgroundColor: "rgba(0, 125, 255, 0.5)",
-            borderRadius: "4px",
-            color: "white",
-            padding: "8px",
-            boxSizing: "border-box",
             zIndex: 5,
-            pointerEvents: "none"
         }
     }
 
@@ -420,7 +412,7 @@ function CalendarBody() {
                         <div className="flex">
                             <div className="w-12 sticky left-0 z-10 bg-background/80 backdrop-blur-xl">
                                 {timeSlots.map((time, index) => (
-                                    <div key={index} style={{ height: `${TIME_SLOT_HEIGHT}px` }} className="border-b border-secondary text-xs text-muted-foreground pr-2 text-right">
+                                    <div key={index} style={{ height: `${TIME_SLOT_HEIGHT}px` }} className="border-b border-secondary-foreground/10 text-xs text-muted-foreground pr-2 text-right">
                                         {time}
                                         {isAmPmThisHour(time) && isToday(currentDate) && <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1 mx-auto"></div>}
                                     </div>
@@ -435,7 +427,7 @@ function CalendarBody() {
                                     <div
                                         key={dentist.id + index}
                                         ref={(el) => { dentistColumnRefs.current[dentist.id] = el }}
-                                        className="flex-1 relative border-l border-secondary"
+                                        className="flex-1 relative border-l border-secondary-foreground/10"
                                         style={{ width: selectedDentists.length !== 1 ? `${COLUMN_WIDTH}px` : "100%" }}
                                         onMouseDown={(e) => {
                                             if (!isDragging) handleSlotHighlightMouseDown(dentist.id, e);
@@ -443,7 +435,7 @@ function CalendarBody() {
                                     >
                                         {/* Render hour slots for the column */}
                                         {timeSlots.map((time, timeIndex) => (
-                                            <div key={timeIndex} style={{ height: `${TIME_SLOT_HEIGHT}px` }} className="border-b border-secondary relative">
+                                            <div key={timeIndex} style={{ height: `${TIME_SLOT_HEIGHT}px` }} className="border-b border-secondary-foreground/10 relative">
                                                 {/* Render sub-slots as droppable zones */}
                                                 {Array.from({ length: SLOTS_PER_HOUR }).map((_, slotIndex) => {
                                                     const minutes = (timeIndex * 60) + (slotIndex * 15);
@@ -482,7 +474,8 @@ function CalendarBody() {
 
                                         {/* Render highlight if selection exists */}
                                         {slotsSelection[dentist.id] && (
-                                            <div style={getHighlightStyle(dentist.id)}>
+                                            <div style={getHighlightStyle(dentist.id)}
+                                                className="absolute w-full rounded-sm border-dashed border-2 text-xs sm:text-sm p-2 text-accent-foreground bg-primary/40 pointer-events-none overflow-hidden">
                                                 <div style={{ whiteSpace: "pre-line" }}>{getLabel(String(dentist.id))}</div>
                                             </div>
                                         )}
@@ -492,6 +485,7 @@ function CalendarBody() {
                         </div>
                     </div>
                 </div>
+                <ScrollBar orientation="horizontal" />
             </ScrollArea>
             {/* floating preview badge */}
             {

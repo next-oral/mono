@@ -9,15 +9,16 @@ import { COLUMN_WIDTH } from "../constants";
 // This Shows the dentists in a row at the top of the calendar with their appointment count for the day.
 export function DentistsRow() {
     const { selectedDentists, appointments, currentDate, getFilteredDentists } = useCalendarStore();
-
+    // , { "w-full": selectedDentists.length === 1 }
     return (
-        <div className={cn("flex flex-row overflow-x-auto text-center items-center", { "w-full": selectedDentists.length === 1 })}>
+        <div className={cn("flex flex-row overflow-x-auto text-center items-center w-full flex-1")}>
             {getFilteredDentists().map(({ id, name, avatar, startDate }) => (
                 <Tooltip key={id}>
-                    <TooltipTrigger className={cn({ "w-full": selectedDentists.length === 1 })}>
-                        <div className="flex items-center h-8 justify-center border border-primary/5 capitalize text-xs font-medium" style={{ width: selectedDentists.length !== 1 ? `${COLUMN_WIDTH}px` : "100%" }} >
+                    <TooltipTrigger className="w-full flex-1"
+                        style={{ width: selectedDentists.length !== 1 ? `${COLUMN_WIDTH}px` : "100%" }}>
+                        <div className="flex w-full items-center h-8 justify-center border border-secondary-foreground/10 capitalize text-xs font-medium" >
                             Dr. {selectedDentists.length != 1 ? truncateText(String(name.split(" ")[0]), 10) : name}
-                            <Badge className="size-4 text-[9px] ml-2">{appointments.filter((appt) => appt.dentistId === id && appt.date === new Date(currentDate).toISOString().slice(0, 10)).length}</Badge>
+                            <Badge className="size-4 text-[9px] ml-2">{appointments.filter((appointment) => appointment.dentistId === id && appointment.date === new Date(currentDate).toISOString().slice(0, 10)).length}</Badge>
                         </div>
                     </TooltipTrigger>
                     <TooltipContent content="bg-lime-100 fill-lime-100 dark:bg-lime-700 dark:fill-lime-700" className="bg-lime-100 dark:bg-lime-700">
