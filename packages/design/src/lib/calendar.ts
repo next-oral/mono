@@ -134,11 +134,13 @@ export function groupAppointmentsForDay(
         }
 
         const last = groups[groups.length - 1];
-        const overlapCheck = treatTouchingAsOverlap ? appointment.startMin <= last?.endMin : appointment.startMin < last.endMin;
-        const proposedEnd = Math.max(last?.endMin, appointment.endMin);
-        const proposedSpan = proposedEnd - last?.startMin;
+        const overlapCheck = last
+            ? (treatTouchingAsOverlap ? appointment.startMin <= last.endMin : appointment.startMin < last.endMin)
+            : false;
+        const proposedEnd = last ? Math.max(last.endMin, appointment.endMin) : appointment.endMin;
+        const proposedSpan = last ? proposedEnd - last.startMin : 0;
 
-        if (overlapCheck && proposedSpan <= maxGroupDurationMinutes) {
+        if (last && overlapCheck && proposedSpan <= maxGroupDurationMinutes) {
             // merge into last group
             last.endMin = proposedEnd;
             last.appointments.push(appointment);
@@ -153,7 +155,7 @@ export function groupAppointmentsForDay(
         startTime: minutesToTime(g.startMin),
         endTime: minutesToTime(g.endMin),
         // return the original Appointment objects (without the internal minute fields)
-        appointments: g.appointments.map(({ startMin, endMin, ...orig }) => orig as Appointment),
+        appointments: g.appointments.map(({ startMin: _startMin, endMin: _endMin, ...orig }) => orig as Appointment),
     }));
 
     console.log(result);

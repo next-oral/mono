@@ -1,5 +1,5 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-import { cn } from "@repo/design/lib/utils";
+import { cn, truncateText } from "@repo/design/lib/utils";
 import type { Appointment } from "@repo/design/types/calendar";
 import { useCalendarStore } from "../store/store";
 import { CSS } from "@dnd-kit/utilities";
@@ -65,7 +65,7 @@ export function DraggableAppointment({
             data-is-appointment="true"  // Marker for event delegation
         >
             <div
-                className={cn("rounded-md p-2 cursor-move flex", appointment.color?.stickerColor)}
+                className={cn("rounded-lg p-2 cursor-move flex", appointment.color?.stickerColor)}
                 style={{
                     width: "100%",
                     height: "100%",
@@ -77,11 +77,11 @@ export function DraggableAppointment({
                 <div className="flex-1 overflow-hidden">
                     {showFullInfo ? (
                         <>
-                            <div className="text-xs font-medium leading-tight">Dr. {dentists.find((d) => d.id === appointment.dentistId)?.name.split(" ")[0]} /w {appointment.patientName}</div>
-                            <div className="text-xs opacity-75 leading-tight">{appointment.startTime} - {appointment.endTime}</div>
+                            <h4 className="text-xs font-medium leading-tight">Dr. {dentists.find((d) => d.id === appointment.dentistId)?.name.split(" ")[0]} /w {appointment.patientName}</h4>
+                            <p className="text-xs opacity-75 leading-tight">{appointment.startTime} - {appointment.endTime}</p>
                         </>
                     ) : (
-                        <div className="text-xs font-medium leading-tight">{appointment.patientName}</div>
+                        <div className="text-xs font-medium leading-tight">{truncateText(appointment.patientName, 15)}</div>
                     )}
                 </div>
             </div>

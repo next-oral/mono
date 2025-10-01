@@ -41,8 +41,9 @@ import { CreateAppointmentDialog } from "./components/dialogs/create-appointment
 import { AppointmentEditDialog } from "./components/dialogs/appointment-delete-dialog";
 import { DentistsSelector } from "./components/dentists-selector";
 import { DateSelector } from "./components/date-selector";
-import { clampBounds, groupAppointmentsForDay, isAmPmThisHour, minutesToTime, roundToQuarter, snapToGrid, timeToMinutes } from "@repo/design/lib/calendar";
+import { clampBounds, groupAppointmentsForDay, isAmPmThisHour, minutesToTime, roundToQuarter, timeToMinutes } from "@repo/design/lib/calendar";
 import { dummyAppointments } from "./dummy";
+import { WeekViewSchedules } from "./components/week-view-schedules";
 
 function Calendar({ children }: { children: React.ReactNode }) {
     return (
@@ -449,6 +450,7 @@ function CalendarBody() {
                                                 {/* Render appointments absolute within the column */}
                                                 {appointmentsForDentist.map((appointment) => {
                                                     const top = getAppointmentTop(appointment.startTime);
+                                                    const left = getAppointmentLeft(appointment.dentistId);
                                                     const height = getAppointmentHeight(appointment.startTime, appointment.endTime);
                                                     const width = getAppointmentWidth();
                                                     const duration = getAppointmentDuration(appointment.startTime, appointment.endTime);
@@ -459,7 +461,7 @@ function CalendarBody() {
                                                             key={appointment.id}
                                                             appointment={appointment}
                                                             top={top}
-                                                            left={getAppointmentLeft(appointment.dentistId)}
+                                                            left={left}
                                                             width={width}
                                                             height={height}
                                                             showFullInfo={showFullInfo}
@@ -483,7 +485,7 @@ function CalendarBody() {
                             {selectedView === "Week" && (
                                 <>
                                     {weekDates.map((day, index) => {
-                                        const groups = groupAppointmentsForDay(day.toISOString(), dummyAppointments);
+                                        const schedulesToday = groupAppointmentsForDay(day.toISOString(), dummyAppointments);
                                         return (
                                             <div key={index} className={cn("flex-1 relative border-l border-secondary-foreground/10", { "bg-blue-50 dark:bg-blue-950": isToday(day) })}
                                                 style={{ width: `${COLUMN_WIDTH}px` }}
@@ -494,8 +496,28 @@ function CalendarBody() {
                                                         style={{ height: `${TIME_SLOT_HEIGHT}px` }} className="border-b border-secondary-foreground/10 relative">
                                                         {isAmPmThisHour(time) && isToday(currentDate) && <div className="absolute w-full h-[0.1px] border-primary/20 border-dashed border-2 rounded-sm bg-primary/20 z-[0] top-[48%]" />}
                                                     </div>
-
                                                 ))}
+
+                                                {/* Render schedules absolute within the column */}
+                                                {schedulesToday.map((group, index) => {
+                                                    const top = getAppointmentTop(group.startTime);
+                                                    const left = 0;
+                                                    const height = getAppointmentHeight(group.startTime, group.endTime);
+                                                    const width = getAppointmentWidth();
+                                                    const duration = getAppointmentDuration(group.startTime, group.endTime);
+                                                    const showFullInfo = duration >= 30;
+                                                    return (
+                                                        <WeekViewSchedules
+                                                            key={index}
+                                                            group={group}
+                                                            top={top}
+                                                            left={left}
+                                                            width={width}
+                                                            height={height}
+                                                            showFullInfo={showFullInfo}
+                                                        />
+                                                    )
+                                                })}
                                             </div>
                                         )
                                     })}
