@@ -6,7 +6,7 @@ export function DragOverlayAppointment() {
     const { findActiveAppointment, getAppointmentWidth, getAppointmentHeight } = useCalendarStore();
 
     return (
-        <DragOverlay>
+        <DragOverlay zIndex={3} >
             {findActiveAppointment() && (
                 <div className={cn("rounded-md p-2 flex pointer-events-none", findActiveAppointment()?.color?.stickerColor)}
                     style={{

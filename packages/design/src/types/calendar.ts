@@ -19,3 +19,9 @@ export interface Dentist {
     avatar: string;
     startDate: string;
 }
+
+export interface AppointmentGroup {
+    startTime: string; // "HH:MM"
+    endTime: string;   // "HH:MM"
+    appointments: Appointment[];
+}

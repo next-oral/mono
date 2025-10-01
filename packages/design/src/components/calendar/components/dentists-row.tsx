@@ -6,12 +6,15 @@ import { cn, truncateText } from "@repo/design/lib/utils";
 import { COLUMN_WIDTH } from "../constants";
 
 
-// This Shows the dentists in a row at the top of the calendar with their appointment count for the day.
+/**
+ * This Shows the dentists in a row at the top of the calendar with their appointment count for the day.
+ * @returns JSX Element
+ */
 export function DentistsRow() {
     const { selectedDentists, appointments, currentDate, getFilteredDentists } = useCalendarStore();
-    // , { "w-full": selectedDentists.length === 1 }
+
     return (
-        <div className={cn("flex flex-row overflow-x-auto text-center items-center w-full flex-1")}>
+        <div className={cn("flex flex-row text-center items-center w-full flex-1")}>
             {getFilteredDentists().map(({ id, name, avatar, startDate }) => (
                 <Tooltip key={id}>
                     <TooltipTrigger className="w-full flex-1"

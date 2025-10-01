@@ -41,7 +41,8 @@ import { CreateAppointmentDialog } from "./components/dialogs/create-appointment
 import { AppointmentEditDialog } from "./components/dialogs/appointment-delete-dialog";
 import { DentistsSelector } from "./components/dentists-selector";
 import { DateSelector } from "./components/date-selector";
-import { clampBounds, isAmPmThisHour, minutesToTime, roundToQuarter, snapToGrid } from "@repo/design/lib/calendar";
+import { clampBounds, groupAppointmentsForDay, isAmPmThisHour, minutesToTime, roundToQuarter, snapToGrid, timeToMinutes } from "@repo/design/lib/calendar";
+import { dummyAppointments } from "./dummy";
 
 function Calendar({ children }: { children: React.ReactNode }) {
     return (
@@ -145,7 +146,6 @@ function CalendarBody() {
     const getAppointmentLeft = useCalendarStore(state => state.getAppointmentLeft);
 
     const getTimeFromPixelPosition = useCalendarStore(state => state.getTimeFromPixelPosition);
-    const timeToMinutes = useCalendarStore(state => state.timeToMinutes);
 
     const findActiveAppointment = useCalendarStore(state => state.findActiveAppointment);
     const newStartTime = useCalendarStore(state => state.newStartTime);
@@ -257,7 +257,7 @@ function CalendarBody() {
     // ------ Drag Features
 
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { delay: 120, tolerance: 5 } }))
-    const modifiers = [restrictToVerticalAxis, restrictToParentElement, snapToGrid] satisfies Modifier[];
+    const modifiers = [restrictToVerticalAxis, restrictToParentElement] satisfies Modifier[];
 
     function customCollisionDetection(args: Parameters<CollisionDetection>[number]) {
         // RectIntersection to be able to detect even when schedule edges touch
@@ -269,18 +269,6 @@ function CalendarBody() {
             if (appointmentCollisions.length > 0) return appointmentCollisions
             return rectCollisions
         }
-
-        // // Detect pointer-within in-case if rect intersection fails
-        // const pointerCollisions = pointerWithin(args)
-
-        // if (pointerCollisions.length > 0) {
-        //     // Prioritize appointment collisions
-        //     const appointmentCollisions = pointerCollisions.filter((c: { id: string }) => {
-        //         return !(c.id && c.id.startsWith("slot-"))
-        //     })
-        //     if (appointmentCollisions.length > 0) return appointmentCollisions
-        //     return pointerCollisions
-        // }
 
         // Fallback to closest center
         return closestCenter(args);
@@ -322,13 +310,13 @@ function CalendarBody() {
         setIsDragging(false)
 
         if (!originalAppointment) {
-            setNewStartTime(null)
-            setPendingNewStartMinutes(null)
-            return
+            setNewStartTime(null);
+            setPendingNewStartMinutes(null);
+            return;
         }
 
-        const origMinutes = timeToMinutes(originalAppointment.startTime)
-        const newStartMinutes = typeof pendingNewStartMinutes === "number" ? pendingNewStartMinutes : origMinutes
+        const origMinutes = timeToMinutes(originalAppointment.startTime);
+        const newStartMinutes = typeof pendingNewStartMinutes === "number" ? pendingNewStartMinutes : origMinutes;
 
         // If time didn't change, cancel / revert
         if (newStartMinutes === origMinutes) {
@@ -342,7 +330,7 @@ function CalendarBody() {
 
         // If over is a slot (id like "slot-{dentistId}-{minutes}") => treat as empty slot
         if (over && typeof over.id === "string" && over.id.startsWith("slot-")) {
-            setTargetAppointment(null)
+            // setTargetAppointment(null)
             setPendingNewStartMinutes(newStartMinutes)
             setNewStartTime(newStart)
             setShowConfirmDialog(true)
@@ -400,8 +388,13 @@ function CalendarBody() {
                             {selectedView === "Day" ? (
                                 <DentistsRow />
                             ) : (
-                                <div className="flex-1 grid grid-cols-7">
-                                    {weekDates.map((date, index) => <div key={index} className={cn("h-8 border border-primary/5", { "bg-primary/20": isToday(date) })}></div>)}
+                                <div className="flex-1 flex flex-row">
+                                    {weekDates.map((date, index) =>
+                                        <div
+                                            key={index}
+                                            className={cn("h-8 border-b border-l border-secondary-foreground/10",
+                                                { "bg-blue-50 dark:bg-blue-950": isToday(date) })}
+                                            style={{ width: `${COLUMN_WIDTH}px` }}></div>)}
                                 </div>
                             )}
                         </div>
@@ -420,68 +413,94 @@ function CalendarBody() {
                             </div>
 
                             {/* Dentist columns */}
-                            {getFilteredDentists().map((dentist, index) => {
-                                // Filter appointments for this dentist only
-                                const appointmentsForDentist = getFilteredAppointments().filter(appointment => appointment.dentistId === dentist.id);
-                                return (
-                                    <div
-                                        key={dentist.id + index}
-                                        ref={(el) => { dentistColumnRefs.current[dentist.id] = el }}
-                                        className="flex-1 relative border-l border-secondary-foreground/10"
-                                        style={{ width: selectedDentists.length !== 1 ? `${COLUMN_WIDTH}px` : "100%" }}
-                                        onMouseDown={(e) => {
-                                            if (!isDragging) handleSlotHighlightMouseDown(dentist.id, e);
-                                        }}
-                                    >
-                                        {/* Render hour slots for the column */}
-                                        {timeSlots.map((time, timeIndex) => (
-                                            <div key={timeIndex} style={{ height: `${TIME_SLOT_HEIGHT}px` }} className="border-b border-secondary-foreground/10 relative">
-                                                {/* Render sub-slots as droppable zones */}
-                                                {Array.from({ length: SLOTS_PER_HOUR }).map((_, slotIndex) => {
-                                                    const minutes = (timeIndex * 60) + (slotIndex * 15);
-                                                    const slotId = `slot-${dentist.id}-${minutes}`;
+                            {selectedView === "Day" &&
+                                <>
+                                    {getFilteredDentists().map((dentist, index) => {
+                                        // Filter appointments for this dentist only
+                                        const appointmentsForDentist = getFilteredAppointments().filter(appointment => appointment.dentistId === dentist.id);
+                                        return (
+                                            <div
+                                                key={dentist.id + index}
+                                                ref={(el) => { dentistColumnRefs.current[dentist.id] = el }}
+                                                className="flex-1 relative border-l border-secondary-foreground/10"
+                                                style={{ width: selectedDentists.length !== 1 ? `${COLUMN_WIDTH}px` : "100%" }}
+                                                onMouseDown={(e) => {
+                                                    if (!isDragging) handleSlotHighlightMouseDown(dentist.id, e);
+                                                }}
+                                            >
+                                                {/* Render hour slots for the column */}
+                                                {timeSlots.map((time, timeIndex) => (
+                                                    <div key={timeIndex} style={{ height: `${TIME_SLOT_HEIGHT}px` }} className="border-b border-secondary-foreground/10 relative">
+                                                        {/* Render sub-slots as droppable zones */}
+                                                        {Array.from({ length: SLOTS_PER_HOUR }).map((_, slotIndex) => {
+                                                            const minutes = (timeIndex * 60) + (slotIndex * 15);
+                                                            const slotId = `slot-${dentist.id}-${minutes}`;
+                                                            return (
+                                                                <SlotDroppable
+                                                                    key={slotId}
+                                                                    id={slotId}
+                                                                />
+                                                            );
+                                                        })}
+                                                        {isAmPmThisHour(time) && isToday(currentDate) && <div className="absolute w-full h-[0.1px] border-primary/20 border-dashed border-2 rounded-sm bg-primary/20 z-[0] top-[48%]" />}
+                                                    </div>
+                                                ))}
+
+                                                {/* Render appointments absolute within the column */}
+                                                {appointmentsForDentist.map((appointment) => {
+                                                    const top = getAppointmentTop(appointment.startTime);
+                                                    const height = getAppointmentHeight(appointment.startTime, appointment.endTime);
+                                                    const width = getAppointmentWidth();
+                                                    const duration = getAppointmentDuration(appointment.startTime, appointment.endTime);
+                                                    const showFullInfo = duration >= 30;
+
                                                     return (
-                                                        <SlotDroppable
-                                                            key={slotId}
-                                                            id={slotId}
+                                                        <DraggableAppointment
+                                                            key={appointment.id}
+                                                            appointment={appointment}
+                                                            top={top}
+                                                            left={getAppointmentLeft(appointment.dentistId)}
+                                                            width={width}
+                                                            height={height}
+                                                            showFullInfo={showFullInfo}
                                                         />
                                                     );
                                                 })}
-                                                {isAmPmThisHour(time) && isToday(currentDate) && <div className="absolute w-full h-[0.1px] border-primary/20 border-dashed border-2 rounded-sm bg-primary/20 z-[0] top-[48%]" />}
+
+                                                {/* Render highlight if selection exists */}
+                                                {slotsSelection[dentist.id] && (
+                                                    <div style={getHighlightStyle(dentist.id)}
+                                                        className="absolute w-full rounded-sm border-dashed border-2 text-xs sm:text-sm p-2 text-accent-foreground bg-primary/40 pointer-events-none overflow-hidden">
+                                                        <div style={{ whiteSpace: "pre-line" }}>{getLabel(String(dentist.id))}</div>
+                                                    </div>
+                                                )}
                                             </div>
-                                        ))}
+                                        );
+                                    })}
+                                </>
+                            }
 
-                                        {/* Render appointments absolute within the column */}
-                                        {appointmentsForDentist.map((appointment) => {
-                                            const top = getAppointmentTop(appointment.startTime);
-                                            const height = getAppointmentHeight(appointment.startTime, appointment.endTime);
-                                            const width = getAppointmentWidth();
-                                            const duration = getAppointmentDuration(appointment.startTime, appointment.endTime);
-                                            const showFullInfo = duration >= 30;
+                            {selectedView === "Week" && (
+                                <>
+                                    {weekDates.map((day, index) => {
+                                        const groups = groupAppointmentsForDay(day.toISOString(), dummyAppointments);
+                                        return (
+                                            <div key={index} className={cn("flex-1 relative border-l border-secondary-foreground/10", { "bg-blue-50 dark:bg-blue-950": isToday(day) })}
+                                                style={{ width: `${COLUMN_WIDTH}px` }}
+                                            >
+                                                {timeSlots.map((time, index) => (
+                                                    <div
+                                                        key={index}
+                                                        style={{ height: `${TIME_SLOT_HEIGHT}px` }} className="border-b border-secondary-foreground/10 relative">
+                                                        {isAmPmThisHour(time) && isToday(currentDate) && <div className="absolute w-full h-[0.1px] border-primary/20 border-dashed border-2 rounded-sm bg-primary/20 z-[0] top-[48%]" />}
+                                                    </div>
 
-                                            return (
-                                                <DraggableAppointment
-                                                    key={appointment.id}
-                                                    appointment={appointment}
-                                                    top={top}
-                                                    left={getAppointmentLeft(appointment.dentistId)}
-                                                    width={width}
-                                                    height={height}
-                                                    showFullInfo={showFullInfo}
-                                                />
-                                            );
-                                        })}
-
-                                        {/* Render highlight if selection exists */}
-                                        {slotsSelection[dentist.id] && (
-                                            <div style={getHighlightStyle(dentist.id)}
-                                                className="absolute w-full rounded-sm border-dashed border-2 text-xs sm:text-sm p-2 text-accent-foreground bg-primary/40 pointer-events-none overflow-hidden">
-                                                <div style={{ whiteSpace: "pre-line" }}>{getLabel(String(dentist.id))}</div>
+                                                ))}
                                             </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
+                                        )
+                                    })}
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

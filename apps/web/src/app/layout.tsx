@@ -65,7 +65,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-          // forcedTheme="light"
+        // forcedTheme="light"
         >
           <Toaster theme="light" richColors position="top-center" />
           <TRPCReactProvider>

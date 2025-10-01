@@ -5,6 +5,7 @@ import type { UniqueIdentifier } from "@dnd-kit/core";
 import { startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
 import type { EachDayOfIntervalResult } from "date-fns";
 import { MIN_APPOINTMENT_MINUTES, TIME_SLOT_HEIGHT, timeSlots } from "../constants";
+import { timeToMinutes } from "@repo/design/lib/calendar";
 
 interface CalendarState {
   // Constants
@@ -70,7 +71,6 @@ interface CalendarState {
   getDisplayedDentists: () => Dentist[];
   getFilteredAppointments: () => Appointment[];
   getTimeFromPixelPosition: (y: number, containerHeight: number) => { hour: number; minute: number };
-  timeToMinutes: (time: string) => number;
   findActiveAppointment: () => Appointment | null | undefined;
   getAppointmentHeight: (startTime: string, endTime: string) => number;
   getAppointmentDuration: (startTime: string, endTime: string) => number;
@@ -228,17 +228,12 @@ export const useCalendarStore = create((set, get): CalendarState => ({
     filtered = filtered.filter(a => displayedIds.includes(a.dentistId))
     return filtered
   },
-  timeToMinutes(time: string) {
-    const [hours, minutes] = time.split(":").map(Number)
-    return Number(hours) * 60 + Number(minutes)
-  },
   findActiveAppointment: () => {
     const activeId = get().activeId;
     const appointments = get().appointments;
     return activeId ? appointments.find((a) => String(a.id) === String(activeId)) : null;
   },
   getAppointmentHeight: (startTime: string, endTime: string) => {
-    const timeToMinutes = get().timeToMinutes;
     const startMinutes = timeToMinutes(startTime);
     const endMinutes = timeToMinutes(endTime);
     const durationMinutes = endMinutes - startMinutes;
@@ -246,13 +241,12 @@ export const useCalendarStore = create((set, get): CalendarState => ({
     return (minDuration / 60) * TIME_SLOT_HEIGHT;
   },
   getAppointmentDuration: (startTime: string, endTime: string) => {
-    const timeToMinutes = get().timeToMinutes;
     const startMinutes = timeToMinutes(startTime);
     const endMinutes = timeToMinutes(endTime);
     return endMinutes - startMinutes;
   },
   getAppointmentTop: (startTime: string) => {
-    const startMinutes = get().timeToMinutes(startTime);
+    const startMinutes = timeToMinutes(startTime);
     return (startMinutes / 60) * TIME_SLOT_HEIGHT;
   },
   getAppointmentWidth: () => {
