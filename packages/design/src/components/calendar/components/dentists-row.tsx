@@ -13,10 +13,23 @@ import { useCalendarStore } from "../store/store";
 export function DentistsRow() {
   const { selectedDentists, appointments, currentDate, getFilteredDentists } =
     useCalendarStore();
+  const dentists = getFilteredDentists();
 
+  // return (
+  //   <div className="flex flex-row">
+  //     {dentists.map(({ id, name }) => (
+  //       <div
+  //         key={id}
+  //         className="b w-80 border border-y-0 border-l-0 text-center first:border-l-1"
+  //       >
+  //         <div>{name}</div>
+  //       </div>
+  //     ))}
+  //   </div>
+  // );
   return (
     <div className={cn("flex w-full flex-1 flex-row items-center text-center")}>
-      {getFilteredDentists().map(({ id, name, avatar, startDate }) => (
+      {dentists.map(({ id, name, avatar, startDate }) => (
         <Tooltip key={id}>
           <TooltipTrigger
             className="w-full flex-1"
@@ -25,12 +38,9 @@ export function DentistsRow() {
                 selectedDentists.length !== 1 ? `${COLUMN_WIDTH}px` : "100%",
             }}
           >
-            <div className="border-secondary-foreground/10 flex h-8 w-full items-center justify-center border text-xs font-medium capitalize">
-              Dr.{" "}
-              {selectedDentists.length != 1
-                ? truncateText(String(name.split(" ")[0]), 10)
-                : name}
-              <Badge className="ml-2 size-4 text-[9px]">
+            <div className="flex h-8 w-full items-center justify-center border-r text-xs font-medium capitalize">
+              Dr. {truncateText(String(name.split(" ")[0]))}
+              <Badge variant="outline" className="ml-2 size-4 text-[9px]">
                 {
                   appointments.filter(
                     (appointment) =>
@@ -43,8 +53,8 @@ export function DentistsRow() {
             </div>
           </TooltipTrigger>
           <TooltipContent
-            content="bg-lime-100 fill-lime-100 dark:bg-lime-700 dark:fill-lime-700"
-            className="bg-lime-100 dark:bg-lime-700"
+          // content="bg-lime-100 fill-lime-100 dark:bg-lime-700 dark:fill-lime-700"
+          // className="bg-lime-100 dark:bg-lime-700"
           >
             <div>
               <div className="flex items-center gap-1">

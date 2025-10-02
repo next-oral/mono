@@ -47,7 +47,7 @@ export function AppointmentDetailsBody({
     <ScrollArea className="max-h-[80vh]">
       <div className="flex flex-col pt-2">
         <div className="flex flex-col px-4 py-5">
-          <strong className="text-[9px] text-slate-400 uppercase dark:text-slate-600">
+          <strong className="text-[9px] leading-4 text-slate-400 uppercase dark:text-slate-600">
             Appointment Title
           </strong>
           <div className="mt-1 flex items-end justify-between">

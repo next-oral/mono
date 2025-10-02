@@ -311,7 +311,7 @@ export const useCalendarStore = create(
     },
     getAppointmentWidth: () => {
       // TODO: Width is 100% minus padding (4px each side)
-      return "calc(100%)";
+      return "calc(100% - 2px)";
     },
     getAppointmentLeft: (/*dentistId: number*/) => {
       // TODO: Since nested per column, left is always 0
