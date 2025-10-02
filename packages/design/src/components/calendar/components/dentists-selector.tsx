@@ -28,7 +28,7 @@ export function DentistsSelector() {
                     variant="outline"
                     role="combobox"
                     aria-expanded={isDentistsSelectorOpen}
-                    className="w-[240px] justify-between text-xs"
+                    className=" md:w-[240px] justify-between text-xs overflow-x-hidden"
                 >
                     {selectedDentistNamesLabel()}
                     <ChevronsUpDown className="opacity-50" />

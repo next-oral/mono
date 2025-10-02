@@ -6,7 +6,7 @@ import { Button } from "../ui/button"
 import { ScrollArea, ScrollBar } from "../ui/scroll-area"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "../../icons"
 import { cn } from "../../lib/utils"
-import { Stethoscope } from "lucide-react"
+import { Plus, Stethoscope } from "lucide-react"
 import {
     DndContext,
     PointerSensor,
@@ -86,17 +86,18 @@ function CalendarHeader() {
 
 
     return (
-        <div className="flex items-center justify-between mb-6 gap-4" >
+        <div className="flex flex-wrap items-center justify-between mb-6 gap-4" >
             <div className="flex items-center gap-3">
                 <span className="text-xs font-medium text-muted-foreground">Show</span>
                 <DentistsSelector />
             </div>
 
+            <div className="flex items-center gap-1">
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handlePrev}><ChevronLeft className="h-3 w-3" /></Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleNext}><ChevronRight className="h-3 w-3" /></Button>
+            </div>
+
             <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handlePrev}><ChevronLeft className="h-3 w-3" /></Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleNext}><ChevronRight className="h-3 w-3" /></Button>
-                </div>
 
                 <DateSelector />
 
@@ -105,7 +106,7 @@ function CalendarHeader() {
                     <Button variant={selectedView === "Week" ? "secondary" : "ghost"} size="sm" onClick={() => setSelectedView("Week")} className={cn("h-7 px-3 text-xs", { "bg-popover shadow-sm": selectedView === "Week" })}>Week</Button>
                 </div>
 
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 text-xs">New Appointment</Button>
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 text-xs" aria-label="New Appointment"><span className="max-md:hidden">New Appointment</span> <Plus className="md:hidden" /> </Button>
                 <Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal className="h-3 w-3" /></Button>
             </div>
         </div >

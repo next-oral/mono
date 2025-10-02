@@ -28,7 +28,7 @@ export function WeekViewSchedules({
         return (
             <div className="flex">
                 {dentistSample.filter((dentist) => uniqueDentists.includes(dentist.id)).map((dentist, index) => (
-                    <Avatar className={`size-5 border-2 border-popover relative ${index > 0 ? "-ml-2.5" : ""}`}
+                    <Avatar className={`size-5 border-2 border-popover relative bg-blue-300 dark:bg-blue-700 uppercase ${index > 0 ? "-ml-2.5" : ""}`}
                         style={{ zIndex: 10 - index }}>
                         <AvatarImage src={dentist.avatar} />
                         <AvatarFallback>{dentist.name.charAt(0)}</AvatarFallback>

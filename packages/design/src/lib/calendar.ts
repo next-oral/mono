@@ -1,6 +1,7 @@
 import type { Modifier } from "@dnd-kit/core";
 import { DAY_MINUTES, SNAP_GRID } from "../components/calendar/constants";
-import { Appointment, AppointmentGroup } from "../types/calendar";
+import type { Appointment, AppointmentGroup } from "../types/calendar";
+
 /**
  * This is used to keep computed minutes or pixel offsets within valid bounds
  * @param v visual offset
@@ -24,6 +25,11 @@ export const snapToGrid: Modifier = ({ transform }) => {
     return { ...transform, y: snappedY };
 }
 
+/**
+ * 
+ * @param time takes time in format hh:mm
+ * @returns 
+ */
 export function timeToMinutes(time: string) {
     const [hours, minutes] = time.split(":").map(Number)
     return Number(hours) * 60 + Number(minutes)
@@ -65,6 +71,92 @@ export function convert12hTo24h(timeString: string) {
 }
 
 /**
+ * Converts a time string from 24-hour format ("HH:MM") to 12-hour format ("h:mm AM/PM").
+ * @param time24hr - The time string in "HH:MM" format (e.g., "14:30").
+ * @returns The time string in "h:mm AM/PM" format (e.g., "2:30 PM").
+ */
+export function convert24hTo12h(time24hr: string): string {
+    // 1. Basic validation to ensure the input is in the expected format (HH:MM)
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(time24hr)) {
+        // You could throw an error here, but for simplicity, we'll return the original string
+        // or a default value if the format is incorrect.
+        console.error(`Invalid time format: ${time24hr}. Expected "HH:MM".`);
+        return time24hr;
+    }
+
+    // 2. Destructure the hours and minutes
+    const [hoursStr, minutes] = time24hr.split(":");
+    const hours = parseInt(String(hoursStr), 10);
+
+    // 3. Determine the AM/PM suffix
+    const ampm = hours >= 12 ? "PM" : "AM";
+
+    // 4. Convert 24-hour number to 12-hour number
+    let hours12 = hours % 12;
+
+    // Handle midnight (00:xx) and noon (12:xx)
+    if (hours12 === 0) {
+        hours12 = 12; // 00:xx becomes 12:xx AM
+    }
+
+    // 5. Construct the final 12-hour string
+    return `${hours12}:${minutes} ${ampm}`;
+}
+
+/**
+* Calculates the duration between two times in "HH:MM" 24-hour format 
+* and returns a human-readable string (e.g., "2 hours 30 mins" or "45 mins").
+* * NOTE: This function does not handle durations that span across midnight (i.e., end time is before start time).
+* @param startTime24hr - The starting time in "HH:MM" format (e.g., "09:30").
+* @param endTime24hr - The ending time in "HH:MM" format (e.g., "12:00").
+* @returns A human-readable duration string (e.g., "2 hours 30 mins").
+*/
+export function getScheduleDuration(startTime24hr: string, endTime24hr: string): string {
+    // 1. Convert start and end times to total minutes
+    const startMinutes = timeToMinutes(startTime24hr);
+    const endMinutes = timeToMinutes(endTime24hr);
+
+    // 2. Calculate the difference in minutes
+    const durationMinutes = endMinutes - startMinutes;
+
+    // --- Basic Error/Edge Case Handling ---
+    if (durationMinutes < 0) {
+        // Handle case where end time is before start time on the same day.
+        // If you need to handle cross-day duration, you would add 24 * 60 here.
+        console.warn(`End time (${endTime24hr}) is before start time (${startTime24hr}). Duration is negative.`);
+        return "Invalid Duration";
+    }
+
+    if (durationMinutes === 0) {
+        return "0 minutes";
+    }
+
+    // 3. Convert total minutes to hours and remaining minutes
+    const hours = Math.floor(durationMinutes / 60);
+    const minutes = durationMinutes % 60;
+
+    // 4. Build the readable output string
+    let result = "";
+
+    if (hours > 0) {
+        // Append hours, correctly pluralized
+        result += `${hours}hr${hours > 1 ? "s" : ""}`;
+    }
+
+    if (minutes > 0) {
+        // If there were hours, add a space before minutes
+        if (result.length > 0) {
+            result += " ";
+        }
+        // Append minutes, correctly pluralized
+        result += `${minutes}m`;
+    }
+
+    return result;
+}
+
+/**
  * 
  * @param hour takes string in this format 11AM
  * @returns the amount of time converted from the present time
@@ -93,18 +185,18 @@ export function groupAppointmentsForDay(
 ): AppointmentGroup[] {
     // 1. Filter by date
 
-    function uniformDate (date: string | Date) {
+    function uniformDate(date: string | Date) {
         let newDate = new Date();
-        if(typeof date === 'string'){
+        if (typeof date === "string") {
             newDate = new Date(date);
-        }else {
+        } else {
             newDate = date;
         }
-       return newDate.toLocaleDateString('en-CA');
+        return newDate.toLocaleDateString("en-CA");
     }
 
     const dailyAppointments = appointments.filter((a) => uniformDate(a.date) === uniformDate(dayISO));
- 
+
     if (dailyAppointments.length === 0) return [];
 
     // 2. Map to internal objects with minute values
