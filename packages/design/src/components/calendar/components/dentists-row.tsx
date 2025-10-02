@@ -31,15 +31,10 @@ export function DentistsRow() {
                 ? truncateText(String(name.split(" ")[0]), 10)
                 : name}
               <Badge className="ml-2 size-4 text-[9px]">
-                {
-                  appointments.filter(
-                    (appointment) =>
-                      appointment.dentistId === id &&
-                      appointment.date ===
-                        new Date(currentDate).toISOString().slice(0, 10),
-                  ).length
-                }
-              </Badge>
+                {appointments.filter((appointment) => {
+                  const localDateKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
+                  return appointment.dentistId === id && appointment.date === localDateKey;
+                }).length}              </Badge>
             </div>
           </TooltipTrigger>
           <TooltipContent

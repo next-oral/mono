@@ -8,38 +8,40 @@ export function DragOverlayAppointment() {
   const { findActiveAppointment, getAppointmentWidth, getAppointmentHeight } =
     useCalendarStore();
 
+  const appointmentWidth = getAppointmentWidth();
+  const activeAppointment = findActiveAppointment();
   return (
     <DragOverlay zIndex={3}>
-      {findActiveAppointment() && (
+      {activeAppointment && (
         <div
           className={cn(
             "pointer-events-none flex rounded-md p-2",
-            findActiveAppointment()?.color?.stickerColor,
+            activeAppointment.color?.stickerColor,
           )}
           style={{
             width:
-              typeof getAppointmentWidth() === "string"
-                ? getAppointmentWidth()
-                : `${getAppointmentWidth()}px`,
+              typeof appointmentWidth === "string"
+                ? appointmentWidth
+                : `${appointmentWidth as string}px`,
             height: getAppointmentHeight(
-              String(findActiveAppointment()?.startTime),
-              String(findActiveAppointment()?.endTime),
+              String(activeAppointment.startTime),
+              String(activeAppointment.endTime),
             ),
           }}
         >
           <div
             className={cn(
               "mr-2 w-1 flex-shrink-0 rounded-full",
-              findActiveAppointment()?.color?.lineColor,
+              activeAppointment.color?.lineColor,
             )}
           />
           <div className="flex-1 overflow-hidden">
             <div className="text-xs leading-tight font-medium">
-              {findActiveAppointment()?.patientName}
+              {activeAppointment.patientName}
             </div>
             <div className="text-xs leading-tight opacity-75">
-              {findActiveAppointment()?.startTime} -{" "}
-              {findActiveAppointment()?.endTime}
+              {activeAppointment.startTime} -{" "}
+              {activeAppointment.endTime}
             </div>
           </div>
         </div>

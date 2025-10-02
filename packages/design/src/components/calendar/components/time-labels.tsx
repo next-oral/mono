@@ -1,7 +1,8 @@
-import { isThisHour, isToday } from "date-fns";
+import { isToday } from "date-fns";
 
 import { TIME_SLOT_HEIGHT, timeSlots } from "../constants";
 import { useCalendarStore } from "../store/store";
+import { isAmPmThisHour } from "@repo/design/lib/calendar";
 
 export function TimeLabels() {
   const { currentDate } = useCalendarStore();
@@ -14,7 +15,7 @@ export function TimeLabels() {
           className="border-secondary text-muted-foreground border-b pr-2 text-right text-xs"
         >
           {time}
-          {isThisHour(time) && isToday(currentDate) && (
+          {isAmPmThisHour(time) && isToday(currentDate) && (
             <div className="bg-primary mx-auto mt-1 h-1.5 w-1.5 rounded-full"></div>
           )}
         </div>
