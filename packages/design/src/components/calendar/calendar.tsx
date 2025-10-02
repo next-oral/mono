@@ -43,8 +43,11 @@ import { DentistsRow } from "./components/dentists-row";
 import { DentistsSelector } from "./components/dentists-selector";
 import { ConfirmAppointmentMove } from "./components/dialogs/confirm-appointment-move";
 import { DragOverlayAppointment } from "./components/drag-overlay-appointment";
-import { DragTimeIndicator } from "./components/drag-time-indicator";
 import { DraggableAppointment } from "./components/draggable-appointment";
+import {
+  CurrentTimeIndicator,
+  DragTimeIndicator,
+} from "./components/indicators";
 import { SlotDroppable } from "./components/slot-droppable";
 import { TimeLabels } from "./components/time-labels";
 import { WeekViewDays } from "./components/week-view-days";
@@ -498,22 +501,21 @@ function CalendarBody() {
       onDragEnd={handleDragEnd}
       collisionDetection={customCollisionDetection}
     >
-      <ScrollArea className="h-[100vh] w-auto">
+      <ScrollArea className="h-screen w-auto">
+        <div className="-12 absolute border border-l-0" />
         <div className="relative min-w-[800px]">
           {selectedView === "Week" && <WeekViewDays />}
 
           <div
-            className={cn("bg-background z-[12]", {
-              "sticky top-0": selectedView === "Day",
+            className={cn("bg-background z-10", {
+              // "sticky top-0": selectedView === "Day",
             })}
           >
-            <div className="border-secondary flex items-center border-t first:border-b">
-              <div className="text-muted-foreground w-12 text-right text-xs font-medium">
+            <div className="border-secondary flex items-center overflow-hidden border-t first:border-b">
+              <div className="text-muted-foreground h-full w-12 text-right text-xs font-medium">
                 {selectedView === "Day" ? (
-                  <Stethoscope className="h-4 w-4" />
-                ) : (
-                  "All day"
-                )}
+                  <Stethoscope className="size-4" />
+                ) : null}
               </div>
               {selectedView === "Day" ? (
                 <DentistsRow />
@@ -534,6 +536,10 @@ function CalendarBody() {
             </div>
           </div>
 
+          {/* Time Slots */}
+          <div className="relative space-y-0">
+            <div className="flex">
+              <TimeLabels />
           {/* Time Slots */}
           <div className="relative space-y-0">
             <div className="flex">
@@ -701,7 +707,7 @@ function CalendarBody() {
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
       {/* floating preview badge */}
-      {findActiveAppointment() && newStartTime && <DragTimeIndicator />}
+      <DragTimeIndicator />
 
       <DragOverlayAppointment />
       <ConfirmAppointmentMove />
@@ -709,4 +715,4 @@ function CalendarBody() {
   );
 }
 
-export { Calendar, CalendarHeader, CalendarBody };
+export { Calendar, CalendarBody, CalendarHeader };

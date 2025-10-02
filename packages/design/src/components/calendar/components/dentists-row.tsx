@@ -13,10 +13,11 @@ import { useCalendarStore } from "../store/store";
 export function DentistsRow() {
   const { selectedDentists, appointments, currentDate, getFilteredDentists } =
     useCalendarStore();
+  const dentists = getFilteredDentists();
 
   return (
     <div className={cn("flex w-full flex-1 flex-row items-center text-center")}>
-      {getFilteredDentists().map(({ id, name, avatar, startDate }) => (
+      {dentists.map(({ id, name, avatar, startDate }) => (
         <Tooltip key={id}>
           <TooltipTrigger
             className="w-full flex-1"
@@ -43,10 +44,7 @@ export function DentistsRow() {
               </Badge>
             </div>
           </TooltipTrigger>
-          <TooltipContent
-            content="bg-lime-100 fill-lime-100 dark:bg-lime-700 dark:fill-lime-700"
-            className="bg-lime-100 dark:bg-lime-700"
-          >
+          <TooltipContent>
             <div>
               <div className="flex items-center gap-1">
                 <Avatar>

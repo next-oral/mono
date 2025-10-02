@@ -125,7 +125,7 @@ export const handleClipBoardCopy = async (text: string): Promise<boolean> => {
   }
 };
 
-export const truncateText = (text: string, maxLength?: number): string => {
+export const truncateText = (text: string, maxLength = 10): string => {
   // function to truncate texts
   if (!maxLength || text.length <= maxLength) return text;
   return text.substring(0, maxLength) + "...";

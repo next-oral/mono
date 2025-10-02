@@ -72,6 +72,8 @@ export function DraggableAppointment({
     (d) => d.id === appointment.dentistId,
   );
 
+  const offset = 1;
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -81,10 +83,10 @@ export function DraggableAppointment({
           {...attributes}
           className="pointer-events-auto absolute"
           style={{
-            top: `${top}px`,
-            left: `${left}px`,
+            top: `${top + offset}px`,
+            left: `${left + offset}px`,
             width: typeof width === "string" ? width : `${width}px`,
-            height: `${height}px`,
+            height: `${height - (offset + 4)}px`,
             transform: transformStyle,
             zIndex: 2, // Above slots and highlights
           }}
