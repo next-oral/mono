@@ -1,20 +1,29 @@
 "use client";
 
 import { useLayoutEffect, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { AppointmentGroup } from "@repo/design/types/calendar";
 import { cn, truncateText } from "@repo/design/lib/utils";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
+import { Button } from "../../ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "../../ui/dialog";
 import { dentistSample } from "../dummy";
+import { AppointmentDetailsBody } from "./appointment-details-body";
+import { DeleteAppointmentDialog } from "./delete-appointment";
+import { EditAppointmentDetails } from "./edit-appointment-details";
+
+const patientNote =
+  "Lorem ipsum dolor sit amet consectetur adipisicing elit. Illo sed repudiandae quis quisquam modi doloremque laudantium perspiciatis corrupti excepturi laborum. Recusandae natus obcaecati id magni, amet, error possimus alias unde odio deleniti enim ab eum animi ad dolor provident, inventore consectetur molestias nostrum vero corporis. Animi sed doloremque nihil iusto qui cupiditate ea nobis, earum, assumenda in temporibus fugiat, rerum ducimus beatae est voluptates. Quidem odit ab voluptates eaque? Velit fugit quia magni a nihil eius repellendus iusto, aut officiis ut explicabo facilis sed, commodi iure amet voluptates quis aperiam aliquid et culpa doloribus distinctio sit ab. Molestiae, neque ab saepe optio nisi reiciendis corporis, doloribus accusantium nihil ipsum qui dolore unde atque mollitia autem id eos necessitatibus minima ea?";
 
 /**
  * This component is for the summary schedules within a day in the week
@@ -34,7 +43,7 @@ export function WeekViewSchedules({
   height: number;
   showFullInfo: boolean;
 }) {
-  const [appointmentStep, setAppointmentStep] = useState(1);
+  const [appointmentStep, setAppointmentStep] = useState(0);
 
   const text = `${group.appointments.length} Scheduled Appointment${group.appointments.length > 1 ? "s" : ""}`;
   const duration = `${group.startTime} - ${group.endTime}`;
@@ -45,7 +54,7 @@ export function WeekViewSchedules({
   const uniqueDentists = [...new Set(dentists)];
 
   useLayoutEffect(() => {
-    setAppointmentStep(1);
+    setAppointmentStep(0);
   }, []);
 
   function getDentistAvatar() {
@@ -125,11 +134,67 @@ export function WeekViewSchedules({
           </div>
         </div>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Appointment#{appointmentStep}</DialogTitle>
+      <DialogContent className="px-0">
+        <DialogHeader className="px-4">
+          <DialogTitle className="text-left">
+            Appointment#{appointmentStep + 1}
+          </DialogTitle>
           <DialogDescription className="sr-only"></DialogDescription>
         </DialogHeader>
+
+        {group.appointments[appointmentStep] ? (
+          <AppointmentDetailsBody
+            appointment={group.appointments[appointmentStep]}
+            dentistForThisAppointment={dentistSample.find(
+              (d) => d.id === group.appointments[appointmentStep]?.dentistId,
+            )}
+            patientNote={patientNote}
+          />
+        ) : (
+          <div>No appointment details available.</div>
+        )}
+
+        <DialogFooter className="flex flex-row flex-wrap justify-between px-2 sm:px-4">
+          <div className="flex items-center gap-1 text-sm">
+            <Button
+              variant={"outline"}
+              size={"icon"}
+              className="px-1 [&>svg]:size-0.5"
+              onClick={() => {
+                if (appointmentStep !== 0)
+                  setAppointmentStep((prev) => prev - 1);
+              }}
+              aria-label="previous appointment"
+              disabled={appointmentStep === 0}
+            >
+              <ChevronLeft />
+            </Button>
+            <span>
+              {appointmentStep + 1}/{group.appointments.length}
+            </span>
+            <Button
+              variant={"outline"}
+              size={"icon"}
+              className="px-1 [&>svg]:size-0.5"
+              onClick={() => {
+                if (appointmentStep <= group.appointments.length)
+                  setAppointmentStep((prev) => prev + 1);
+              }}
+              aria-label="next appointment"
+              disabled={appointmentStep + 1 === group.appointments.length}
+            >
+              <ChevronRight />
+            </Button>
+          </div>
+
+          <div className="flex gap-2">
+            {group.appointments[appointmentStep] && <EditAppointmentDetails />}
+            <DeleteAppointmentDialog
+              triggerInner={"icon"}
+              triggerClassName="rounded-lg bg-destructive/20 border-none text-destructive hover:text-destructive hover:bg-destructive/40"
+            />
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

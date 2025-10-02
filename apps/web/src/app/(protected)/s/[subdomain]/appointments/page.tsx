@@ -18,7 +18,7 @@ import { cn } from "~/lib/utils";
 export default function AppointmentsPage() {
   const [selectedView, setSelectedView] = useState<"Day" | "Week">("Day");
   const [selectedDentist, setSelectedDentist] = useState("All dentists");
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 11)); // June 11, 2025
+  const [currentDate, _setCurrentDate] = useState(new Date(2025, 5, 11)); // June 11, 2025
 
   const timeSlots = [
     "12 AM",
@@ -194,7 +194,7 @@ export default function AppointmentsPage() {
 
           {/* Time Slots */}
           <div className="space-y-0">
-            {timeSlots.map((time, index) => (
+            {timeSlots.map((time) => (
               <div
                 key={time}
                 className="border-border/30 flex items-start border-t first:border-t-0"

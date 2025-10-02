@@ -136,9 +136,7 @@ export function AppointmentDetailsBody({
             </header>
             <p
               className={cn(
-                "text-xs opacity-80 transition ease-in-out",
-                { "animate-collapsible-up": noteExtended },
-                { "animate-collapsible-down": !noteExtended },
+                "text-xs opacity-80 transition-all duration-700 ease-in-out",
               )}
             >
               {patientNote.slice(0, noteExtended ? patientNote.length : 220)}

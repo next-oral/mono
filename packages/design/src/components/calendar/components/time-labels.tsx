@@ -1,9 +1,10 @@
-import { isToday } from "date-fns";
+import { isThisHour, isToday } from "date-fns";
 
+import { TIME_SLOT_HEIGHT, timeSlots } from "../constants";
 import { useCalendarStore } from "../store/store";
 
 export function TimeLabels() {
-  const { timeSlots, TIME_SLOT_HEIGHT, currentDate } = useCalendarStore();
+  const { currentDate } = useCalendarStore();
   return (
     <div className="bg-background/80 sticky left-0 z-10 w-12 backdrop-blur-xl">
       {timeSlots.map((time, index) => (

@@ -530,7 +530,7 @@ function CalendarBody() {
                     <div
                       key={index}
                       className={cn(
-                        "border-secondary-foreground/10 h-8 border-b border-l",
+                        "border-secondary-foreground/10 h-8 flex-1 border-b border-l",
                         { "bg-blue-50 dark:bg-blue-950": isToday(date) },
                       )}
                       style={{ width: `${COLUMN_WIDTH}px` }}
