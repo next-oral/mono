@@ -2,10 +2,11 @@ import { useCalendarStore } from "../store/store";
 
 // This component shows the indicator for the present start time being dragged to.
 export function DragTimeIndicator() {
-    const { findActiveAppointment, newStartTime } = useCalendarStore();
-    return (
-        <div className="fixed z-[999] pointer-events-none top-24 right-6 bg-muted px-3 py-1 rounded shadow">
-            Moving {findActiveAppointment()?.patientName} → <strong>{newStartTime}</strong>
-        </div>
-    );
+  const { findActiveAppointment, newStartTime } = useCalendarStore();
+  return (
+    <div className="bg-muted pointer-events-none fixed top-24 right-6 z-[999] rounded px-3 py-1 shadow">
+      Moving {findActiveAppointment()?.patientName} →{" "}
+      <strong>{newStartTime}</strong>
+    </div>
+  );
 }

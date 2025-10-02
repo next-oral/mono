@@ -198,7 +198,7 @@ const Page = () => {
                 onClick={async (values) => {
                   setIsPending(true);
                   alert("Clinic");
-                                    console.log(values);
+                  console.log(values);
 
                   await new Promise((resolve) => setTimeout(resolve, 1000));
 

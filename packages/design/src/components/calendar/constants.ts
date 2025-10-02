@@ -11,7 +11,14 @@ export const DAY_MIN_START = 0;
 export const DAY_MAX_END = DAY_MINUTES - MIN_APPOINTMENT_MINUTES;
 
 export const timeSlots = Array.from({ length: 24 }).map((_, i) => {
-  const hour = i
-  const ampm = hour === 0 ? "12 AM" : hour < 12 ? `${hour} AM` : hour === 12 ? "12 PM" : `${hour - 12} PM`
-  return ampm
+  const hour = i;
+  const ampm =
+    hour === 0
+      ? "12 AM"
+      : hour < 12
+        ? `${hour} AM`
+        : hour === 12
+          ? "12 PM"
+          : `${hour - 12} PM`;
+  return ampm;
 });
