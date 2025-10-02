@@ -40,9 +40,7 @@ import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { DateSelector } from "./components/date-selector";
 import { DentistsRow } from "./components/dentists-row";
 import { DentistsSelector } from "./components/dentists-selector";
-import { AppointmentEditDialog } from "./components/dialogs/appointment-delete-dialog";
 import { ConfirmAppointmentMove } from "./components/dialogs/confirm-appointment-move";
-import { CreateAppointmentDialog } from "./components/dialogs/create-appointment-dialog";
 import { DragOverlayAppointment } from "./components/drag-overlay-appointment";
 import { DraggableAppointment } from "./components/draggable-appointment";
 import {
@@ -50,6 +48,7 @@ import {
   DragTimeIndicator,
 } from "./components/indicators";
 import { SlotDroppable } from "./components/slot-droppable";
+import { TimeLabels } from "./components/time-labels";
 import { WeekViewDays } from "./components/week-view-days";
 import { WeekViewSchedules } from "./components/week-view-schedules";
 import {
@@ -73,13 +72,6 @@ function Calendar({ children }: { children: React.ReactNode }) {
 function CalendarHeader() {
   const { selectedView, setSelectedView, currentDate, setCurrentDate } =
     useCalendarStore();
-
-  // const selectedDentistNamesLabel = () => {
-  //     if (selectedDentists.length === 0) return "All Dentists"
-  //     const names = selectedDentists.map(d => `Dr. ${truncateText(d.name, 10)}`)
-  //     if (names.length <= 2) return names.join(", ")
-  //     return `${names[0]} + ${names.length - 1} more`
-  // }
 
   function handlePrev() {
     if (selectedView === "Day") {
@@ -121,6 +113,7 @@ function CalendarHeader() {
         >
           <ChevronLeft className="h-3 w-3" />
         </Button>
+        <DateSelector />
         <Button
           variant="ghost"
           size="icon"
@@ -131,9 +124,7 @@ function CalendarHeader() {
         </Button>
       </div>
 
-      <div className="flex items-center gap-3">
-        <DateSelector />
-
+      <div className="flex flex-wrap-reverse items-center gap-3">
         <div className="bg-muted flex items-center rounded-lg p-0.5">
           <Button
             variant={selectedView === "Day" ? "secondary" : "ghost"}
@@ -239,11 +230,6 @@ function CalendarBody() {
     (state) => state.getTimeFromPixelPosition,
   );
 
-  // const findActiveAppointment = useCalendarStore(
-  //   (state) => state.findActiveAppointment,
-  // );
-  // const newStartTime = useCalendarStore((state) => state.newStartTime);
-
   const dentistColumnRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const weekDates = getWeekDates();
@@ -311,15 +297,19 @@ function CalendarBody() {
 
     // Determine min and max for start/end (allow dragging up or down)
     const startHour = Math.min(selection.start.hour, selection.end.hour);
-    const startMinute =
-      selection.start.hour === startHour
-        ? selection.start.minute
-        : selection.end.minute;
     const endHour = Math.max(selection.start.hour, selection.end.hour);
-    const endMinute =
-      selection.start.hour === startHour
-        ? selection.end.minute
-        : selection.start.minute;
+    let startMinute: number, endMinute: number;
+    if (selection.start.hour < selection.end.hour) {
+      startMinute = selection.start.minute;
+      endMinute = selection.end.minute;
+    } else if (selection.start.hour > selection.end.hour) {
+      startMinute = selection.end.minute;
+      endMinute = selection.start.minute;
+    } else {
+      // same hour: pick min and max minutes
+      startMinute = Math.min(selection.start.minute, selection.end.minute);
+      endMinute = Math.max(selection.start.minute, selection.end.minute);
+    }
 
     // Calculate top position and height in pixels
     const top =
@@ -385,9 +375,7 @@ function CalendarBody() {
     const rectCollisions = rectIntersection(args);
     if (rectCollisions.length > 0) {
       const appointmentCollisions = rectCollisions.filter(
-        (c): c is Collision => {
-          return typeof c.id === "string" && c.id.startsWith("slot-");
-        },
+        (c): c is Collision => !String(c.id).startsWith("slot-"),
       );
       if (appointmentCollisions.length > 0) return appointmentCollisions;
       return rectCollisions;
@@ -508,7 +496,7 @@ function CalendarBody() {
       collisionDetection={customCollisionDetection}
     >
       <ScrollArea className="h-screen w-auto">
-        <div className="-12 absolute border border-l-0 bg-red-500" />
+        <div className="-12 absolute border border-l-0" />
         <div className="relative min-w-[800px]">
           {selectedView === "Week" && <WeekViewDays />}
 
@@ -545,22 +533,7 @@ function CalendarBody() {
           {/* Time Slots */}
           <div className="relative space-y-0">
             <div className="flex">
-              <div className="bg-background/80 sticky left-0 z-10 w-12 backdrop-blur-xl">
-                {timeSlots.map((time, index) => (
-                  <div
-                    key={index}
-                    style={{ height: `${TIME_SLOT_HEIGHT}px` }}
-                    className="border-secondary-foreground/10 text-muted-foreground relative border-b pr-2 text-right text-xs"
-                  >
-                    {time}
-
-                    <CurrentTimeIndicator
-                      time={time}
-                      currentDate={currentDate}
-                    />
-                  </div>
-                ))}
-              </div>
+              <TimeLabels />
 
               {/* Dentist columns */}
               {selectedView === "Day" && (
@@ -677,12 +650,7 @@ function CalendarBody() {
                             key={index}
                             style={{ height: `${TIME_SLOT_HEIGHT}px` }}
                             className="border-secondary-foreground/10 relative border-b"
-                          >
-                            <CurrentTimeIndicator
-                              time={time}
-                              currentDate={currentDate}
-                            />
-                          </div>
+                          />
                         ))}
 
                         {/* Render schedules absolute within the column */}
@@ -726,8 +694,6 @@ function CalendarBody() {
 
       <DragOverlayAppointment />
       <ConfirmAppointmentMove />
-      <CreateAppointmentDialog />
-      <AppointmentEditDialog />
     </DndContext>
   );
 }

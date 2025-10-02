@@ -15,18 +15,6 @@ export function DentistsRow() {
     useCalendarStore();
   const dentists = getFilteredDentists();
 
-  // return (
-  //   <div className="flex flex-row">
-  //     {dentists.map(({ id, name }) => (
-  //       <div
-  //         key={id}
-  //         className="b w-80 border border-y-0 border-l-0 text-center first:border-l-1"
-  //       >
-  //         <div>{name}</div>
-  //       </div>
-  //     ))}
-  //   </div>
-  // );
   return (
     <div className={cn("flex w-full flex-1 flex-row items-center text-center")}>
       {dentists.map(({ id, name, avatar, startDate }) => (
@@ -38,24 +26,25 @@ export function DentistsRow() {
                 selectedDentists.length !== 1 ? `${COLUMN_WIDTH}px` : "100%",
             }}
           >
-            <div className="flex h-8 w-full items-center justify-center border-r text-xs font-medium capitalize">
-              Dr. {truncateText(String(name.split(" ")[0]))}
-              <Badge variant="outline" className="ml-2 size-4 text-[9px]">
+            <div className="border-secondary-foreground/10 flex h-8 w-full items-center justify-center border text-xs font-medium capitalize">
+              Dr.{" "}
+              {selectedDentists.length != 1
+                ? truncateText(String(name.split(" ")[0]), 10)
+                : name}
+              <Badge className="ml-2 size-4 text-[9px]">
                 {
-                  appointments.filter(
-                    (appointment) =>
+                  appointments.filter((appointment) => {
+                    const localDateKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
+                    return (
                       appointment.dentistId === id &&
-                      appointment.date ===
-                        new Date(currentDate).toISOString().slice(0, 10),
-                  ).length
-                }
+                      appointment.date === localDateKey
+                    );
+                  }).length
+                }{" "}
               </Badge>
             </div>
           </TooltipTrigger>
-          <TooltipContent
-          // content="bg-lime-100 fill-lime-100 dark:bg-lime-700 dark:fill-lime-700"
-          // className="bg-lime-100 dark:bg-lime-700"
-          >
+          <TooltipContent>
             <div>
               <div className="flex items-center gap-1">
                 <Avatar>

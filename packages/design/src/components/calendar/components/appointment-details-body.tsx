@@ -38,10 +38,22 @@ export function AppointmentDetailsBody({
     month: "short", // 'Jul'
     year: "numeric", // '2025'
   };
-  const readableDate = new Date(appointment.date).toLocaleDateString(
-    "en-US",
-    options,
-  );
+
+  // Parse "YYYY-MM-DD" into a UTC date to avoid local TZ shifting (e.g. negative timezones)
+  const readableDate = (() => {
+    if (typeof appointment.date === "string") {
+      const parts = appointment.date.split("-");
+      if (parts.length === 3) {
+        const [y, m, d] = parts.map((p) => Number(p));
+        if (!Number.isNaN(y) && !Number.isNaN(m) && !Number.isNaN(d)) {
+          const utc = new Date(Date.UTC(Number(y), Number(m) - 1, d));
+          return utc.toLocaleDateString("en-US", options);
+        }
+      }
+    }
+    // Fallback
+    return new Date(appointment.date).toLocaleDateString("en-US", options);
+  })();
 
   return (
     <ScrollArea className="max-h-[80vh]">

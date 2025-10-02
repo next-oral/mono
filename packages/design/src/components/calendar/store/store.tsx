@@ -36,10 +36,6 @@ interface CalendarState {
 
   isDentistsSelectorOpen: boolean;
   setIsDentistsSelectorOpen: (isOpen: boolean) => void;
-  showNewAppointmentDialog: boolean;
-  setShowNewAppointmentDialog: (isOpen: boolean) => void;
-  showEditAppointmentDialog: boolean;
-  setShowEditAppointmentDialog: (isOpen: boolean) => void;
 
   selectedAppointment: Appointment | null;
   setSelectedAppointment: (appointment: Appointment | null) => void;
@@ -53,27 +49,27 @@ interface CalendarState {
   setSlotsSelection: (
     selection:
       | Record<
-          string,
-          {
-            start: { hour: number; minute: number };
-            end: { hour: number; minute: number } | null;
-          }
-        >
+        string,
+        {
+          start: { hour: number; minute: number };
+          end: { hour: number; minute: number } | null;
+        }
+      >
       | ((
-          prev: Record<
-            string,
-            {
-              start: { hour: number; minute: number };
-              end: { hour: number; minute: number } | null;
-            }
-          >,
-        ) => Record<
+        prev: Record<
           string,
           {
             start: { hour: number; minute: number };
             end: { hour: number; minute: number } | null;
           }
-        >),
+        >,
+      ) => Record<
+        string,
+        {
+          start: { hour: number; minute: number };
+          end: { hour: number; minute: number } | null;
+        }
+      >),
   ) => void;
 
   // DND States
@@ -164,12 +160,6 @@ export const useCalendarStore = create(
     isDentistsSelectorOpen: false,
     setIsDentistsSelectorOpen: (isOpen) =>
       set({ isDentistsSelectorOpen: isOpen }),
-    showNewAppointmentDialog: false,
-    setShowNewAppointmentDialog: (isOpen) =>
-      set({ isDentistsSelectorOpen: isOpen }),
-    showEditAppointmentDialog: false,
-    setShowEditAppointmentDialog: (isOpen) =>
-      set({ isDentistsSelectorOpen: isOpen }),
 
     selectedAppointment: null,
     setSelectedAppointment: (
@@ -188,27 +178,27 @@ export const useCalendarStore = create(
     setSlotsSelection: (
       updater:
         | Record<
-            string,
-            {
-              start: { hour: number; minute: number };
-              end: { hour: number; minute: number } | null;
-            }
-          >
+          string,
+          {
+            start: { hour: number; minute: number };
+            end: { hour: number; minute: number } | null;
+          }
+        >
         | ((
-            prev: Record<
-              string,
-              {
-                start: { hour: number; minute: number };
-                end: { hour: number; minute: number } | null;
-              }
-            >,
-          ) => Record<
+          prev: Record<
             string,
             {
               start: { hour: number; minute: number };
               end: { hour: number; minute: number } | null;
             }
-          >),
+          >,
+        ) => Record<
+          string,
+          {
+            start: { hour: number; minute: number };
+            end: { hour: number; minute: number } | null;
+          }
+        >),
     ) =>
       set((state) => ({
         slotsSelection:
@@ -279,7 +269,7 @@ export const useCalendarStore = create(
     getFilteredAppointments: () => {
       const { currentDate, appointments, getDisplayedDentists } = get();
       // Function for filtering appointments by date and dentists selected
-      const today = currentDate.toISOString().split("T")[0];
+      const today = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
       let filtered = appointments.filter((a) => a.date === today);
       // show only displayed dentists (lookup by id)
       const displayedIds = getDisplayedDentists().map((d) => d.id);
