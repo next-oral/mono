@@ -49,27 +49,27 @@ interface CalendarState {
   setSlotsSelection: (
     selection:
       | Record<
-        string,
-        {
-          start: { hour: number; minute: number };
-          end: { hour: number; minute: number } | null;
-        }
-      >
-      | ((
-        prev: Record<
           string,
           {
             start: { hour: number; minute: number };
             end: { hour: number; minute: number } | null;
           }
-        >,
-      ) => Record<
-        string,
-        {
-          start: { hour: number; minute: number };
-          end: { hour: number; minute: number } | null;
-        }
-      >),
+        >
+      | ((
+          prev: Record<
+            string,
+            {
+              start: { hour: number; minute: number };
+              end: { hour: number; minute: number } | null;
+            }
+          >,
+        ) => Record<
+          string,
+          {
+            start: { hour: number; minute: number };
+            end: { hour: number; minute: number } | null;
+          }
+        >),
   ) => void;
 
   // DND States
@@ -178,27 +178,27 @@ export const useCalendarStore = create(
     setSlotsSelection: (
       updater:
         | Record<
-          string,
-          {
-            start: { hour: number; minute: number };
-            end: { hour: number; minute: number } | null;
-          }
-        >
-        | ((
-          prev: Record<
             string,
             {
               start: { hour: number; minute: number };
               end: { hour: number; minute: number } | null;
             }
-          >,
-        ) => Record<
-          string,
-          {
-            start: { hour: number; minute: number };
-            end: { hour: number; minute: number } | null;
-          }
-        >),
+          >
+        | ((
+            prev: Record<
+              string,
+              {
+                start: { hour: number; minute: number };
+                end: { hour: number; minute: number } | null;
+              }
+            >,
+          ) => Record<
+            string,
+            {
+              start: { hour: number; minute: number };
+              end: { hour: number; minute: number } | null;
+            }
+          >),
     ) =>
       set((state) => ({
         slotsSelection:

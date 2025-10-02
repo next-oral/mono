@@ -36,7 +36,9 @@ export function DeleteAppointmentDialog({
       <AlertDialogContent>
         <AlertDialogHeader className="sr-only">
           <AlertDialogTitle>Delete This Appointment</AlertDialogTitle>
-          <AlertDialogDescription>Confirm Appointment delete</AlertDialogDescription>
+          <AlertDialogDescription>
+            Confirm Appointment delete
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="mx-auto my-5 flex flex-col items-center">
           <span className="border-destructive text-destructive bg-destructive/20 shadow-accent-foreground/40 rounded-xl border-2 p-3 shadow-sm">
@@ -50,9 +52,9 @@ export function DeleteAppointmentDialog({
 
         <AlertDialogFooter className="flex flex-row border-t pt-2">
           <AlertDialogAction asChild>
-          <Button variant="destructive" className="flex-1">
-            Yes, Delete
-          </Button>
+            <Button variant="destructive" className="flex-1">
+              Yes, Delete
+            </Button>
           </AlertDialogAction>
 
           <AlertDialogCancel asChild>

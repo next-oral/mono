@@ -40,8 +40,7 @@ export function DragOverlayAppointment() {
               {activeAppointment.patientName}
             </div>
             <div className="text-xs leading-tight opacity-75">
-              {activeAppointment.startTime} -{" "}
-              {activeAppointment.endTime}
+              {activeAppointment.startTime} - {activeAppointment.endTime}
             </div>
           </div>
         </div>

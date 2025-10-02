@@ -9,11 +9,11 @@ export interface Appointment {
   note: string;
   date: string;
   color:
-  | {
-    stickerColor: string;
-    lineColor: string;
-  }
-  | undefined;
+    | {
+        stickerColor: string;
+        lineColor: string;
+      }
+    | undefined;
 }
 
 export interface Dentist {
