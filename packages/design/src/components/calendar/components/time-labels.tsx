@@ -1,7 +1,3 @@
-import { isToday } from "date-fns";
-
-import { isAmPmThisHour } from "@repo/design/lib/calendar";
-
 import { TIME_SLOT_HEIGHT, timeSlots } from "../constants";
 import { useCalendarStore } from "../store/store";
 import { CurrentTimeIndicator } from "./indicators";

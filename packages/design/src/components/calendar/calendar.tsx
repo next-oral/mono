@@ -9,7 +9,7 @@ import type {
   Modifier,
 } from "@dnd-kit/core";
 import type { CSSProperties } from "react";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   closestCenter,
   DndContext,
@@ -44,10 +44,7 @@ import { DentistsSelector } from "./components/dentists-selector";
 import { ConfirmAppointmentMove } from "./components/dialogs/confirm-appointment-move";
 import { DragOverlayAppointment } from "./components/drag-overlay-appointment";
 import { DraggableAppointment } from "./components/draggable-appointment";
-import {
-  CurrentTimeIndicator,
-  DragTimeIndicator,
-} from "./components/indicators";
+import { DragTimeIndicator } from "./components/indicators";
 import { SlotDroppable } from "./components/slot-droppable";
 import { TimeLabels } from "./components/time-labels";
 import { WeekViewDays } from "./components/week-view-days";
@@ -231,69 +228,171 @@ function CalendarBody() {
     (state) => state.getTimeFromPixelPosition,
   );
 
-  const findActiveAppointment = useCalendarStore(
-    (state) => state.findActiveAppointment,
-  );
-  const newStartTime = useCalendarStore((state) => state.newStartTime);
-
+  const weekDates = getWeekDates();
   const dentistColumnRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  const weekDates = getWeekDates();
+  const HOLD_THRESHOLD_MS = 250;
+  const MOVE_CANCEL_PX = 6;
+
+  const pressTimerRef = useRef<number | null>(null);
+  const isHighlightingRef = useRef(false);
+  const clickSuppressRef = useRef(false);
+  const startPosRef = useRef<{ x: number; y: number } | null>(null);
+  const activePointerIdRef = useRef<number | null>(null);
+  const activeRectRef = useRef<DOMRect | null>(null);
+
+  // cleanup on unmount
+  useEffect(() => {
+    const pressRefCurrent = pressTimerRef.current;
+    return () => {
+      if (pressRefCurrent !== null) {
+        window.clearTimeout(pressRefCurrent);
+      }
+    };
+  }, []);
 
   // ---- Highlighting Feature
   function handleSlotHighlightMouseDown(
     dentistId: number | string,
-    e: React.MouseEvent,
+    e: React.PointerEvent,
   ) {
-    // Prevent if the target is an appointment
-    setSlotsSelection({});
+    // prevent starting on appointments
     if ((e.target as HTMLElement).closest("[data-is-appointment]")) {
       return;
     }
+
+    setSlotsSelection({}); // clear slot section
 
     const columnRef = dentistColumnRefs.current[dentistId];
     if (!columnRef) return;
 
     const rect = columnRef.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const { hour, minute } = getTimeFromPixelPosition(y, rect.height);
+    activeRectRef.current = rect;
+    startPosRef.current = { x: e.clientX, y: e.clientY };
+    activePointerIdRef.current = e.pointerId;
 
-    // Set initial start time, end is null until mouse up
-    setSlotsSelection((prev) => ({
-      ...prev,
-      [dentistId]: { start: { hour, minute }, end: null },
-    }));
+    // attempt to capture the pointer so we keep receiving events
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
 
-    // Set up mouse move and up listeners for dragging
-    const handleMouseMove = (moveEvent: MouseEvent) => {
-      const moveY = moveEvent.clientY - rect.top;
-      const { hour: endHour, minute: endMinute } = getTimeFromPixelPosition(
-        moveY,
-        rect.height,
-      );
+    // pre-phase listeners: cancel hold if user moves/releases early
+    const onPreMove = (moveEvent: PointerEvent) => {
+      if (moveEvent.pointerId !== e.pointerId) return;
+      const start = startPosRef.current;
+      if (!start) return;
+      if (
+        Math.abs(moveEvent.clientY - start.y) > MOVE_CANCEL_PX ||
+        Math.abs(moveEvent.clientX - start.x) > MOVE_CANCEL_PX
+      ) {
+        cancelPreHold();
+      }
+    };
 
-      // Ensure existing selection exists before updating end
-      setSlotsSelection((prev) => {
-        const existing = prev[dentistId];
-        if (!existing) return prev; // nothing to update
-        return {
-          ...prev,
-          [dentistId]: {
-            start: existing.start,
-            end: { hour: endHour, minute: endMinute },
-          },
-        };
+    const onPreUp = (upEvent: PointerEvent) => {
+      if (upEvent.pointerId !== e.pointerId) return;
+      cancelPreHold();
+    };
+
+    document.addEventListener("pointermove", onPreMove);
+    document.addEventListener("pointerup", onPreUp);
+
+    // start the hold timer
+    pressTimerRef.current = window.setTimeout(() => {
+      pressTimerRef.current = null;
+
+      // remove pre-phase listeners
+      document.removeEventListener("pointermove", onPreMove);
+      document.removeEventListener("pointerup", onPreUp);
+
+      // mark highlighting started and suppress click
+      isHighlightingRef.current = true;
+      clickSuppressRef.current = true;
+
+      // begin the real selection and attach active drag listeners
+      beginHighlighting(dentistId, e.pointerId, rect, {
+        x: e.clientX,
+        y: e.clientY,
       });
-    };
+    }, HOLD_THRESHOLD_MS);
 
-    const handleMouseUp = () => {
-      // Clean up listeners after selection is complete
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
+    // helper to cancel pre-hold
+    function cancelPreHold() {
+      if (pressTimerRef.current !== null) {
+        window.clearTimeout(pressTimerRef.current);
+        pressTimerRef.current = null;
+      }
+      document.removeEventListener("pointermove", onPreMove);
+      document.removeEventListener("pointerup", onPreUp);
+      (e.currentTarget as Element).releasePointerCapture(e.pointerId);
+      startPosRef.current = null;
+      activePointerIdRef.current = null;
+      activeRectRef.current = null;
+    }
 
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
+    // beginHighlighting defined here to close over dentistId / rect, or you can move it to component scope
+    function beginHighlighting(
+      dentistIdBegin: number | string,
+      pointerId: number,
+      rectBegin: DOMRect,
+      startPos: { x: number; y: number },
+    ) {
+      // compute initial start time from pixel Y
+      const y = startPos.y - rectBegin.top;
+      const { hour, minute } = getTimeFromPixelPosition(y, rectBegin.height);
+
+      // set initial selection start (end is null until pointer up)
+      setSlotsSelection((prev) => ({
+        ...prev,
+        [dentistIdBegin]: { start: { hour, minute }, end: null },
+      }));
+
+      // active move/up — update selection while dragging for the same pointerId
+      const onActiveMove = (moveEvent: PointerEvent) => {
+        if (moveEvent.pointerId !== pointerId) return;
+        const moveY = moveEvent.clientY - rectBegin.top;
+        const { hour: endHour, minute: endMinute } = getTimeFromPixelPosition(
+          moveY,
+          rectBegin.height,
+        );
+
+        setSlotsSelection((prev) => {
+          const existing = prev[dentistIdBegin];
+          if (!existing) return prev;
+          return {
+            ...prev,
+            [dentistIdBegin]: {
+              start: existing.start,
+              end: { hour: endHour, minute: endMinute },
+            },
+          };
+        });
+      };
+
+      const onActiveUp = (upEvent: PointerEvent) => {
+        if (upEvent.pointerId !== pointerId) return;
+
+        // cleanup active listeners
+        document.removeEventListener("pointermove", onActiveMove);
+        document.removeEventListener("pointerup", onActiveUp);
+
+        // release pointer capture on the column element if possible
+        columnRef?.releasePointerCapture(pointerId);
+
+        // reset flags/refs
+        isHighlightingRef.current = false;
+        startPosRef.current = null;
+        activePointerIdRef.current = null;
+        activeRectRef.current = null;
+
+        // keep a tick of click suppression so any immediate click does not fire
+        window.setTimeout(() => {
+          clickSuppressRef.current = false;
+        }, 0);
+      };
+
+      // attach active listeners
+      document.addEventListener("pointermove", onActiveMove);
+      document.addEventListener("pointerup", onActiveUp);
+    }
   }
 
   // This function styles the highlighting
@@ -502,7 +601,7 @@ function CalendarBody() {
       collisionDetection={customCollisionDetection}
     >
       <ScrollArea className="h-screen w-auto">
-        <div className="-12 absolute border border-l-0" />
+        <div className="absolute w-12 border border-l-0" />
         <div className="relative min-w-[800px]">
           {selectedView === "Week" && <WeekViewDays />}
 
@@ -540,11 +639,6 @@ function CalendarBody() {
           <div className="relative space-y-0">
             <div className="flex">
               <TimeLabels />
-          {/* Time Slots */}
-          <div className="relative space-y-0">
-            <div className="flex">
-              <TimeLabels />
-
               {/* Dentist columns */}
               {selectedView === "Day" && (
                 <>
@@ -560,14 +654,14 @@ function CalendarBody() {
                         ref={(el) => {
                           dentistColumnRefs.current[dentist.id] = el;
                         }}
-                        className="border-secondary-foreground/10 relative flex-1 border-l"
+                        className="border-secondary-foreground/10 relative flex-1 touch-pan-y touch-none border-l"
                         style={{
                           width:
                             selectedDentists.length !== 1
                               ? `${COLUMN_WIDTH}px`
                               : "100%",
                         }}
-                        onMouseDown={(e) => {
+                        onPointerDown={(e) => {
                           if (!isDragging)
                             handleSlotHighlightMouseDown(dentist.id, e);
                         }}
@@ -588,9 +682,6 @@ function CalendarBody() {
                                   <SlotDroppable key={slotId} id={slotId} />
                                 );
                               },
-                            )}
-                            {isAmPmThisHour(time) && isToday(currentDate) && (
-                              <div className="border-primary/20 bg-primary/20 absolute top-[48%] z-[0] h-[0.1px] w-full rounded-sm border-2 border-dashed" />
                             )}
                           </div>
                         ))}
