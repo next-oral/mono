@@ -231,8 +231,8 @@ function CalendarBody() {
   const weekDates = getWeekDates();
   const dentistColumnRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  const HOLD_THRESHOLD_MS = 250;
-  const MOVE_CANCEL_PX = 6;
+  const HOLD_THRESHOLD_MS = 250; // threshold for highlighting
+  const MOVE_CANCEL_PX = 6; // mouse movement pixels to cancle out threshold
 
   const pressTimerRef = useRef<number | null>(null);
   const isHighlightingRef = useRef(false);
@@ -254,10 +254,10 @@ function CalendarBody() {
   // ---- Highlighting Feature
   function handleSlotHighlightMouseDown(
     dentistId: number | string,
-    e: React.PointerEvent,
+    e: React.PointerEvent | null,
   ) {
     // prevent starting on appointments
-    if ((e.target as HTMLElement).closest("[data-is-appointment]")) {
+    if ((e?.target as HTMLElement).closest("[data-is-appointment]")) {
       return;
     }
 
@@ -268,15 +268,15 @@ function CalendarBody() {
 
     const rect = columnRef.getBoundingClientRect();
     activeRectRef.current = rect;
-    startPosRef.current = { x: e.clientX, y: e.clientY };
-    activePointerIdRef.current = e.pointerId;
+    startPosRef.current = { x: Number(e?.clientX), y: Number(e?.clientY) };
+    activePointerIdRef.current = Number(e?.pointerId);
 
     // attempt to capture the pointer so we keep receiving events
-    (e.currentTarget as Element).setPointerCapture(e.pointerId);
+    (e?.currentTarget as Element).setPointerCapture(Number(e?.pointerId));
 
     // pre-phase listeners: cancel hold if user moves/releases early
     const onPreMove = (moveEvent: PointerEvent) => {
-      if (moveEvent.pointerId !== e.pointerId) return;
+      if (moveEvent.pointerId !== e?.pointerId) return;
       const start = startPosRef.current;
       if (!start) return;
       if (
@@ -288,7 +288,7 @@ function CalendarBody() {
     };
 
     const onPreUp = (upEvent: PointerEvent) => {
-      if (upEvent.pointerId !== e.pointerId) return;
+      if (upEvent.pointerId !== e?.pointerId) return;
       cancelPreHold();
     };
 
@@ -308,9 +308,9 @@ function CalendarBody() {
       clickSuppressRef.current = true;
 
       // begin the real selection and attach active drag listeners
-      beginHighlighting(dentistId, e.pointerId, rect, {
-        x: e.clientX,
-        y: e.clientY,
+      beginHighlighting(dentistId, Number(e?.pointerId), rect, {
+        x: Number(e?.clientX),
+        y: Number(e?.clientY),
       });
     }, HOLD_THRESHOLD_MS);
 
@@ -320,9 +320,12 @@ function CalendarBody() {
         window.clearTimeout(pressTimerRef.current);
         pressTimerRef.current = null;
       }
+
       document.removeEventListener("pointermove", onPreMove);
       document.removeEventListener("pointerup", onPreUp);
-      (e.currentTarget as Element).releasePointerCapture(e.pointerId);
+
+      if (e?.currentTarget) e.currentTarget.releasePointerCapture(e.pointerId);
+
       startPosRef.current = null;
       activePointerIdRef.current = null;
       activeRectRef.current = null;
@@ -396,7 +399,7 @@ function CalendarBody() {
   }
 
   // This function styles the highlighting
-  const getHighlightStyle = (dentistId: number | string): CSSProperties => {
+  const highlightStyle = (dentistId: number | string): CSSProperties => {
     const selection = slotsSelection[dentistId];
     if (!selection?.end) return { display: "none" };
 
@@ -434,7 +437,7 @@ function CalendarBody() {
 
   // Function to get the label text for the highlight
   // This shows "(No title)" and the time range like in the image
-  const getLabel = (dentistId: string): string => {
+  const highlightLabel = (dentistId: string): string => {
     const selection = slotsSelection[dentistId];
     if (!selection?.end) return "";
 
@@ -719,11 +722,11 @@ function CalendarBody() {
                         {/* Render highlight if selection exists */}
                         {slotsSelection[dentist.id] && (
                           <div
-                            style={getHighlightStyle(dentist.id)}
+                            style={highlightStyle(dentist.id)}
                             className="text-accent-foreground bg-primary/40 pointer-events-none absolute w-full overflow-hidden rounded-sm border-2 border-dashed p-2 text-xs sm:text-sm"
                           >
                             <div style={{ whiteSpace: "pre-line" }}>
-                              {getLabel(String(dentist.id))}
+                              {highlightLabel(String(dentist.id))}
                             </div>
                           </div>
                         )}
