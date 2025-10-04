@@ -72,7 +72,7 @@ export function DraggableAppointment({
     (d) => d.id === appointment.dentistId,
   );
 
-  const offset = 1;
+  const offset = 2;
 
   return (
     <Dialog>

@@ -1,7 +1,7 @@
 import { isToday } from "date-fns";
 
 import { Clock } from "@repo/design/icons";
-import { isAmPmThisHour, timeToMinutes } from "@repo/design/lib/calendar";
+import { isAmPmThisHour } from "@repo/design/lib/calendar";
 import { cn } from "@repo/design/lib/utils";
 
 import { TIME_SLOT_HEIGHT } from "../constants";
@@ -16,8 +16,8 @@ export function CurrentTimeIndicator({
 }) {
   if (!isAmPmThisHour(time) || !isToday(currentDate)) return null;
 
-  // calculate actual position of the indicator
-  const position = (timeToMinutes(time) / 60) * TIME_SLOT_HEIGHT;
+  const now = new Date().getMinutes();
+  const position = (now / 60) * TIME_SLOT_HEIGHT;
 
   return (
     <div
