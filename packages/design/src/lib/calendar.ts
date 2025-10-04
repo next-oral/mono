@@ -197,6 +197,72 @@ export function isAmPmThisHour(hour: string) {
 }
 
 /**
+ * Convert input (Date | string) to YYYY-MM-DD in a target timezone.
+ * - If `date` is date-only "YYYY-MM-DD", it is treated as that calendar date (returned normalized).
+ * - If `date` is a datetime string or Date, it is interpreted as an instant and converted to the given tz.
+ *
+ * @param date - input date/time
+ * @param timeZone - IANA timezone like "Africa/Lagos". If omitted, uses the runtime local timezone.
+ * @throws Error on invalid input or unsupported Intl/timeZone (rare).
+ */
+function uniformCalendarDate(date: string | Date, timeZone?: string): string {
+  const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
+
+  // Regex for ISO date-only YYYY-MM-DD
+  const isoDateOnly = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+  // If date is a string and matches YYYY-MM-DD → return normalized (validate)
+  if (typeof date === "string") {
+    const m = isoDateOnly.exec(date);
+    if (m) {
+      const y = Number(m[1]),
+        mm = Number(m[2]),
+        dd = Number(m[3]);
+      // basic validation (month/day ranges; doesn't check month/day existence like Feb 30 thoroughly)
+      const d = new Date(y, mm - 1, dd);
+      if (
+        isNaN(d.getTime()) ||
+        d.getFullYear() !== y ||
+        d.getMonth() + 1 !== mm ||
+        d.getDate() !== dd
+      ) {
+        throw new Error("Invalid date-only string");
+      }
+      // already in YYYY-MM-DD, return normalized zero-padded string
+      return `${y}-${pad(mm)}-${pad(dd)}`;
+    }
+  }
+
+  // Otherwise, parse as an instant
+  let instant: Date;
+  if (typeof date === "string") {
+    instant = new Date(date); // expect ISO full datetime (with offset or Z) ideally
+  } else {
+    instant = new Date(date.getTime());
+  }
+
+  if (isNaN(instant.getTime())) throw new Error("Invalid date/datetime input");
+
+  // Use Intl to format in target timezone and extract parts (year/month/day)
+  // If timeZone omitted, Intl will use runtime local zone.
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: timeZone ?? undefined,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  };
+  const fmt = new Intl.DateTimeFormat("en-CA", options); // en-CA gives YYYY-MM-DD ordering, but we'll extract parts anyway
+  const parts = fmt.formatToParts(instant);
+  const year = parts.find((p) => p.type === "year")?.value;
+  const month = parts.find((p) => p.type === "month")?.value;
+  const day = parts.find((p) => p.type === "day")?.value;
+
+  if (!year || !month || !day) throw new Error("Could not format date parts");
+
+  return `${year}-${month}-${day}`;
+}
+
+/**
  * Group appointments for a single day into overlapping groups with a maximum duration cap.
  *
  * @param dayISO "YYYY-MM-DD"
@@ -212,29 +278,8 @@ export function groupAppointmentsForDay(
 ): AppointmentGroup[] {
   // 1. Filter by date
 
-  function uniformDate(date: string | Date): string {
-    let newDate: Date;
-
-    if (typeof date === "string") {
-      // CRITICAL FIX: Append 'T00:00:00Z' to treat the date string as UTC midnight
-      // to prevent time zone conversion from rolling the day back.
-      newDate = new Date(date + "T00:00:00Z");
-    } else {
-      // Input is already a Date object
-      newDate = date;
-    }
-
-    // Check for an invalid date after conversion
-    if (isNaN(newDate.getTime())) {
-      return "Invalid Date";
-    }
-
-    // Returns a uniform YYYY-MM-DD string (e.g., "2025-10-02")
-    return newDate.toLocaleDateString("en-CA");
-  }
-
   const dailyAppointments = appointments.filter(
-    (a) => uniformDate(a.date) === uniformDate(dayISO),
+    (a) => uniformCalendarDate(a.date) === uniformCalendarDate(dayISO),
   );
 
   if (dailyAppointments.length === 0) return [];

@@ -51,7 +51,10 @@ export function DeleteAppointmentDialog({
         </div>
 
         <AlertDialogFooter className="flex flex-row border-t pt-2">
-          <AlertDialogAction asChild>
+          <AlertDialogAction
+            asChild
+            className="bg-destructive hover:bg-destructive/80"
+          >
             <Button variant="destructive" className="flex-1">
               Yes, Delete
             </Button>

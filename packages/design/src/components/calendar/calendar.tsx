@@ -13,8 +13,10 @@ import React, { useEffect, useRef } from "react";
 import {
   closestCenter,
   DndContext,
+  MouseSensor,
   PointerSensor,
   rectIntersection,
+  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -28,7 +30,6 @@ import { Plus, Stethoscope } from "lucide-react";
 import {
   clampBounds,
   groupAppointmentsForDay,
-  isAmPmThisHour,
   minutesToTime,
   roundToQuarter,
   timeToMinutes,
@@ -162,8 +163,7 @@ function CalendarHeader() {
 }
 
 function CalendarBody() {
-  const { selectedView, selectedDentists, getWeekDates, currentDate } =
-    useCalendarStore();
+  const { selectedView, selectedDentists, getWeekDates } = useCalendarStore();
 
   const appointments = useCalendarStore((state) => state.appointments);
 
@@ -466,10 +466,32 @@ function CalendarBody() {
 
   // ------ Drag Features
 
+  const mouseSensor = useSensor(MouseSensor, {
+    // Require the mouse to move by 10 pixels before activating
+    activationConstraint: {
+      distance: 10,
+    },
+  });
+  const touchSensor = useSensor(TouchSensor, {
+    // Press delay of 250ms, with tolerance of 5px of movement
+    activationConstraint: {
+      delay: 250,
+      tolerance: 5,
+    },
+  });
+  const pointerSensor = useSensor(PointerSensor, {
+    // Press delay of 250ms, with tolerance of 5px of movement
+    activationConstraint: {
+      delay: 250,
+      tolerance: 5,
+    },
+  });
+
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { delay: 120, tolerance: 5 },
-    }),
+    mouseSensor,
+    touchSensor,
+    pointerSensor,
+    // keyboardSensor,
   );
   const modifiers = [
     restrictToVerticalAxis,
@@ -735,7 +757,6 @@ function CalendarBody() {
                   })}
                 </>
               )}
-
               {selectedView === "Week" && (
                 <>
                   {weekDates.map((day, index) => {
@@ -747,7 +768,7 @@ function CalendarBody() {
                       <div
                         key={index}
                         className={cn(
-                          "border-secondary-foreground/10 relative flex-1 border-l",
+                          "border-secondary-foreground/10 relative z-10 flex-1 border-l",
                           { "bg-blue-50 dark:bg-blue-950": isToday(day) },
                         )}
                         style={{ width: `${COLUMN_WIDTH}px` }}
@@ -757,11 +778,7 @@ function CalendarBody() {
                             key={index}
                             style={{ height: `${TIME_SLOT_HEIGHT}px` }}
                             className="border-secondary-foreground/10 relative border-b"
-                          >
-                            {isAmPmThisHour(time) && isToday(currentDate) && (
-                              <div className="border-primary/20 bg-primary/20 absolute top-[48%] z-[0] h-[0.1px] w-full rounded-sm border-2 border-dashed" />
-                            )}
-                          </div>
+                          ></div>
                         ))}
 
                         {/* Render schedules absolute within the column */}
