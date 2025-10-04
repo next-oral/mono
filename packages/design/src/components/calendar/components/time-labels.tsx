@@ -10,7 +10,7 @@ export function TimeLabels() {
         <div
           key={index}
           style={{ height: `${TIME_SLOT_HEIGHT}px` }}
-          className="border-secondary text-muted-foreground border-b pr-2 text-right text-xs"
+          className="border-secondary text-muted-foreground relative border-b pr-2 text-right text-xs"
         >
           {time}
           <CurrentTimeIndicator time={time} currentDate={currentDate} />

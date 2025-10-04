@@ -43,10 +43,7 @@ import { DentistsSelector } from "./components/dentists-selector";
 import { ConfirmAppointmentMove } from "./components/dialogs/confirm-appointment-move";
 import { DragOverlayAppointment } from "./components/drag-overlay-appointment";
 import { DraggableAppointment } from "./components/draggable-appointment";
-import {
-  CurrentTimeIndicator,
-  DragTimeIndicator,
-} from "./components/indicators";
+import { DragTimeIndicator } from "./components/indicators";
 import { SlotDroppable } from "./components/slot-droppable";
 import { TimeLabels } from "./components/time-labels";
 import { WeekViewDays } from "./components/week-view-days";
@@ -164,8 +161,7 @@ function CalendarHeader() {
 }
 
 function CalendarBody() {
-  const { selectedView, selectedDentists, getWeekDates, currentDate } =
-    useCalendarStore();
+  const { selectedView, selectedDentists, getWeekDates } = useCalendarStore();
 
   const appointments = useCalendarStore((state) => state.appointments);
 
