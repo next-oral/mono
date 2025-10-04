@@ -40,7 +40,6 @@ export function DateSelector() {
           mode={"single"}
           selected={currentDate}
           onSelect={(date) => {
-            console.log(date);
             if (date) setCurrentDate(new Date(date));
           }}
           today={new Date()}

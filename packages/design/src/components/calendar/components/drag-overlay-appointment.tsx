@@ -11,7 +11,7 @@ export function DragOverlayAppointment() {
   const appointmentWidth = getAppointmentWidth();
   const activeAppointment = findActiveAppointment();
   return (
-    <DragOverlay zIndex={3} className="cursor-grabbing">
+    <DragOverlay zIndex={3} className="cursor-grabbing" >
       {activeAppointment && (
         <div
           className={cn(
