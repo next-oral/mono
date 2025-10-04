@@ -89,10 +89,10 @@ export function WeekViewSchedules({
             height: `${height}px`,
             zIndex: 2, // Above slots and highlights
           }}
-          data-is-appointment="false"
+          data-is-appointment="true"
         >
           <div
-            className="flex gap-1 rounded-lg bg-slate-100 p-2 shadow-sm dark:bg-slate-900 dark:shadow-slate-400"
+            className="flex cursor-pointer gap-1 rounded-lg bg-slate-100 p-2 shadow-sm dark:bg-slate-900 dark:shadow-slate-400"
             style={{
               width: "100%",
               height: "100%",
@@ -134,6 +134,7 @@ export function WeekViewSchedules({
           </div>
         </div>
       </DialogTrigger>
+
       <DialogContent className="px-0">
         <DialogHeader className="px-4">
           <DialogTitle className="text-left">

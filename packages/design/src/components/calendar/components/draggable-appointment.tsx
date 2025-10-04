@@ -81,7 +81,7 @@ export function DraggableAppointment({
           ref={setNodeRef}
           {...listeners}
           {...attributes}
-          className="pointer-events-auto absolute"
+          className={"pointer-events-auto absolute"}
           style={{
             top: `${top + offset}px`,
             left: `${left + offset}px`,
@@ -94,7 +94,7 @@ export function DraggableAppointment({
         >
           <div
             className={cn(
-              "flex cursor-move rounded-lg p-2",
+              "flex cursor-pointer rounded-lg p-2",
               appointment.color?.stickerColor,
             )}
             style={{
@@ -102,7 +102,6 @@ export function DraggableAppointment({
               height: "100%",
               boxSizing: "border-box",
             }}
-            // onClick={(e) => handleAppointmentClick(e)}
           >
             <div
               className={cn(
@@ -120,7 +119,7 @@ export function DraggableAppointment({
                         .find((d) => d.id === appointment.dentistId)
                         ?.name.split(" ")[0]
                     }{" "}
-                    /w {appointment.patientName}
+                    / {appointment.patientName}
                   </h4>
                   <p className="text-xs leading-tight opacity-75">
                     {appointment.startTime} - {appointment.endTime}

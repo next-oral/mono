@@ -4,6 +4,7 @@ import { Button } from "@repo/design/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -123,6 +124,7 @@ export function ConfirmAppointmentMove() {
           dentistId: Number(target?.dentistId),
           patientName: String(target?.patientName),
           date: String(target?.date),
+          note: String(target?.note),
           color: target?.color,
           startTime: draggedTimes.startTime,
           endTime: draggedTimes.endTime,
@@ -139,6 +141,10 @@ export function ConfirmAppointmentMove() {
     setPendingNewStartMinutes(null);
   }
 
+  const confirmText = targetAppointment
+    ? `Confirm action with ${targetAppointment.patientName} on Dr ${dentists.find((dentist) => dentist.id === targetAppointment.dentistId)?.name}'s Column`
+    : "Confirm move";
+
   return (
     <Dialog
       open={showConfirmDialog}
@@ -150,10 +156,11 @@ export function ConfirmAppointmentMove() {
         <ScrollArea className="max-h-[80vh]">
           <DialogHeader>
             <DialogTitle className="text-sm capitalize">
-              {targetAppointment
-                ? `Confirm action with ${targetAppointment.patientName} on Dr ${dentists.find((dentist) => dentist.id === targetAppointment.dentistId)?.name}'s Column`
-                : "Confirm move"}
+              {confirmText}
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              {confirmText}
+            </DialogDescription>
           </DialogHeader>
 
           <div className="p-4">
