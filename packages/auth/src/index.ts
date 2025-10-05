@@ -67,6 +67,7 @@ export function initAuth(options: InitAuthOptions) {
       "https://*.nextoral.org",
       "https://nextoral.com",
       "*.localhost:3000",
+      "http://localhost:3001",
       "expo://",
     ],
     plugins: [

@@ -13,7 +13,7 @@
     "db:push": "turbo -F @repo/database push",
     "db:studio": "turbo -F @repo/database studio",
     "db:seed": "turbo -F @repo/database seed",
-    "dev": "turbo watch dev --continue",
+    "dev": "turbo watch dev zero:dev --continue",
     "dev:next": "turbo watch dev -F @repo/nextjs...",
     "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
     "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",

@@ -5,7 +5,6 @@ import type { AddressInsertSchema } from "@repo/database/schema";
 import type { AuthData, Schema } from "./schema";
 
 export function createMutators(_authData: AuthData | undefined) {
-  console.log("[createMutators]");
   return {
     address: {
       insert: async (tx: Transaction<Schema>, addr: AddressInsertSchema) => {

@@ -4,19 +4,20 @@
   "version": "0.1.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./mutators": "./src/mutators.ts"
   },
   "scripts": {
     "build": "tsc",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "dev": "pnpm with-env tsx src/scripts/dev.ts",
+    "zero:dev": "pnpm with-env tsx src/scripts/dev.ts",
     "dev:clean": "pnpm with-env tsx src/scripts/clean.ts",
     "dev:db": "pnpm with-env tsx src/scripts/db.ts",
     "dev:zero": "pnpm with-env zero-cache-dev",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "seed": "pnpm with-env ../database/src/seed.ts",
     "lint": "eslint",
-    "generate": "pnpm with-env drizzle-zero generate -s ../database/src/schema/index.ts -k ../database/drizzle.config.ts -o src/schema/schema.gen.ts",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "with-env": "dotenv -e ../../.env --"
   },
@@ -37,5 +38,12 @@
     "@rocicorp/zero": "^0.23.2025090100",
     "concurrently": "^9.2.1",
     "wait-on": "^9.0.1"
+  },
+  "turbo": {
+    "pipeline": {
+      "dev": {
+        "persistent": true
+      }
+    }
   }
 }

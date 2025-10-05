@@ -20,7 +20,7 @@ concurrently([
   },
   {
     command:
-      "npx chokidar 'packages/database/src/schema/index.ts' -c 'pnpm -F @repo/database generate-zero-schema'",
+      "pnpm dlx chokidar-cli 'packages/database/src/schema/index.ts' -c 'pnpm -F @repo/database generate-zero-schema'",
     name: "gz",
     prefixColor: "#11ffcc",
   },

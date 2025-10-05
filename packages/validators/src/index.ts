@@ -186,3 +186,13 @@ export type ClinicForm = z.infer<typeof clinicSchema>;
 
 export const INVALID_SLUGS_REGEX =
   /^(www|admin|api|auth|login|logout|signup|register|user|users|me|account|settings|dashboard|about|contact|support|help|privacy|terms|status|blog|faq|system|config|root|files|explore|search|feed|notifications|messages|inbox|home|app|application|client|waitlist|onboarding|server|backend|frontend|undefined|null|true|false|404|500)$/i;
+
+export function must<T>(
+  value: T | undefined | null,
+  message = "Assertion failed. Required value is null or undefined.",
+): T {
+  if (value === undefined || value === null) {
+    throw new Error(message);
+  }
+  return value;
+}
