@@ -12,6 +12,7 @@
     "clean:workspaces": "turbo run clean",
     "db:push": "turbo -F @repo/database push",
     "db:studio": "turbo -F @repo/database studio",
+    "db:seed": "turbo -F @repo/database seed",
     "dev": "turbo watch dev --continue",
     "dev:next": "turbo watch dev -F @repo/nextjs...",
     "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",

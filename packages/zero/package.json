@@ -1,0 +1,41 @@
+{
+  "name": "@repo/zero",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "dev": "pnpm with-env tsx src/scripts/dev.ts",
+    "dev:clean": "pnpm with-env tsx src/scripts/clean.ts",
+    "dev:db": "pnpm with-env tsx src/scripts/db.ts",
+    "dev:zero": "pnpm with-env zero-cache-dev",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "seed": "pnpm with-env ../database/src/seed.ts",
+    "lint": "eslint",
+    "generate": "pnpm with-env drizzle-zero generate -s ../database/src/schema/index.ts -k ../database/drizzle.config.ts -o src/schema/schema.gen.ts",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "with-env": "dotenv -e ../../.env --"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/prettier-config": "workspace:*",
+    "@repo/tsconfig": "workspace:*",
+    "chokidar": "^4.0.3",
+    "dotenv-cli": "^8.0.0",
+    "drizzle-zero": "^0.14.2",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:"
+  },
+  "prettier": "@repo/prettier-config",
+  "dependencies": {
+    "@repo/database": "workspace:*",
+    "@rocicorp/zero": "^0.23.2025090100",
+    "concurrently": "^9.2.1",
+    "wait-on": "^9.0.1"
+  }
+}

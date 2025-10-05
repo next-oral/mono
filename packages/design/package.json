@@ -73,7 +73,7 @@
     "recharts": "^2.15.3",
     "remeda": "^2.25.0",
     "sonner": "^2.0.3",
-    "tailwind": "^4.0.0",
+    "tailwindcss": "catalog:",
     "zod": "catalog:"
   },
   "peerDependencies": {
