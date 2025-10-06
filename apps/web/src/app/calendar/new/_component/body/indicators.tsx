@@ -1,6 +1,8 @@
+"use client";
+
 import { isSameHour, isToday } from "date-fns";
 
-import { SLOTS_PER_DAY } from "./constants";
+import { SLOTS_PER_DAY } from "../constants";
 
 export function CurrentTimeIndicator({ currentTime }: { currentTime: string }) {
   if (!isToday(currentTime)) return null;

@@ -6,17 +6,66 @@ export const SLOTS_PER_DAY = (24 * 60) / MINUTES_PER_SLOT; // 96
 export const DAY_HEIGHT_PX = SLOTS_PER_DAY * SLOT_HEIGHT_PX; // 2304px
 
 export const dentists = [
-  { id: 1, name: "Dr. Smith" },
-  { id: 2, name: "Dr. Johnson" },
-  { id: 3, name: "Dr. Williams" },
-  { id: 4, name: "Dr. Brown" },
-  { id: 5, name: "Dr. Green" },
-  { id: 6, name: "Dr. Green" },
-  { id: 7, name: "Dr. Green" },
-  { id: 8, name: "Dr. Green" },
-  { id: 50, name: "Dr. Green" },
-  { id: 9, name: "Dr. Green" },
-  { id: 10, name: "Dr. Green" },
+  {
+    id: 1,
+    name: "josh keneddy",
+    avatar: "https://github.com/shadcn.png",
+    startDate: "2023-08-25",
+  },
+  {
+    id: 2,
+    name: "princewill maximillian",
+    avatar: "https://placehold.co/100x100/F0F8FF/333?text=PM",
+    startDate: "2021-05-12",
+  },
+  {
+    id: 3,
+    name: "ebere adeotun",
+    avatar: "https://github.com/evilrabbit.png",
+    startDate: "2022-03-04",
+  },
+  {
+    id: 4,
+    name: "john doe",
+    avatar: "https://github.com/shadcn.png",
+    startDate: "2020-07-19",
+  },
+  {
+    id: 5,
+    name: "harry simmons",
+    avatar: "https://github.com/leerob.png",
+    startDate: "2023-01-20",
+  },
+  {
+    id: 6,
+    name: "beatrice salvador",
+    avatar: "https://github.com/evilrabbit.png",
+    startDate: "2021-09-08",
+  },
+  {
+    id: 7,
+    name: "joy madueke",
+    avatar: "https://github.com/leerob.png",
+    startDate: "2022-11-15",
+  },
+  {
+    id: 8,
+    name: "santiago de-lima",
+    avatar: "https://placehold.co/100x100/F0F8FF/333?text=SDL",
+    startDate: "2023-04-30",
+  },
+  {
+    id: 9,
+    name: "tola oluwatosin",
+    avatar: "https://placehold.co/100x100/F0F8FF/333?text=TO",
+    startDate: "2020-06-22",
+  },
+  {
+    id: 10,
+    name: "kvicha belmond kvarakeslia",
+    avatar: "https://placehold.co/100x100/F0F8FF/333?text=KBK",
+    startDate: "2023-07-07",
+  },
 ];
 
 export const appointments = [
@@ -27,6 +76,7 @@ export const appointments = [
     description: "New patient exam",
     startTime: "2024-01-01T08:00:00",
     endTime: "2024-01-01T08:45:00",
+    date: new Date().toISOString().slice(0, 10),
     color: "sky",
   },
   {
@@ -36,6 +86,7 @@ export const appointments = [
     description: "Routine cleaning",
     startTime: "2024-01-01T09:00:00",
     endTime: "2024-01-01T09:45:00",
+    date: new Date().toISOString().slice(0, 10),
     color: "pink",
   },
   {
@@ -45,6 +96,7 @@ export const appointments = [
     description: "Filling - molar",
     startTime: "2024-01-01T10:00:00",
     endTime: "2024-01-01T10:30:00",
+    date: new Date().toISOString().slice(0, 10),
     color: "orange",
   },
   {
@@ -54,6 +106,7 @@ export const appointments = [
     description: "Whitening consultation",
     startTime: "2024-01-01T08:30:00",
     endTime: "2024-01-01T09:00:00",
+    date: new Date().toISOString().slice(0, 10),
     color: "purple",
   },
   {
@@ -63,6 +116,7 @@ export const appointments = [
     description: "Root canal - premolar",
     startTime: "2024-01-01T09:15:00",
     endTime: "2024-01-01T10:45:00",
+    date: new Date().toISOString().slice(0, 10),
     color: "green",
   },
   {
@@ -72,6 +126,7 @@ export const appointments = [
     description: "Invisalign follow-up",
     startTime: "2024-01-01T11:00:00",
     endTime: "2024-01-01T11:30:00",
+    date: new Date().toISOString().slice(0, 10),
     color: "blue",
   },
   {
@@ -81,6 +136,7 @@ export const appointments = [
     description: "Crown preparation",
     startTime: "2024-01-01T12:00:00",
     endTime: "2024-01-01T13:30:00",
+    date: new Date().toISOString().slice(0, 10),
     color: "red",
   },
   {
@@ -90,6 +146,7 @@ export const appointments = [
     description: "Emergency toothache",
     startTime: "2024-01-01T08:15:00",
     endTime: "2024-01-01T08:45:00",
+    date: new Date().toISOString().slice(0, 10),
     color: "yellow",
   },
   {
@@ -99,6 +156,7 @@ export const appointments = [
     description: "Extraction - wisdom tooth",
     startTime: "2024-01-01T09:30:00",
     endTime: "2024-01-01T10:30:00",
+    date: new Date().toISOString().slice(0, 10),
     color: "blue",
   },
   {
@@ -108,6 +166,7 @@ export const appointments = [
     description: "Pediatric check-up",
     startTime: "2024-01-01T10:00:00",
     endTime: "2024-01-01T10:30:00",
+    date: new Date().toISOString().slice(0, 10),
     color: "lime",
   },
   {
@@ -117,6 +176,9 @@ export const appointments = [
     description: "Deep cleaning",
     startTime: "2024-01-01T11:15:00",
     endTime: "2024-01-01T12:15:00",
+    date: new Date(new Date().setDate(new Date().getDate() + 1))
+      .toISOString()
+      .slice(0, 10),
     color: "indigo",
   },
   {
@@ -126,6 +188,45 @@ export const appointments = [
     description: "Bridge fitting",
     startTime: "2024-01-01T14:00:00",
     endTime: "2024-01-01T15:00:00",
+    date: new Date(new Date().setDate(new Date().getDate() + 1))
+      .toISOString()
+      .slice(0, 10),
+    color: "teal",
+  },
+  {
+    id: 13,
+    dentistId: 5,
+    patientId: "P-5003",
+    description: "Bridge fitting",
+    startTime: "2024-01-01T14:00:00",
+    endTime: "2024-01-01T15:00:00",
+    date: new Date(new Date().setDate(new Date().getDate() + 1))
+      .toISOString()
+      .slice(0, 10),
+    color: "teal",
+  },
+  {
+    id: 14,
+    dentistId: 5,
+    patientId: "P-5003",
+    description: "Bridge fitting",
+    startTime: "2024-01-01T14:00:00",
+    endTime: "2024-01-01T15:00:00",
+    date: new Date(new Date().setDate(new Date().getDate() - 1))
+      .toISOString()
+      .slice(0, 10),
+    color: "teal",
+  },
+  {
+    id: 15,
+    dentistId: 5,
+    patientId: "P-5003",
+    description: "Bridge fitting",
+    startTime: "2024-01-01T14:00:00",
+    endTime: "2024-01-01T15:00:00",
+    date: new Date(new Date().setDate(new Date().getDate() - 1))
+      .toISOString()
+      .slice(0, 10),
     color: "teal",
   },
 ] satisfies Appointment[];

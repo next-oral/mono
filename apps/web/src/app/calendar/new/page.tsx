@@ -4,29 +4,22 @@ import type { DragEndEvent } from "@dnd-kit/core";
 import {
   DndContext,
   PointerSensor,
-  useDroppable,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { restrictToFirstScrollableAncestor } from "@dnd-kit/modifiers";
-import { eachHourOfInterval, endOfDay, format, startOfToday } from "date-fns";
 
-import { CalendarHeader } from "@repo/design/src/components/calendar/calendar";
 import {
   ScrollArea,
   ScrollBar,
 } from "@repo/design/src/components/ui/scroll-area";
-import { cn } from "@repo/design/src/lib/utils";
 
 import type { Appointment } from "./_component/types";
-import { AppointmentCard } from "./_component/appointments";
-import {
-  DAY_HEIGHT_PX,
-  dentists,
-  MINUTES_PER_SLOT,
-  SLOT_HEIGHT_PX,
-} from "./_component/constants";
-import { CurrentTimeIndicator } from "./_component/indicators";
+import { DayView } from "./_component/body/day-view";
+import { TimeLabels } from "./_component/body/time-labels";
+import { WeekView } from "./_component/body/week-view";
+import { MINUTES_PER_SLOT, SLOT_HEIGHT_PX } from "./_component/constants";
+import { CalendarHeader } from "./_component/header";
 import { useCalendarStore } from "./_component/store";
 
 function checkAppointmentOverlap(
@@ -58,40 +51,8 @@ function hasCollision(
   });
 }
 
-const today = startOfToday();
-const result = eachHourOfInterval({
-  start: today,
-  end: endOfDay(today),
-});
-
 export default function AppointmentPage() {
   return <Calendar />;
-}
-
-function TimeLabels() {
-  const timeFormat = useCalendarStore((state) => state.timeFormat);
-
-  return (
-    <div className="relative h-full w-20">
-      <div className="bg-background sticky top-0 left-0 z-30 flex min-h-10 items-center justify-center border-b text-end text-xs">
-        Time
-      </div>
-      {result.map((label) => (
-        <div
-          key={label.toISOString()}
-          className="text-md relative min-h-24 border-b"
-        >
-          <time
-            className="text-xs"
-            dateTime={format(label, "yyyy-MM-dd HH:mm")}
-          >
-            {format(label, timeFormat === "12h" ? "hh:mm a" : "HH:mm")}
-          </time>
-          <CurrentTimeIndicator currentTime={label.toISOString()} />
-        </div>
-      ))}
-    </div>
-  );
 }
 
 function Calendar() {
@@ -100,6 +61,7 @@ function Calendar() {
   const updateAppointment = useCalendarStore(
     (state) => state.updateAppointment,
   );
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 5 },
@@ -159,100 +121,15 @@ function Calendar() {
       >
         <ScrollArea className="h-screen w-full flex-row">
           <div className="relative flex">
-            <div className="bg-background sticky top-0 left-0 z-99999 flex w-20 items-center justify-center">
+            <div className="bg-background sticky top-0 left-0 z-30 flex w-20 items-center justify-center">
               <TimeLabels />
             </div>
-            {dentists.map((dentist) => {
-              const dentistAppointments = appointments.filter(
-                (appointment) => appointment.dentistId === dentist.id,
-              );
-
-              return (
-                <DroppableColumn
-                  key={dentist.id}
-                  dentistId={dentist.id}
-                  label={dentist.name}
-                >
-                  <div
-                    className="relative w-full"
-                    style={{ height: `${DAY_HEIGHT_PX}px` }}
-                  >
-                    <CalenderCellLines type="hour" />
-                    <CalenderCellLines type="half-hour" />
-
-                    {dentistAppointments.map((appointment) => (
-                      <AppointmentCard
-                        key={appointment.id + dentist.id}
-                        appointment={appointment}
-                      />
-                    ))}
-                  </div>
-                </DroppableColumn>
-              );
-            })}
+            <DayView />
+            <WeekView />
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </DndContext>
     </div>
   );
-}
-
-function DroppableColumn({
-  dentistId,
-  label,
-  children,
-}: {
-  dentistId: number;
-  label: string;
-  children: React.ReactNode;
-}) {
-  const { setNodeRef, isOver } = useDroppable({
-    id: `dentist-${dentistId}`,
-  });
-  return (
-    <div
-      ref={setNodeRef}
-      className={cn("flex h-full w-full min-w-40 flex-col not-odd:border-x", {
-        "bg-primary/10": isOver,
-      })}
-    >
-      <div className="bg-background sticky top-0 z-999 flex min-h-10 items-center justify-center border-b text-xs backdrop-blur-2xl">
-        {label}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function CalenderCellLines({
-  className,
-  style,
-  type,
-}: {
-  type: "hour" | "half-hour";
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  return Array.from({ length: 24 }).map((_, hourIndex) => (
-    <div
-      key={`h-${hourIndex}`}
-      className={cn(
-        "border-b",
-        type === "half-hour" && "opacity-50",
-        className,
-      )}
-      style={{
-        position: "absolute",
-        top:
-          type === "hour"
-            ? `${hourIndex * 4 * SLOT_HEIGHT_PX}px`
-            : `${2 * hourIndex * 4 * SLOT_HEIGHT_PX + 2 * SLOT_HEIGHT_PX}px`,
-        left: 0,
-        right: 0,
-        height: type === "hour" ? `${4 * SLOT_HEIGHT_PX}px` : undefined,
-        ...style,
-      }}
-    />
-  ));
 }

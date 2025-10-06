@@ -40,9 +40,6 @@ export const WeekViewDays = () => {
               >
                 {namesOfDays[index]} {date.getDate()}
               </span>
-              {isToday(date) && (
-                <div className="bg-primary mt-1 h-1.5 w-1.5 rounded-sm"></div>
-              )}
             </div>
           </div>
         ))}

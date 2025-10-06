@@ -52,14 +52,13 @@ export function ConfirmAppointmentMove() {
     const draggedId = originalAppointment.id;
 
     if (choice === "cancel") {
-      setAppointments(prev => {
-        return prev.map(appointment => {
-
+      setAppointments((prev) => {
+        return prev.map((appointment) => {
           if (appointment.id === originalAppointment.id) {
             return {
               ...appointment,
               startTime: originalAppointment.startTime,
-              endTime: originalAppointment.endTime
+              endTime: originalAppointment.endTime,
             };
           }
           return appointment;

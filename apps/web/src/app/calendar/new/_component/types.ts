@@ -1,3 +1,5 @@
+export type CalendarView = "day" | "week";
+
 export interface Appointment {
   id: number;
   dentistId: number;
@@ -5,7 +7,21 @@ export interface Appointment {
   description: string;
   startTime: string;
   endTime: string;
+  date: string;
   color: Color;
+}
+
+export interface AppointmentGroup {
+  startTime: string; // "HH:MM"
+  endTime: string; // "HH:MM"
+  appointments: Appointment[];
+}
+
+export interface Dentist {
+  id: number;
+  name: string;
+  avatar: string;
+  startDate: string;
 }
 
 export const colors = {
