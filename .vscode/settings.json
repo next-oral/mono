@@ -1,20 +1,45 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
+  // "eslint.workingDirectories": [
+  //   {
+  //     "mode": "auto"
+  //   }
+  // ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[typescript,typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.formatOnSave": true,
+  // "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
+  "eslint.runtime": "node",
   "eslint.workingDirectories": [
-    {
-      "mode": "auto"
-    }
+    { "pattern": "apps/*/" },
+    { "pattern": "packages/*/" },
+    { "pattern": "tooling/*/" }
   ],
+  "prettier.ignorePath": ".gitignore",
+  "tailwindCSS.classFunctions": ["cva", "cx", "cn"],
+  "tailwindCSS.experimental.configFile": "./tooling/tailwind/web.ts",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "zod/dist/types/index.d.ts", // Force auto-imports to v4
+    "next/router.d.ts",
+    "next/dist/client/router.d.ts"
+  ],
+  // "typescript.tsdk": "node_modules/typescript/lib"
 
   // Disable the default formatter, use eslint instead
   // "prettier.enable": false,
   // "editor.formatOnSave": false,
 
   // Auto fix
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "never"
-  },
+  // "editor.codeActionsOnSave": {
+  //   "source.fixAll.eslint": "explicit",
+  //   "source.organizeImports": "never"
+  // },
 
   // Silent the stylistic rules in you IDE, but still auto fix them
   "eslint.rules.customizations": [
@@ -56,14 +81,19 @@
   ],
   "cSpell.words": [
     "ampm",
+    "ILIKE",
     "Maxillofacial",
+    "neondatabase",
     "nextoral",
     "nums",
     "nuqs",
+    "paralleldrive",
     "Phearson",
+    "rocicorp",
     "sethoscope",
     "sonner",
     "speciality",
+    "tauri",
     "treeify",
     "turbopack",
     "Waitlist"

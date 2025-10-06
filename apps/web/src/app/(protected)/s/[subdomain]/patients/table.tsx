@@ -1,11 +1,13 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { Row, Zero } from "@rocicorp/zero";
+import { useQuery, useZero } from "@rocicorp/zero/react";
 import { Plus, User } from "lucide-react";
+import { parseAsInteger, useQueryState, useQueryStates } from "nuqs";
 
 import type { ExtendedColumnFilter } from "@repo/design/src/types/data-table";
 import { DataTable } from "@repo/design/components/data-table/data-table";
-import { Badge } from "@repo/design/components/ui/badge";
 import { Button } from "@repo/design/components/ui/button";
 import { Checkbox } from "@repo/design/components/ui/checkbox";
 import {
@@ -23,7 +25,11 @@ import {
 } from "@repo/design/src/components/ui/popover";
 import { useDataTable } from "@repo/design/src/hooks/use-data-table";
 import { CheckCircle, MoreVertical, XCircle } from "@repo/design/src/icons";
+import { Mutators } from "@repo/zero/src/mutators";
+import { Schema } from "@repo/zero/src/schema";
 
+import { authClient } from "~/auth/client";
+import { useZeroQueryStatus } from "~/providers/zero";
 import { FloatingBar } from "./floating-bar";
 
 const treatments = [
@@ -92,7 +98,22 @@ export const sampleData = Array.from({ length: 150 }, (_, i) => ({
   ).toISOString(),
 }));
 
-type TableData = (typeof sampleData)[0];
+const limit = 1000;
+function listQuery(zero: Zero<Schema, Mutators>, q: string | undefined) {
+  let query = zero.query.patient
+    .orderBy("createdAt", "desc")
+    .related("address")
+    .limit(limit);
+
+  if (q) {
+    // simple name search on first or last name
+    query = query.where("firstName", "ILIKE", `%${q}%`);
+    // ('lastName', 'ILIKE', `%${q}%`);
+  }
+  return query;
+}
+
+type TableData = Row<ReturnType<typeof listQuery>>;
 
 const columns: ColumnDef<TableData>[] = [
   {
@@ -124,7 +145,11 @@ const columns: ColumnDef<TableData>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" />
     ),
-    cell: ({ row }) => <div>{row.original.name}</div>,
+    cell: ({ row }) => (
+      <div>
+        {row.original.firstName} {row.original.lastName}
+      </div>
+    ),
     meta: {
       label: "Name",
       placeholder: "Search patients, phone no, email....",
@@ -135,11 +160,11 @@ const columns: ColumnDef<TableData>[] = [
   },
   {
     id: "age",
-    accessorKey: "age",
+    accessorKey: "dob",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Age" />
     ),
-    cell: ({ row }) => <div>{row.original.age}</div>,
+    cell: ({ row }) => <div>{row.original.dob}</div>,
     meta: {
       label: "Age",
       variant: "number",
@@ -181,45 +206,53 @@ const columns: ColumnDef<TableData>[] = [
       label: "Email",
     },
   },
-  {
-    id: "treatments",
-    accessorKey: "treatments",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Treatment" />
-    ),
-    cell: ({ row }) => {
-      const treatments = row.original.treatments;
+  // {
+  //   id: "treatments",
+  //   accessorKey: "treatments",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Treatment" />
+  //   ),
+  //   cell: ({ row }) => {
+  //     const treatments = row.original.treatments;
 
-      return (
-        <div className="flex min-w-64 flex-wrap gap-2">
-          {treatments.map((treatment) => (
-            <Badge key={treatment} variant="outline" className="capitalize">
-              {treatment}
-            </Badge>
-          ))}
-        </div>
-      );
-    },
-    meta: {
-      label: "Treatments",
-      variant: "multiSelect",
-      options: treatments.map((treatment) => ({
-        label: treatment,
-        value: treatment,
-      })),
-    },
-    filterFn: (row, id, value) => {
-      return Array.isArray(value) && value.includes(row.getValue(id));
-    },
-    enableColumnFilter: true,
-  },
+  //     return (
+  //       <div className="flex min-w-64 flex-wrap gap-2">
+  //         {treatments.map((treatment) => (
+  //           <Badge key={treatment} variant="outline" className="capitalize">
+  //             {treatment}
+  //           </Badge>
+  //         ))}
+  //       </div>
+  //     );
+  //   },
+  //   meta: {
+  //     label: "Treatments",
+  //     variant: "multiSelect",
+  //     options: treatments.map((treatment) => ({
+  //       label: treatment,
+  //       value: treatment,
+  //     })),
+  //   },
+  //   filterFn: (row, id, value) => {
+  //     return Array.isArray(value) && value.includes(row.getValue(id));
+  //   },
+  //   enableColumnFilter: true,
+  // },
   {
     id: "address",
     accessorKey: "address",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Address" />
     ),
-    cell: ({ row }) => row.original.address,
+    maxSize: 10,
+
+    cell: ({ row }) => (
+      <span className="w-10 truncate text-sm break-all text-ellipsis text-gray-500">
+        {row.original.address
+          ? `${row.original.address.street}, ${row.original.address.city}, ${row.original.address.state}`
+          : ""}
+      </span>
+    ),
     meta: {
       label: "Address",
       variant: "multiSelect",
@@ -233,20 +266,20 @@ const columns: ColumnDef<TableData>[] = [
     },
     enableColumnFilter: true,
   },
-  {
-    id: "joined",
-    accessorKey: "joined",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Joined" />
-    ),
-    cell: ({ row }) => {
-      return <div>{row.original.joined}</div>;
-    },
-    meta: {
-      label: "Joined",
-      variant: "date",
-    },
-  },
+  // {
+  //   id: "joined",
+  //   accessorKey: "joined",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Joined" />
+  //   ),
+  //   cell: ({ row }) => {
+  //     return <div>{row.original.joined}</div>;
+  //   },
+  //   meta: {
+  //     label: "Joined",
+  //     variant: "date",
+  //   },
+  // },
   {
     id: "actions",
     cell: () => {
@@ -271,20 +304,49 @@ const columns: ColumnDef<TableData>[] = [
 ];
 
 export const PatientsTable = () => {
+  return null;
   // TODO: Fetch data from API
   // TODO: Update pagination, sorting, filtering, etc.
-  const { table } = useDataTable({
-    data: sampleData,
-    columns,
-    pageCount: 1,
+
+  const [pagination, setPagination] = useQueryStates({
+    page: parseAsInteger.withDefault(1),
+    pageSize: parseAsInteger.withDefault(10),
   });
+  const { data: activeOrganization } = authClient.useActiveOrganization();
+
+  const z = useZero<Schema, Mutators>();
+  // const [title] = useQueryState("title", parseAsString.withDefault(""));
+
+  function fetchPatients(z: Zero<Schema, Mutators>) {
+    let query = z.query.patient.related("address");
+
+    return query;
+  }
+  const [patients, { type }] = useQuery(fetchPatients(z));
+
+  const { isPending, isError } = useZeroQueryStatus(type);
+
+  const { table } = useDataTable({
+    data: data,
+    columns,
+    getRowId: (originalRow) => originalRow.id,
+    pageCount: meta.pageCount,
+  });
+  const { columnFilters: filters } = table.getState();
+
+  // console.log(filters.map((filter) => {
+  //   filter.
+  // }));
 
   return (
     <div>
-      <DataTable table={table} actionBar={<FloatingBar table={table} />}>
+      <DataTable
+        isLoading={isPending}
+        table={table}
+        actionBar={<FloatingBar table={table} />}
+      >
         <div className="flex items-center justify-between gap-2">
           <DataTableToolbar table={table} />
-
           <Popover>
             <PopoverTrigger asChild>
               <Button>

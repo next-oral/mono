@@ -1,0 +1,213 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { Row, Zero } from "@rocicorp/zero";
+import { useQuery, useZero } from "@rocicorp/zero/react";
+import {
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
+
+import type { Mutators } from "@repo/zero/src/mutators";
+import type { Schema } from "@repo/zero/src/schema";
+import { Button } from "@repo/design/src/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@repo/design/src/components/ui/popover";
+import { Plus } from "@repo/design/src/icons";
+
+import type { FiltersState } from "~/components/data-table-filter/core/types";
+import {
+  DataTableFilter,
+  useDataTableFilters,
+} from "~/components/data-table-filter";
+import { useZeroQueryStatus } from "~/providers/zero";
+import {
+  createTSTColumns,
+  createTSTFilters,
+} from "../../../tst-query/_/integrations/tanstack-table";
+import { patientColumnDefs } from "./columns";
+import { DataTable } from "./data-table";
+import { columnsConfig } from "./filters";
+
+function baseQuery(zero: Zero<Schema, Mutators>) {
+  return zero.query.patient.related("address");
+}
+
+export type PatientRow = Row<ReturnType<typeof baseQuery>>;
+
+export function PatientsZeroTable({
+  state,
+}: {
+  state: {
+    filters: FiltersState;
+    sorting: SortingState;
+    setFilters: React.Dispatch<React.SetStateAction<FiltersState>>;
+    setSorting: React.Dispatch<React.SetStateAction<SortingState>>;
+  };
+}) {
+  const z = useZero<Schema, Mutators>();
+
+  function buildQuery(zero: Zero<Schema, Mutators>) {
+    let query = baseQuery(zero);
+
+    for (const f of state.filters) {
+      if (f.type !== "text") continue;
+      const value = (f.values?.[0] ?? "").toString().trim();
+      if (value.length === 0) continue;
+
+      const op =
+        f.operator === "does not contain"
+          ? ("NOT ILIKE" as const)
+          : ("ILIKE" as const);
+
+      switch (f.columnId) {
+        case "name": {
+          query = query.where("firstName", op, `%${value}%`);
+          break;
+        }
+        case "email": {
+          query = query.where("email", op, `%${value}%`);
+          break;
+        }
+        case "address": {
+          // Combined address column: match when any of street/city/state matches the value.
+          // NOTE: This currently applies all conditions; depending on Zero's API, OR matching may require a different method.
+
+          query = query.related("address", (p) =>
+            p.where(({ cmp, or }) =>
+              or(
+                cmp("street", op, `%${value}%`),
+                cmp("city", op, `%${value}%`),
+                cmp("country", op, `%${value}%`),
+              ),
+            ),
+          );
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    for (const s of state.sorting) {
+      const direction = s.desc ? "desc" : "asc";
+      switch (s.id) {
+        case "name": {
+          query = query.orderBy("firstName", direction);
+          break;
+        }
+        case "email": {
+          query = query.orderBy("email", direction);
+          break;
+        }
+        case "age": {
+          query = query.orderBy("dob", direction);
+          break;
+        }
+      }
+    }
+
+    return state.sorting.length > 0
+      ? query
+      : query.orderBy("createdAt", "desc");
+  }
+
+  const [patients, { type }] = useQuery(buildQuery(z));
+  const { isPending } = useZeroQueryStatus(type);
+
+  const {
+    columns,
+    filters,
+    actions,
+    strategy,
+    pagination,
+
+    onPaginationChange,
+  } = useDataTableFilters({
+    strategy: "server",
+    data: patients,
+    columnsConfig,
+    filters: state.filters,
+    onFiltersChange: state.setFilters,
+  });
+
+  const [rowSelection, setRowSelection] = useState({});
+
+  const tstColumns = useMemo(
+    () =>
+      createTSTColumns({
+        columns: patientColumnDefs,
+        configs: columns,
+      }),
+    [columns],
+  );
+  const tstFilters = useMemo(() => createTSTFilters(filters), [filters]);
+
+  const table = useReactTable<PatientRow>({
+    data: patients,
+    columns: tstColumns,
+    getRowId: (row) => row.id,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+
+    getPaginationRowModel: getPaginationRowModel(),
+    onRowSelectionChange: setRowSelection,
+    onPaginationChange,
+    onSortingChange: state.setSorting,
+    state: {
+      rowSelection,
+      pagination: {
+        pageIndex: pagination.page - 1,
+        pageSize: pagination.pageSize,
+      },
+      sorting: state.sorting,
+      columnFilters: tstFilters,
+    },
+  });
+
+  return (
+    <div>
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground border-r pr-2">Filters</span>
+          <DataTableFilter
+            filters={filters}
+            columns={columns}
+            actions={actions}
+            strategy={strategy}
+          />
+        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button className="ml-auto">
+              <Plus className="size-4" />
+              Add Patient
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="bg-background w-fit overflow-hidden rounded-xl p-0">
+            <div className="flex flex-col">
+              <Button
+                variant="outline"
+                className="justify-start border-none shadow-none"
+              >
+                Add Manually
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-start border-none shadow-none"
+              >
+                Upload CSV
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+      <DataTable table={table} actions={actions} isLoading={isPending} />
+    </div>
+  );
+}

@@ -1,7 +1,6 @@
 import { AppointmentCard } from "@repo/design/components/appointments/appointment-card";
 import { DashboardCard } from "@repo/design/components/dashboard/dashboard-card";
 import {
-  // PatientBarChart,
   PatientBarChart,
   PatientPieChart,
 } from "@repo/design/components/dashboard/patient-chart";

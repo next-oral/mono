@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery, useZero } from "@rocicorp/zero/react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 
+import type { Mutators } from "@repo/zero/src/mutators";
+import type { Schema } from "@repo/zero/src/schema";
 import { Button } from "@repo/design/components/ui/button";
 import { ScrollArea } from "@repo/design/components/ui/scroll-area";
 import {
@@ -18,7 +21,7 @@ import { cn } from "~/lib/utils";
 export default function AppointmentsPage() {
   const [selectedView, setSelectedView] = useState<"Day" | "Week">("Day");
   const [selectedDentist, setSelectedDentist] = useState("All dentists");
-  const [currentDate, _setCurrentDate] = useState(new Date(2025, 5, 11)); // June 11, 2025
+  const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 11)); // June 11, 2025
 
   const timeSlots = [
     "12 AM",
@@ -79,6 +82,24 @@ export default function AppointmentsPage() {
     const today = new Date();
     return date.toDateString() === today.toDateString();
   };
+
+  const z = useZero<Schema, Mutators>();
+
+  const [dentists, { type: dentistsType }] = useQuery(z.query.dentist);
+  const [appointments, { type }] = useQuery(
+    z.query.appointment.where(({ cmp, or }) => {
+      return or(
+        cmp("dentistId", "=", selectedDentist),
+        cmp("dentistId", "=", "All dentists"),
+      );
+    }),
+  );
+
+  return (
+    <div className="mx-auto max-h-screen w-full max-w-7xl overflow-y-auto p-4">
+      <pre>{JSON.stringify(appointments, null, 2)}</pre>
+    </div>
+  );
 
   return (
     <div className="mx-auto w-full max-w-7xl p-4">
@@ -194,7 +215,7 @@ export default function AppointmentsPage() {
 
           {/* Time Slots */}
           <div className="space-y-0">
-            {timeSlots.map((time) => (
+            {timeSlots.map((time, index) => (
               <div
                 key={time}
                 className="border-border/30 flex items-start border-t first:border-t-0"

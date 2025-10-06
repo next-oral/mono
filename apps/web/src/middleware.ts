@@ -39,13 +39,13 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   // return NextResponse.next();
   const subdomain = extractSubdomain(request);
-
-  if (subdomain && pathname === "/login") {
-    const url = new URL(request.url);
-    url.pathname = "/";
+  const url = `${env.NEXT_PUBLIC_PROTOCOL}://${env.NEXT_PUBLIC_ROOT_DOMAIN}`;
+  if (subdomain && subdomain !== "nextoral" && pathname === "/login") {
+    const newUrl = new URL(url);
+    newUrl.pathname = "/";
 
     console.log("[Redirecting] /login to /");
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(newUrl);
   }
   // Redirect /admin access on subdomains
   if (subdomain && pathname.startsWith("/admin")) {
@@ -54,8 +54,9 @@ export function middleware(request: NextRequest) {
   }
 
   // Rewrite all paths on subdomain to subdomain-specific pages
-  if (subdomain) {
+  if (subdomain && subdomain !== "nextoral") {
     console.log(`[Rewriting] ${pathname} to /s/${subdomain}${pathname}`);
+
     return NextResponse.rewrite(
       new URL(`/s/${subdomain}${pathname}`, request.url),
     );

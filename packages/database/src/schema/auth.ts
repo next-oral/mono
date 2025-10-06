@@ -132,11 +132,20 @@ export const team = pgTable("team", {
 
 export const teamMember = pgTable("team_member", {
   id: text("id").primaryKey(),
-  teamId: text("team_id").notNull(),
+  teamId: text("team_id")
+    .notNull()
+    .references(() => team.id, { onDelete: "cascade" }),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at"),
+});
+
+export const jwks = pgTable("jwks", {
+  id: text("id").primaryKey(),
+  publicKey: text("public_key").notNull(),
+  privateKey: text("private_key").notNull(),
+  createdAt: timestamp("created_at").notNull(),
 });
 
 export const waitlist = pgTable("waitlist", {
@@ -166,23 +175,30 @@ export const teamRelations = relations(team, ({ one, many }) => ({
     fields: [team.organizationId],
     references: [organization.id],
   }),
-  members: many(member),
+  teamMembers: many(teamMember),
 }));
 
-// export const memberRelations = relations(member, ({ one }) => ({
-//   organization: one(organization, {
-//     fields: [member.organizationId],
-//     references: [organization.id],
-//   }),
-//   user: one(user, {
-//     fields: [member.userId],
-//     references: [user.id],
-//   }),
-//   team: one(team, {
-//     fields: [member.teamId],
-//     references: [team.id],
-//   }),
-// }));
+export const teamMemberRelations = relations(teamMember, ({ one }) => ({
+  team: one(team, {
+    fields: [teamMember.teamId],
+    references: [team.id],
+  }),
+  user: one(user, {
+    fields: [teamMember.userId],
+    references: [user.id],
+  }),
+}));
+
+export const memberRelations = relations(member, ({ one }) => ({
+  organization: one(organization, {
+    fields: [member.organizationId],
+    references: [organization.id],
+  }),
+  user: one(user, {
+    fields: [member.userId],
+    references: [user.id],
+  }),
+}));
 
 export const userRelations = relations(user, ({ many }) => ({
   members: many(member),

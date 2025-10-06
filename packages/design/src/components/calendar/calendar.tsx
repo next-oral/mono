@@ -9,7 +9,7 @@ import type {
   Modifier,
 } from "@dnd-kit/core";
 import type { CSSProperties } from "react";
-import React, { useEffect, useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   closestCenter,
   DndContext,
@@ -23,10 +23,10 @@ import {
 import {
   restrictToParentElement,
   restrictToVerticalAxis,
+  restrictToParentElement,
+  restrictToVerticalAxis,
 } from "@dnd-kit/modifiers";
-import { isToday } from "date-fns";
-import { Plus, Stethoscope } from "lucide-react";
-
+import { CSS } from "@dnd-kit/utilities";
 import {
   clampBounds,
   groupAppointmentsForDay,
@@ -36,8 +36,26 @@ import {
 } from "@repo/design/lib/calendar";
 
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "../../icons";
-import { cn } from "../../lib/utils";
+import { cn, convert12hTo24h, truncateText } from "../../lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { Calendar as CalendarUI } from "../ui/calendar";
+import { Checkbox } from "../ui/checkbox";
+import {
+  Command,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "../ui/command";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { DateSelector } from "./components/date-selector";
 import { DentistsRow } from "./components/dentists-row";
@@ -526,6 +544,9 @@ function CalendarBody() {
     // Fallback to closest center
     return closestCenter(args);
   }
+    // Fallback to closest center
+    return closestCenter(args);
+  }
 
   function handleDragStart(event: DragStartEvent) {
     const { active } = event;
@@ -540,14 +561,25 @@ function CalendarBody() {
     const origMinutes = timeToMinutes(appointment.startTime);
     setPendingNewStartMinutes(origMinutes);
     setNewStartTime(minutesToTime(origMinutes));
+    // initialize pendingNewStartMinutes baseline
+    const origMinutes = timeToMinutes(appointment.startTime);
+    setPendingNewStartMinutes(origMinutes);
+    setNewStartTime(minutesToTime(origMinutes));
 
+    setIsDragging(true);
+  }
     setIsDragging(true);
   }
 
   function handleDragMove(event: DragMoveEvent) {
     const { delta } = event;
     if (!originalAppointment) return;
+  function handleDragMove(event: DragMoveEvent) {
+    const { delta } = event;
+    if (!originalAppointment) return;
 
+    const snappedDeltaY = Math.round(delta.y / SNAP_GRID) * SNAP_GRID; // snap at every 15 minutes (25 px) on vertical axis
+    const minutesDelta = (snappedDeltaY / TIME_SLOT_HEIGHT) * 60;
     const snappedDeltaY = Math.round(delta.y / SNAP_GRID) * SNAP_GRID; // snap at every 15 minutes (25 px) on vertical axis
     const minutesDelta = (snappedDeltaY / TIME_SLOT_HEIGHT) * 60;
 
@@ -556,6 +588,9 @@ function CalendarBody() {
     tentativeStart = roundToQuarter(tentativeStart);
     tentativeStart = clampBounds(tentativeStart, DAY_MIN_START, DAY_MAX_END);
 
+    setPendingNewStartMinutes(tentativeStart);
+    setNewStartTime(minutesToTime(tentativeStart));
+  }
     setPendingNewStartMinutes(tentativeStart);
     setNewStartTime(minutesToTime(tentativeStart));
   }
@@ -571,13 +606,30 @@ function CalendarBody() {
       setPendingNewStartMinutes(null);
       return;
     }
+    if (!originalAppointment) {
+      setNewStartTime(null);
+      setPendingNewStartMinutes(null);
+      return;
+    }
 
     const origMinutes = timeToMinutes(originalAppointment.startTime);
     const newStartMinutes =
       typeof pendingNewStartMinutes === "number"
         ? pendingNewStartMinutes
         : origMinutes;
+    const origMinutes = timeToMinutes(originalAppointment.startTime);
+    const newStartMinutes =
+      typeof pendingNewStartMinutes === "number"
+        ? pendingNewStartMinutes
+        : origMinutes;
 
+    // If time didn't change, cancel / revert
+    if (newStartMinutes === origMinutes) {
+      setOriginalAppointment(null);
+      setNewStartTime(null);
+      setPendingNewStartMinutes(null);
+      return;
+    }
     // If time didn't change, cancel / revert
     if (newStartMinutes === origMinutes) {
       setOriginalAppointment(null);
@@ -651,7 +703,29 @@ function CalendarBody() {
           setPendingNewStartMinutes(null);
           return;
         }
+    // If dropped over another appointment
+    if (over && String(over.id) !== String(active.id)) {
+      const overAppointment = appointments.find(
+        (a) => String(a.id) === String(over.id),
+      );
+      if (overAppointment) {
+        // Restrict swap/replace to same dentist only
+        if (overAppointment.dentistId !== originalAppointment.dentistId) {
+          // revert silently
+          setOriginalAppointment(null);
+          setNewStartTime(null);
+          setPendingNewStartMinutes(null);
+          return;
+        }
 
+        // prepare confirm: swap/replace options
+        setTargetAppointment(overAppointment);
+        setPendingNewStartMinutes(newStartMinutes);
+        setNewStartTime(newStart);
+        setShowConfirmDialog(true);
+        return;
+      }
+    }
         // prepare confirm: swap/replace options
         setTargetAppointment(overAppointment);
         setPendingNewStartMinutes(newStartMinutes);
@@ -892,4 +966,4 @@ function CalendarBody() {
   );
 }
 
-export { Calendar, CalendarBody, CalendarHeader };
+export { Calendar, CalendarHeader, CalendarBody };

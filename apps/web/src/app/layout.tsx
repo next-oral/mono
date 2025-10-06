@@ -12,7 +12,8 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { env } from "~/env";
 import { cn } from "~/lib/utils";
-import { ThemeProvider } from "./_providers/theme-provider";
+import { ThemeProvider } from "../providers/theme-provider";
+import { ZeroQueryProvider } from "../providers/zero";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -77,7 +78,9 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           <Toaster theme="light" richColors position="top-center" />
           <TRPCReactProvider>
             <ReactQueryDevtools />
-            <NuqsAdapter>{props.children}</NuqsAdapter>
+            <NuqsAdapter>
+              <ZeroQueryProvider>{props.children}</ZeroQueryProvider>
+            </NuqsAdapter>
           </TRPCReactProvider>
         </ThemeProvider>
       </body>
