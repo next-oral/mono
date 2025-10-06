@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tauri dev",
+    "dev": "vite",
     "build": "vite build",
     "clean": "git clean -xdf .cache .tanstack .turbo node_modules",
     "serve": "vite preview",

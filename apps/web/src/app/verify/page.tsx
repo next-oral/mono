@@ -62,6 +62,10 @@ export function VerifyPage() {
     );
   }
 
+  if (session?.user.emailVerified) {
+    return void router.replace("/onboarding");
+  }
+
   const { data: email, error } = emailSchema.safeParse(search.get("email"));
 
   const handleSubmit = async ({ otp }: { otp: string }) => {

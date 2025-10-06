@@ -45,6 +45,8 @@ const Page = () => {
 
   const { data: organizations } = authClient.useListOrganizations();
 
+  console.log("", organizations);
+
   const handleInvalidSession = useCallback(async () => {
     await authClient.signOut({
       fetchOptions: {
@@ -129,7 +131,6 @@ const Page = () => {
                 name={session.user.name}
                 onClick={async (values) => {
                   setIsPending(true);
-                  alert("Profile");
                   console.log(values);
 
                   await authClient.updateUser({
@@ -151,7 +152,6 @@ const Page = () => {
                 subtitle="Select the category of clinic or organization you are operating."
                 onClick={async (values) => {
                   setIsPending(true);
-                  alert("Org");
                   console.log(values);
 
                   const res = await authClient.organization.create(
@@ -193,12 +193,10 @@ const Page = () => {
                 step="clinic"
                 title="Setup clinics"
                 isPending={isPending}
-                // defaultClinic={activeOrg}
                 subtitle="Add the details of the clinics you want to add."
                 onClick={async (values) => {
                   setIsPending(true);
-                  alert("Clinic");
-                                    console.log(values);
+                  console.log(values);
 
                   await new Promise((resolve) => setTimeout(resolve, 1000));
 

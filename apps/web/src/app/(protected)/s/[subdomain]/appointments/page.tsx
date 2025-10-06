@@ -1,16 +1,27 @@
 "use client";
 
+import { useState } from "react";
+import { useQuery, useZero } from "@rocicorp/zero/react";
+import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+
 import { Button } from "@repo/design/components/ui/button";
 import { ScrollArea } from "@repo/design/components/ui/scroll-area";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/design/components/ui/select";
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/design/components/ui/select";
+import { Mutators } from "@repo/zero/src/mutators";
+import { Schema } from "@repo/zero/src/schema";
+
 import { cn } from "~/lib/utils";
 
 export default function AppointmentsPage() {
- const [selectedView, setSelectedView] = useState<"Day" | "Week">("Day")
-  const [selectedDentist, setSelectedDentist] = useState("All dentists")
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 11)) // June 11, 2025
+  const [selectedView, setSelectedView] = useState<"Day" | "Week">("Day");
+  const [selectedDentist, setSelectedDentist] = useState("All dentists");
+  const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 11)); // June 11, 2025
 
   const timeSlots = [
     "12 AM",
@@ -37,25 +48,25 @@ export default function AppointmentsPage() {
     "9 PM",
     "10 PM",
     "11 PM",
-  ]
-// Todo: Fix day dates
+  ];
+  // Todo: Fix day dates
   const getWeekDates = (date: Date) => {
-    const week = []
-    const startOfWeek = new Date(date)
-    const day = startOfWeek.getDay()
-    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1) // Adjust for Monday start
-    startOfWeek.setDate(diff)
+    const week = [];
+    const startOfWeek = new Date(date);
+    const day = startOfWeek.getDay();
+    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Monday start
+    startOfWeek.setDate(diff);
 
     for (let i = 0; i < 7; i++) {
-      const weekDate = new Date(startOfWeek)
-      weekDate.setDate(startOfWeek.getDate() + i)
-      week.push(weekDate)
+      const weekDate = new Date(startOfWeek);
+      weekDate.setDate(startOfWeek.getDate() + i);
+      week.push(weekDate);
     }
-    return week
-  }
+    return week;
+  };
 
-  const weekDates = getWeekDates(currentDate)
-  const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+  const weekDates = getWeekDates(currentDate);
+  const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   const formatDate = (date: Date) => {
     const options: Intl.DateTimeFormatOptions = {
@@ -63,23 +74,43 @@ export default function AppointmentsPage() {
       day: "numeric",
       month: "short",
       year: "numeric",
-    }
-    return date.toLocaleDateString("en-US", options)
-  }
+    };
+    return date.toLocaleDateString("en-US", options);
+  };
 
   const isToday = (date: Date) => {
-    const today = new Date()
-    return date.toDateString() === today.toDateString()
-  }
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  const z = useZero<Schema, Mutators>();
+
+  const [dentists, { type: dentistsType }] = useQuery(z.query.dentist);
+  const [appointments, { type }] = useQuery(
+    z.query.appointment.where(({ cmp, or }) => {
+      return or(
+        cmp("dentistId", "=", selectedDentist),
+        cmp("dentistId", "=", "All dentists"),
+      );
+    }),
+  );
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4">
+    <div className="mx-auto max-h-screen w-full max-w-7xl overflow-y-auto p-4">
+      <pre>{JSON.stringify(appointments, null, 2)}</pre>
+    </div>
+  );
+
+  return (
+    <div className="mx-auto w-full max-w-7xl p-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 gap-4">
+      <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className="text-xs font-medium text-muted-foreground">Show</span>
+          <span className="text-muted-foreground text-xs font-medium">
+            Show
+          </span>
           <Select value={selectedDentist} onValueChange={setSelectedDentist}>
-            <SelectTrigger className="w-[130px] h-8 text-xs">
+            <SelectTrigger className="h-8 w-[130px] text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -101,14 +132,18 @@ export default function AppointmentsPage() {
             </Button>
           </div>
 
-          <span className="text-sm font-semibold">{formatDate(currentDate)}</span>
+          <span className="text-sm font-semibold">
+            {formatDate(currentDate)}
+          </span>
 
-          <div className="flex items-center bg-muted rounded-lg p-0.5">
+          <div className="bg-muted flex items-center rounded-lg p-0.5">
             <Button
               variant={selectedView === "Day" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setSelectedView("Day")}
-              className={cn("h-7 px-3 text-xs", {"bg-popover shadow-m": selectedView === "Day" })}
+              className={cn("h-7 px-3 text-xs", {
+                "bg-popover shadow-m": selectedView === "Day",
+              })}
             >
               Day
             </Button>
@@ -116,7 +151,9 @@ export default function AppointmentsPage() {
               variant={selectedView === "Week" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setSelectedView("Week")}
-              className={cn("h-7 px-3 text-xs", {"bg-popover shadow-m": selectedView === "Week" })}
+              className={cn("h-7 px-3 text-xs", {
+                "bg-popover shadow-m": selectedView === "Week",
+              })}
             >
               Week
             </Button>
@@ -133,18 +170,23 @@ export default function AppointmentsPage() {
       </div>
 
       {/* Calendar Content */}
-      <ScrollArea className="w-full h-[600px]">
+      <ScrollArea className="h-[600px] w-full">
         <div className="min-w-[800px]">
           {/* All Day Section */}
-          <div className="border-b border-border pb-3 mb-4">
+          <div className="border-border mb-4 border-b pb-3">
             <div className="flex items-center">
-              <div className="w-12 text-xs font-medium text-muted-foreground">All Day</div>
+              <div className="text-muted-foreground w-12 text-xs font-medium">
+                All Day
+              </div>
               {selectedView === "Day" ? (
-                <div className="flex-1 h-8 bg-muted/30 rounded-sm"></div>
+                <div className="bg-muted/30 h-8 flex-1 rounded-sm"></div>
               ) : (
-                <div className="flex-1 grid grid-cols-7 gap-px">
+                <div className="grid flex-1 grid-cols-7 gap-px">
                   {weekDates.map((date, index) => (
-                    <div key={index} className="h-8 bg-muted/30 rounded-sm"></div>
+                    <div
+                      key={index}
+                      className="bg-muted/30 h-8 rounded-sm"
+                    ></div>
                   ))}
                 </div>
               )}
@@ -152,16 +194,18 @@ export default function AppointmentsPage() {
           </div>
 
           {selectedView === "Week" && (
-            <div className="flex items-center mb-4">
+            <div className="mb-4 flex items-center">
               <div className="w-12"></div>
-              <div className="flex-1 grid grid-cols-7 gap-px">
+              <div className="grid flex-1 grid-cols-7 gap-px">
                 {weekDates.map((date, index) => (
-                  <div key={index} className="text-center py-2">
+                  <div key={index} className="py-2 text-center">
                     <div className="flex flex-col items-center">
-                      <span className="text-xs font-medium text-muted-foreground">
+                      <span className="text-muted-foreground text-xs font-medium">
                         {dayNames[index]} {date.getDate()}
                       </span>
-                      {isToday(date) && <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1"></div>}
+                      {isToday(date) && (
+                        <div className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500"></div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -172,17 +216,25 @@ export default function AppointmentsPage() {
           {/* Time Slots */}
           <div className="space-y-0">
             {timeSlots.map((time, index) => (
-              <div key={time} className="flex items-start border-t border-border/30 first:border-t-0">
-                <div className="w-12 text-xs font-medium text-muted-foreground pt-2 pr-2 text-right">{time}</div>
+              <div
+                key={time}
+                className="border-border/30 flex items-start border-t first:border-t-0"
+              >
+                <div className="text-muted-foreground w-12 pt-2 pr-2 text-right text-xs font-medium">
+                  {time}
+                </div>
                 {selectedView === "Day" ? (
-                  <div className="flex-1 min-h-[40px] relative">
-                    <div className="absolute inset-0 hover:bg-muted/20 transition-colors cursor-pointer"></div>
+                  <div className="relative min-h-[40px] flex-1">
+                    <div className="hover:bg-muted/20 absolute inset-0 cursor-pointer transition-colors"></div>
                   </div>
                 ) : (
-                  <div className="flex-1 grid grid-cols-7 gap-px">
+                  <div className="grid flex-1 grid-cols-7 gap-px">
                     {weekDates.map((date, dayIndex) => (
-                      <div key={dayIndex} className="min-h-[40px] relative border-r border-border/20 last:border-r-0">
-                        <div className="absolute inset-0 hover:bg-muted/20 transition-colors cursor-pointer"></div>
+                      <div
+                        key={dayIndex}
+                        className="border-border/20 relative min-h-[40px] border-r last:border-r-0"
+                      >
+                        <div className="hover:bg-muted/20 absolute inset-0 cursor-pointer transition-colors"></div>
                       </div>
                     ))}
                   </div>
@@ -193,5 +245,5 @@ export default function AppointmentsPage() {
         </div>
       </ScrollArea>
     </div>
-  )
-};
+  );
+}

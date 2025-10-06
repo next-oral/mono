@@ -1,7 +1,6 @@
 import type { Table as TanstackTable } from "@tanstack/react-table";
 import type * as React from "react";
 import { flexRender } from "@tanstack/react-table";
-import { Search } from "lucide-react";
 
 import { DataTablePagination } from "@repo/design/components/data-table/data-table-pagination";
 import {
@@ -12,18 +11,22 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/design/components/ui/table";
+import { EmptyPatients } from "@repo/design/icons";
 import { getCommonPinningStyles } from "@repo/design/lib/data-table";
 import { cn } from "@repo/design/lib/utils";
 
+import { DataTableSkeleton } from "./data-table-skeleton";
 import { DataTableToolbarFilter } from "./data-table-toolbar";
 import { DataTableViewOptions } from "./data-table-view-options";
 
 interface DataTableProps<TData> extends React.ComponentProps<"div"> {
+  isLoading?: boolean;
   table: TanstackTable<TData>;
   actionBar?: React.ReactNode;
 }
 
 export function DataTable<TData>({
+  isLoading,
   table,
   actionBar,
   children,
@@ -47,7 +50,7 @@ export function DataTable<TData>({
       {...props}
     >
       {children}
-      <div className="bg-primary/5 space-y-2 rounded-md border p-1">
+      <div className="bg-primary/5 space-y-2 rounded-lg border p-1">
         <div className="flex items-center gap-2">
           {textColumns.map((column) => (
             <DataTableToolbarFilter
@@ -106,22 +109,32 @@ export function DataTable<TData>({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={table.getAllColumns().length}
-                    className="h-24 text-center"
-                  >
-                    <div className="flex flex-col items-center justify-center py-12 text-center">
-                      <div className="bg-secondary mb-4 flex h-16 w-16 items-center justify-center rounded-full">
-                        <Search className="text-muted-foreground h-8 w-8" />
+                  {isLoading ? (
+                    <TableCell
+                      colSpan={table.getAllColumns().length}
+                      className="h-24 text-center"
+                    >
+                      <DataTableSkeleton
+                        columnCount={table.getAllColumns().length}
+                      />
+                    </TableCell>
+                  ) : (
+                    <TableCell
+                      colSpan={table.getAllColumns().length}
+                      className="h-24 text-center"
+                    >
+                      <div className="flex flex-col items-center justify-center py-12 text-center">
+                        <EmptyPatients />
+
+                        <h3 className="text-foreground mb-2 text-sm font-medium">
+                          No results found for "{searchTerm}"
+                        </h3>
+                        <p className="text-muted-foreground text-sm">
+                          Search for something else.
+                        </p>
                       </div>
-                      <h3 className="text-foreground mb-2 text-lg font-medium">
-                        No results found for "{searchTerm}"
-                      </h3>
-                      <p className="text-muted-foreground text-sm">
-                        Search for something else.
-                      </p>
-                    </div>
-                  </TableCell>
+                    </TableCell>
+                  )}
                 </TableRow>
               )}
             </TableBody>

@@ -6,7 +6,7 @@ import {
 } from "@rocicorp/zero/pg";
 import postgres from "postgres";
 
-import { must } from "@repo/validators";
+// import { must } from "@repo/validators";
 import { createMutators } from "@repo/zero/mutators";
 import { schema } from "@repo/zero/schema";
 
@@ -19,14 +19,11 @@ const processor = new PushProcessor(
 );
 
 export async function POST(request: Request) {
-  const result = await getUserID(request);
-  if (!result.ok) return result.response;
-
-  const userID = result.userID;
+  const { userID } = getUserIDFromDummyAuth(request);
 
   try {
     const processed = await processor.process(
-      createMutators(userID ? { sub: userID } : undefined),
+      createMutators({ sub: userID ?? "demo-user" }),
       request,
     );
     return NextResponse.json(processed);
@@ -35,40 +32,14 @@ export async function POST(request: Request) {
   }
 }
 
-type GetUserIDResult =
-  | { ok: true; userID?: string }
-  | { ok: false; response: NextResponse };
-
-async function getUserID(request: Request): Promise<GetUserIDResult> {
+function getUserIDFromDummyAuth(request: Request): { userID?: string } {
   const authHeader = request.headers.get("authorization");
-  if (!authHeader) {
-    return { ok: true, userID: undefined };
-  }
-
+  if (!authHeader) return { userID: "demo-user" };
   const prefix = "Bearer ";
-  if (!authHeader.startsWith(prefix)) {
-    return {
-      ok: false,
-      response: NextResponse.json(
-        { error: "Missing or invalid authorization header" },
-        { status: 401 },
-      ),
-    };
-  }
-
-  const token = authHeader.slice(prefix.length);
-  //   const set = await auth.api.getJwks();
-  //   const jwks = jose.createLocalJWKSet(set);
-
-  try {
-    // must(undefined, "Empty sub in token");
-    // const { payload } = await jose.jwtVerify(token, jwks);
-    return { ok: true, userID: must(undefined, "Empty sub in token") };
-  } catch (err) {
-    console.info("Could not verify token: " + (err.message ?? String(err)));
-    return {
-      ok: false,
-      response: NextResponse.json({ error: "Invalid token" }, { status: 401 }),
-    };
-  }
+  if (!authHeader.startsWith(prefix)) return { userID: "demo-user" };
+  const token = authHeader.slice(prefix.length).trim();
+  if (!token) return { userID: "demo-user" };
+  if (token === "dummy-token") return { userID: "demo-user" };
+  // For now accept any token and map to demo user; tighten later
+  return { userID: "demo-user" };
 }

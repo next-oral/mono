@@ -16,7 +16,6 @@
     "dev:db": "pnpm with-env tsx src/scripts/db.ts",
     "dev:zero": "pnpm with-env zero-cache-dev",
     "format": "prettier --check . --ignore-path ../../.gitignore",
-    "seed": "pnpm with-env ../database/src/seed.ts",
     "lint": "eslint",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "with-env": "dotenv -e ../../.env --"

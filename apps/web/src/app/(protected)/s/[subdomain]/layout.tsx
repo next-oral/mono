@@ -31,10 +31,10 @@ export async function GenerateMetadata({
   const { subdomain } = await params;
 
   const queryClient = getQueryClient();
-  const sub = await queryClient.ensureQueryData(
-    trpc.domain.get.queryOptions({ domain: subdomain }),
-  );
-
+  // const sub = await queryClient.ensureQueryData(
+  //   trpc.domain.get.queryOptions({ domain: subdomain }),
+  // );
+  const sub = null;
   if (!sub) {
     return {
       title: env.NEXT_PUBLIC_ROOT_DOMAIN,
@@ -58,11 +58,11 @@ export default async function SubdomainLayout({
 
   const queryClient = getQueryClient();
 
-  const sub = await queryClient.ensureQueryData(
-    trpc.domain.get.queryOptions({ domain: subdomain }),
-  );
+  // const sub = await queryClient.ensureQueryData(
+  //   trpc.domain.get.queryOptions({ domain: subdomain }),
+  // );
 
-  if (!sub) return notFound();
+  // if (!sub) return notFound();
   prefetch(trpc.organization.getAll.queryOptions());
 
   return (

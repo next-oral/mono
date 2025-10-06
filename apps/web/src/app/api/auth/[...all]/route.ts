@@ -1,11 +1,14 @@
 import type { NextRequest } from "next/server";
 
 import { auth } from "~/auth/server";
+import { env } from "~/env";
 
-const ALLOWED_ORIGINS = ["http://localhost:3001", "http://localhost:3000"];
+const ALLOWED_ORIGIN_REGEX = new RegExp(
+  `^(?:http://localhost:300[01]|https://(?:.*\\.)?${env.NEXT_PUBLIC_ROOT_DOMAIN.replace(/\./g, "\\.")}$|https://(?:.*\\.)?nextoral\\.com$|https://(?:.*\\.)?nextoral\\.local$)`,
+);
 
 function setCors(res: Response, origin?: string | null) {
-  const allowed = origin && ALLOWED_ORIGINS.includes(origin) ? origin : "";
+  const allowed = origin && ALLOWED_ORIGIN_REGEX.test(origin) ? origin : "";
   if (allowed) {
     res.headers.set("Access-Control-Allow-Origin", allowed);
   }

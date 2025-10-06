@@ -14,7 +14,7 @@ concurrently([
     prefixColor: "#ff5515",
   },
   {
-    command: `wait-on tcp:${env.DEV_PG_ADDRESS} && sleep 1 && pnpm dev:zero`,
+    command: `wait-on tcp:${env.DEV_PG_ADDRESS} && sleep 2  && pnpm dev:zero`,
     name: "z0",
     prefixColor: "#ff11cc",
   },

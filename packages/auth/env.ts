@@ -12,9 +12,11 @@ export const env = createEnv({
   },
   client: {
     NEXT_PUBLIC_ROOT_DOMAIN: z.string(),
+    NEXT_PUBLIC_SUBDOMAIN: z.string().optional(),
   },
   experimental__runtimeEnv: {
     NEXT_PUBLIC_ROOT_DOMAIN: process.env.NEXT_PUBLIC_ROOT_DOMAIN,
+    NEXT_PUBLIC_SUBDOMAIN: process.env.NEXT_PUBLIC_SUBDOMAIN,
   },
   skipValidation:
     !!process.env.CI || process.env.npm_lifecycle_event === "lint",
