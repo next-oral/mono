@@ -1,0 +1,356 @@
+import type { Modifier } from "@dnd-kit/core";
+
+import type { Appointment, AppointmentGroup } from "../types/calendar";
+import { DAY_MINUTES, SNAP_GRID } from "../components/calendar/constants";
+
+/**
+ * This is used to keep computed minutes or pixel offsets within valid bounds
+ * @param v visual offset
+ * @param a start range
+ * @param b end range
+ * @returns number
+ */
+export function clampBounds(v: number, a: number, b: number) {
+  // (for example, preventing appointment start times or visual offsets from moving
+  // outside the allowed day range or visible area).
+  return Math.max(a, Math.min(b, v));
+}
+
+export function roundToQuarter(minutes: number) {
+  return Math.round(minutes / 15) * 15;
+}
+
+export const snapToGrid: Modifier = ({ transform }) => {
+  const snappedY = Math.round(transform.y / SNAP_GRID) * SNAP_GRID;
+  return { ...transform, y: snappedY };
+};
+
+/**
+ *
+ * @param time takes time in format hh:mm
+ * @returns
+ */
+export function timeToMinutes(time: string) {
+  const [hours, minutes] = time.split(":").map(Number);
+  return Number(hours) * 60 + Number(minutes);
+}
+
+/**
+ *
+ * @param minutes number of minutes
+ * @returns returns in readable format e.g 11:45
+ */
+
+export function minutesToTime(minutes: number) {
+  minutes = clampBounds(Math.round(minutes), 0, DAY_MINUTES - 1);
+  const hh = Math.floor(minutes / 60);
+  const mm = minutes % 60;
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+}
+
+/**
+ *
+ * @param timeString takes a time in this format 11AM
+ * @returns time in 24 hours e.g 13:00
+ */
+/**
+ * Converts a 12-hour time string ("H:MM am/pm") to the corresponding 24-hour integer hour (0-23).
+ *
+ * @param timeString - The 12-hour time string (e.g., "1:30 pm", "12:05 am, 1PM, 12am, 12:00AM").
+ * @returns The 24-hour integer hour (e.g., 13, 0, 15).
+ * @throws {Error} if the time format or value is invalid/out-of-range.
+ */
+export function convert12hTo24h(timeString: string): number {
+  // Regex is fine: (Hour)(optional :Minutes)(AM/PM)
+  const m = /^(\d{1,2})(?::(\d{2}))?\s*(am|pm)$/i.exec(timeString.trim());
+
+  if (!m) {
+    throw new Error(`Invalid 12h time format: ${timeString}`);
+  }
+
+  let hours = Number(m[1]);
+  const minutes = Number(m[2] ?? 0); // Minutes are extracted but ignored for the return value
+  const meridian = m[3]?.toLowerCase();
+
+  // Check hour and minute ranges
+  if (hours < 1 || hours > 12 || minutes < 0 || minutes > 59) {
+    throw new Error(`Out-of-range time: ${timeString}`);
+  }
+
+  // --- CORRECTED PM CONVERSION ---
+  // If PM and not 12 PM (Noon), add 12 to the hour (e.g., 1 PM -> 1 + 12 = 13)
+  if (meridian === "pm" && hours !== 12) {
+    hours += 12;
+  }
+
+  // --- AM CONVERSION (Midnight) ---
+  // If AM and 12 AM (Midnight), hour is 0 (e.g., 12 AM -> 0)
+  if (meridian === "am" && hours === 12) {
+    hours = 0;
+  }
+
+  // All other cases (e.g., 12 PM is 12, 9 AM is 9) fall through correctly.
+  return hours;
+}
+
+/**
+ * Converts a time string from 24-hour format ("HH:MM") to 12-hour format ("h:mm AM/PM").
+ * @param time24hr - The time string in "HH:MM" format (e.g., "14:30").
+ * @returns The time string in "h:mm AM/PM" format (e.g., "2:30 PM").
+ */
+export function convert24hTo12h(time24hr: string): string {
+  // 1. Basic validation to ensure the input is in the expected format (HH:MM)
+  const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+  if (!timeRegex.test(time24hr)) {
+    // You could throw an error here, but for simplicity, we'll return the original string
+    // or a default value if the format is incorrect.
+    console.error(`Invalid time format: ${time24hr}. Expected "HH:MM".`);
+    return time24hr;
+  }
+
+  // 2. Destructure the hours and minutes
+  const [hoursStr, minutes] = time24hr.split(":");
+  const hours = parseInt(String(hoursStr), 10);
+
+  // 3. Determine the AM/PM suffix
+  const ampm = hours >= 12 ? "PM" : "AM";
+
+  // 4. Convert 24-hour number to 12-hour number
+  let hours12 = hours % 12;
+
+  // Handle midnight (00:xx) and noon (12:xx)
+  if (hours12 === 0) {
+    hours12 = 12; // 00:xx becomes 12:xx AM
+  }
+
+  // 5. Construct the final 12-hour string
+  return `${hours12}:${minutes} ${ampm}`;
+}
+
+/**
+ * Calculates the duration between two times in "HH:MM" 24-hour format
+ * and returns a human-readable string (e.g., "2 hours 30 mins" or "45 mins").
+ * * NOTE: This function does not handle durations that span across midnight (i.e., end time is before start time).
+ * @param startTime24hr - The starting time in "HH:MM" format (e.g., "09:30").
+ * @param endTime24hr - The ending time in "HH:MM" format (e.g., "12:00").
+ * @returns A human-readable duration string (e.g., "2 hours 30 mins").
+ */
+export function getScheduleDuration(
+  startTime24hr: string,
+  endTime24hr: string,
+): string {
+  // 1. Convert start and end times to total minutes
+  const startMinutes = timeToMinutes(startTime24hr);
+  const endMinutes = timeToMinutes(endTime24hr);
+
+  // 2. Calculate the difference in minutes
+  const durationMinutes = endMinutes - startMinutes;
+
+  // --- Basic Error/Edge Case Handling ---
+  if (durationMinutes < 0) {
+    // Handle case where end time is before start time on the same day.
+    // If you need to handle cross-day duration, you would add 24 * 60 here.
+    console.warn(
+      `End time (${endTime24hr}) is before start time (${startTime24hr}). Duration is negative.`,
+    );
+    return "Invalid Duration";
+  }
+
+  if (durationMinutes === 0) {
+    return "0 minutes";
+  }
+
+  // 3. Convert total minutes to hours and remaining minutes
+  const hours = Math.floor(durationMinutes / 60);
+  const minutes = durationMinutes % 60;
+
+  // 4. Build the readable output string
+  let result = "";
+
+  if (hours > 0) {
+    // Append hours, correctly pluralized
+    result += `${hours}hr${hours > 1 ? "s" : ""}`;
+  }
+
+  if (minutes > 0) {
+    // If there were hours, add a space before minutes
+    if (result.length > 0) {
+      result += " ";
+    }
+    // Append minutes, correctly pluralized
+    result += `${minutes}m`;
+  }
+
+  return result;
+}
+
+/**
+ *
+ * @param hour takes string in this format hhAM or hhPM
+ * @returns checks of the current time is the same time as passed
+ */
+export function isAmPmThisHour(hour: string) {
+  // Gets the current hour for the day
+  const currentHour = new Date().getHours();
+  const targetHour = convert12hTo24h(hour);
+  return currentHour === targetHour;
+}
+
+/**
+ * Convert input (Date | string) to YYYY-MM-DD in a target timezone.
+ * - If `date` is date-only "YYYY-MM-DD", it is treated as that calendar date (returned normalized).
+ * - If `date` is a datetime string or Date, it is interpreted as an instant and converted to the given tz.
+ *
+ * @param date - input date/time
+ * @param timeZone - IANA timezone like "Africa/Lagos". If omitted, uses the runtime local timezone.
+ * @throws Error on invalid input or unsupported Intl/timeZone (rare).
+ */
+function uniformCalendarDate(date: string | Date, timeZone?: string): string {
+  const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
+
+  // Regex for ISO date-only YYYY-MM-DD
+  const isoDateOnly = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+  // If date is a string and matches YYYY-MM-DD → return normalized (validate)
+  if (typeof date === "string") {
+    const m = isoDateOnly.exec(date);
+    if (m) {
+      const y = Number(m[1]),
+        mm = Number(m[2]),
+        dd = Number(m[3]);
+      // basic validation (month/day ranges; doesn't check month/day existence like Feb 30 thoroughly)
+      const d = new Date(y, mm - 1, dd);
+      if (
+        isNaN(d.getTime()) ||
+        d.getFullYear() !== y ||
+        d.getMonth() + 1 !== mm ||
+        d.getDate() !== dd
+      ) {
+        throw new Error("Invalid date-only string");
+      }
+      // already in YYYY-MM-DD, return normalized zero-padded string
+      return `${y}-${pad(mm)}-${pad(dd)}`;
+    }
+  }
+
+  // Otherwise, parse as an instant
+  let instant: Date;
+  if (typeof date === "string") {
+    instant = new Date(date); // expect ISO full datetime (with offset or Z) ideally
+  } else {
+    instant = new Date(date.getTime());
+  }
+
+  if (isNaN(instant.getTime())) throw new Error("Invalid date/datetime input");
+
+  // Use Intl to format in target timezone and extract parts (year/month/day)
+  // If timeZone omitted, Intl will use runtime local zone.
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: timeZone ?? undefined,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  };
+  const fmt = new Intl.DateTimeFormat("en-CA", options); // en-CA gives YYYY-MM-DD ordering, but we'll extract parts anyway
+  const parts = fmt.formatToParts(instant);
+  const year = parts.find((p) => p.type === "year")?.value;
+  const month = parts.find((p) => p.type === "month")?.value;
+  const day = parts.find((p) => p.type === "day")?.value;
+
+  if (!year || !month || !day) throw new Error("Could not format date parts");
+
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Group appointments for a single day into overlapping groups with a maximum duration cap.
+ *
+ * @param dayISO "YYYY-MM-DD"
+ * @param appointments array of Appointment (may include other dates)
+ * @param maxGroupDurationMinutes default 180 (3 hours)
+ * @param treatTouchingAsOverlap default true (A.end === B.start => overlapping)
+ */
+export function groupAppointmentsForDay(
+  dayISO: string,
+  appointments: Appointment[],
+  maxGroupDurationMinutes = 180,
+  treatTouchingAsOverlap = true,
+): AppointmentGroup[] {
+  // 1. Filter by date
+
+  const dailyAppointments = appointments.filter(
+    (a) => uniformCalendarDate(a.date) === uniformCalendarDate(dayISO),
+  );
+
+  if (dailyAppointments.length === 0) return [];
+
+  // 2. Map to internal objects with minute values
+  type InternalAppointment = Appointment & { startMin: number; endMin: number };
+  const internal: InternalAppointment[] = dailyAppointments.map((a) => ({
+    ...a,
+    startMin: timeToMinutes(a.startTime),
+    endMin: timeToMinutes(a.endTime),
+  }));
+
+  // 3. Sort by startMin asc (stable)
+  internal.sort(
+    (a, b) => a.startMin - b.startMin || a.endMin - b.endMin || a.id - b.id,
+  );
+
+  // 4. Iterate and group
+  interface InternalGroup {
+    startMin: number;
+    endMin: number;
+    appointments: InternalAppointment[];
+  }
+
+  const groups: InternalGroup[] = [];
+
+  for (const appointment of internal) {
+    if (groups.length === 0) {
+      groups.push({
+        startMin: appointment.startMin,
+        endMin: appointment.endMin,
+        appointments: [appointment],
+      });
+      continue;
+    }
+
+    const last = groups[groups.length - 1];
+    const overlapCheck = last
+      ? treatTouchingAsOverlap
+        ? appointment.startMin <= last.endMin
+        : appointment.startMin < last.endMin
+      : false;
+    const proposedEnd = last
+      ? Math.max(last.endMin, appointment.endMin)
+      : appointment.endMin;
+    const proposedSpan = last ? proposedEnd - last.startMin : 0;
+
+    if (last && overlapCheck && proposedSpan <= maxGroupDurationMinutes) {
+      // merge into last group
+      last.endMin = proposedEnd;
+      last.appointments.push(appointment);
+    } else {
+      // start a new group
+      groups.push({
+        startMin: appointment.startMin,
+        endMin: appointment.endMin,
+        appointments: [appointment],
+      });
+    }
+  }
+
+  // 5. Map internal groups back to AppointmentGroup (string times, original appointments)
+  const result: AppointmentGroup[] = groups.map((g) => ({
+    startTime: minutesToTime(g.startMin),
+    endTime: minutesToTime(g.endMin),
+    // return the original Appointment objects (without the internal minute fields)
+    appointments: g.appointments.map(
+      ({ startMin: _startMin, endMin: _endMin, ...orig }) =>
+        orig as Appointment,
+    ),
+  }));
+
+  return result;
+}

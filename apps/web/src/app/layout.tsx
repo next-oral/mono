@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { GeistMono } from "geist/font/mono";
-import { GeistSans } from "geist/font/sans";
+import { Geist } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { Toaster } from "@repo/design/components/ui/sonner";
@@ -15,6 +14,11 @@ import { env } from "~/env";
 import { cn } from "~/lib/utils";
 import { ThemeProvider } from "../providers/theme-provider";
 import { ZeroQueryProvider } from "../providers/zero";
+
+const geistSans = Geist({
+  variable: "--font-sans",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -47,7 +51,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${geistSans.variable}`}
+    >
       <head>
         {/* <script
           crossOrigin="anonymous"
@@ -56,9 +64,8 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       </head>
       <body
         className={cn(
-          "bg-background text-foreground min-h-screen font-sans antialiased",
-          GeistSans.variable,
-          GeistMono.variable,
+          "bg-background text-foreground min-h-screen antialiased",
+          geistSans.variable,
         )}
       >
         <ThemeProvider

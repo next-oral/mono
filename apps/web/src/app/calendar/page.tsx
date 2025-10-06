@@ -1,9 +1,14 @@
-import { Calendar, CalendarHeader } from "@repo/design/src/components/calendar/calendar";
+import {
+  Calendar,
+  CalendarBody,
+  CalendarHeader,
+} from "@repo/design/src/components/calendar/calendar";
 
 export default function CalendarPage() {
   return (
     <Calendar>
       <CalendarHeader />
+      <CalendarBody />
     </Calendar>
   );
-};
+}

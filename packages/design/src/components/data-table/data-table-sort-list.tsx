@@ -97,7 +97,7 @@ export function DataTableSortList<TData>({
   const onSortUpdate = React.useCallback(
     (sortId: string, updates: Partial<ColumnSort>) => {
       onSortingChange((prevSorting) => {
-        if (!prevSorting) return prevSorting;
+        // if (!prevSorting) return prevSorting;
         return prevSorting.map((sort) =>
           sort.id === sortId ? { ...sort, ...updates } : sort,
         );

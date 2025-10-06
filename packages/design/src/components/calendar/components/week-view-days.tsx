@@ -1,40 +1,52 @@
-import { startOfWeek, endOfWeek, eachDayOfInterval, isToday } from "date-fns";
-import { useCalendarStore } from "../store/store";
+import { isToday } from "date-fns";
+
 import { cn } from "@repo/design/lib/utils";
 
+import { COLUMN_WIDTH } from "../constants";
+import { useCalendarStore } from "../store/store";
+
+/**
+ * This Shows the days and Dates on the header of the week view calender usually in this format (MON 17)
+ * @returns
+ */
+
 export const WeekViewDays = () => {
-    const namesOfDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const { currentDate } = useCalendarStore();
+  const namesOfDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const getWeekDates = useCalendarStore((state) => state.getWeekDates);
 
-    function getWeekDates() {
-        const startDate = startOfWeek(currentDate, { weekStartsOn: 1 });
-        const endDate = endOfWeek(currentDate, { weekStartsOn: 1 });
-
-        const week = eachDayOfInterval({
-            start: startDate,
-            end: endDate,
-        });
-
-        return week;
-    }
-
-    const weekDates = getWeekDates();
-
-    return (
-        <div className="flex items-center sticky top-0 bg-background z-10">
-            <div className="w-12"></div>
-            <div className="flex-1 grid grid-cols-7 gap-px">
-                {weekDates.map((date, index) => (
-                    <div key={index} className={cn("text-center py-2 border border-primary/5", { "bg-primary/20": isToday(date) })}>
-                        <div className={cn("flex flex-col items-center")}>
-                            <span className={cn("text-xs font-medium text-muted-foreground", { "text-primary": isToday(date) })}>
-                                {namesOfDays[index]} {date.getDate()}
-                            </span>
-                            {isToday(date) && <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1"></div>}
-                        </div>
-                    </div>
-                ))}
+  const weekDates = getWeekDates();
+  return (
+    <div className="bg-background sticky top-0 z-20 flex items-center">
+      <div className="text-primary w-12 text-xs">Days</div>
+      <div className="flex flex-1 flex-row">
+        {weekDates.map((date, index) => (
+          <div
+            key={index}
+            className={cn(
+              "border-secondary-foreground/10 flex-1 border-y text-center",
+              { "bg-blue-50 dark:bg-blue-950": isToday(date) },
+            )}
+            style={{ width: `${COLUMN_WIDTH}px` }}
+          >
+            <div
+              className={cn(
+                "border-secondary-foreground/10 flex h-8 w-full flex-col items-center justify-center overflow-y-hidden border-l text-xs font-medium capitalize",
+              )}
+            >
+              <span
+                className={cn("text-muted-foreground text-xs font-medium", {
+                  "text-primary": isToday(date),
+                })}
+              >
+                {namesOfDays[index]} {date.getDate()}
+              </span>
+              {isToday(date) && (
+                <div className="bg-primary mt-1 h-1.5 w-1.5 rounded-sm"></div>
+              )}
             </div>
-        </div>
-    );
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
