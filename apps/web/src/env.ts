@@ -27,6 +27,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SUBDOMAIN: z.string().optional(),
     NEXT_PUBLIC_ROOT_DOMAIN: z.string(),
     NEXT_PUBLIC_PROTOCOL: z.string(),
+    NEXT_PUBLIC_ZERO_SERVER_URL: z.string(),
   },
   /**
    * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
@@ -36,7 +37,7 @@ export const env = createEnv({
     NEXT_PUBLIC_PROTOCOL: process.env.NEXT_PUBLIC_PROTOCOL,
     NEXT_PUBLIC_ROOT_DOMAIN: process.env.NEXT_PUBLIC_ROOT_DOMAIN,
     NODE_ENV: process.env.NODE_ENV,
-
+    NEXT_PUBLIC_ZERO_SERVER_URL: process.env.NEXT_PUBLIC_ZERO_SERVER_URL,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   skipValidation:

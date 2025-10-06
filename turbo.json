@@ -14,6 +14,10 @@
       "cache": false,
       "persistent": false
     },
+    "zero:dev": {
+      "cache": false,
+      "persistent": true
+    },
     "format": {
       "outputs": [".cache/.prettiercache"],
       "outputLogs": "new-only"
@@ -60,7 +64,10 @@
     "MICROSOFT_CLIENT_ID",
     "MICROSOFT_CLIENT_SECRET",
     "NEXT_PUBLIC_ROOT_DOMAIN",
-    "NODE_ENV"
+    "NODE_ENV",
+    "DEV_PG_PASSWORD",
+    "DEV_PG_ADDRESS",
+    "DEV_PG_PORT"
   ],
   "globalPassThroughEnv": [
     "NODE_ENV",
