@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useQuery, useZero } from "@rocicorp/zero/react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 
+import type { Mutators } from "@repo/zero/src/mutators";
+import type { Schema } from "@repo/zero/src/schema";
 import { Button } from "@repo/design/components/ui/button";
 import { ScrollArea } from "@repo/design/components/ui/scroll-area";
 import {
@@ -13,8 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/design/components/ui/select";
-import { Mutators } from "@repo/zero/src/mutators";
-import { Schema } from "@repo/zero/src/schema";
 
 import { cn } from "~/lib/utils";
 
