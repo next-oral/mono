@@ -1,5 +1,7 @@
 import {
   add,
+  addMinutes,
+  format,
   getHours,
   getMinutes,
   getTime,
@@ -8,7 +10,8 @@ import {
   startOfToday,
 } from "date-fns";
 
-import type { Appointment, AppointmentGroup } from "./types";
+import type { Appointment, AppointmentGroup, HighlightRect } from "./types";
+import { MINUTES_PER_SLOT } from "./constants";
 
 /**
  * Group appointments for a single day into overlapping groups with a maximum duration cap.
@@ -116,9 +119,25 @@ export function groupAppointmentsForDay(
   return result;
 }
 
-function timeToMinutes(time: string) {
-  const [hours, minutes] = time.split(":").map(Number);
-  return Number(hours) * 60 + Number(minutes);
-}
+export function getHighlightTimes(
+  highlight: HighlightRect,
+  slotHeightPx = 25,
+  date: Date,
+) {
+  if (!highlight) return null;
 
-console.log(timeToMinutes("24:10"));
+  const startMinutes = (highlight.top / slotHeightPx) * MINUTES_PER_SLOT;
+  const endMinutes =
+    ((highlight.top + highlight.height) / slotHeightPx) * MINUTES_PER_SLOT;
+
+  const dayStart = startOfDay(date);
+  const startDate = addMinutes(dayStart, startMinutes);
+  const endDate = addMinutes(dayStart, endMinutes);
+
+  return {
+    startDate,
+    endDate,
+    startStr: format(startDate, "h:mm a"),
+    endStr: format(endDate, "h:mm a"),
+  };
+}

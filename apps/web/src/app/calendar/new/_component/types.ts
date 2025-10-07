@@ -4,6 +4,7 @@ export interface Appointment {
   id: number;
   dentistId: number;
   patientId: string;
+  patientName: string;
   description: string;
   startTime: string;
   endTime: string;
@@ -76,3 +77,5 @@ export const colors = {
 } as const;
 
 export type Color = keyof typeof colors;
+
+export type HighlightRect = { top: number; height: number } | null;

@@ -21,7 +21,7 @@ catalogs:
     "@types/react-dom": ^19.0.4
 onlyBuiltDependencies:
   - "@rocicorp/zero-sqlite3"
-  - core-js-pure
+  # - core-js-pure
   - esbuild
 
 overrides:

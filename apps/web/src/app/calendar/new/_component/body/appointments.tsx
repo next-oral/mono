@@ -26,6 +26,7 @@ import type { Appointment, AppointmentGroup } from "../types";
 import { dentists, MINUTES_PER_SLOT, SLOT_HEIGHT_PX } from "../constants";
 import { useCalendarStore } from "../store";
 import { colors } from "../types";
+import { AppointmentDetailsBody } from "./appointment-detail";
 
 function computePositionAndSize(startISO: string, endISO: string) {
   const start = new Date(startISO);
@@ -244,17 +245,17 @@ export function WeekViewAppointmentCard({
           <DialogDescription className="sr-only"></DialogDescription>
         </DialogHeader>
 
-        {/* {group.appointments[appointmentStep] ? (
+        {group.appointments[appointmentStep] ? (
           <AppointmentDetailsBody
             appointment={group.appointments[appointmentStep]}
-            dentistForThisAppointment={dentistSample.find(
+            dentistForThisAppointment={dentists.find(
               (d) => d.id === group.appointments[appointmentStep]?.dentistId,
             )}
-            patientNote={patientNote}
+            patientNote={group.appointments[appointmentStep].description}
           />
         ) : (
           <div>No appointment details available.</div>
-        )} */}
+        )}
 
         <DialogFooter className="flex flex-row flex-wrap justify-between px-2 sm:px-4">
           <div className="flex items-center gap-1 text-sm">

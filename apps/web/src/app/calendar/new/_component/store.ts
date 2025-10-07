@@ -1,6 +1,11 @@
 import { create } from "zustand";
 
-import type { Appointment, CalendarView, Dentist } from "./types";
+import type {
+  Appointment,
+  CalendarView,
+  Dentist,
+  HighlightRect,
+} from "./types";
 import { appointments, dentists } from "./constants";
 
 interface CalendarState {
@@ -19,11 +24,27 @@ interface CalendarState {
 
   appointments: Appointment[];
   updateAppointment: (appointment: Appointment) => void;
+
+  highlight: { dentistId: string | number; rect: HighlightRect };
+  setHighlight: (dentistId: string | number, rect: HighlightRect) => void;
+
+  setHighlightBySlots: (
+    startSlot: number,
+    endSlot: number,
+    slotHeightPx: number,
+  ) => void;
+  clearHighlight: () => void;
+
+  showNewAppointmentDialog: boolean;
+  setShowNewAppointmentDialog: (state: boolean) => void;
 }
 
 export const useCalendarStore = create<CalendarState>((set) => ({
   currentDate: new Date(),
   setCurrentDate: (date) => set({ currentDate: date }),
+  showNewAppointmentDialog: false,
+  setShowNewAppointmentDialog: (state) =>
+    set({ showNewAppointmentDialog: state }),
 
   calendarView: "day",
   setCalendarView: (view) => set({ calendarView: view }),
@@ -47,4 +68,22 @@ export const useCalendarStore = create<CalendarState>((set) => ({
         a.id === appointment.id ? appointment : a,
       ),
     })),
+
+  highlight: { dentistId: "", rect: null },
+  setHighlight(dentistId, rect) {
+    set({ highlight: { dentistId, rect } });
+  },
+
+  // convenience: build rect from slot indexes (inclusive)
+  setHighlightBySlots(startSlot, endSlot, slotHeightPx) {
+    const topSlot = Math.min(startSlot, endSlot);
+    const bottomSlot = Math.max(startSlot, endSlot);
+    const top = topSlot * slotHeightPx;
+    const height = (bottomSlot - topSlot + 1) * slotHeightPx; // inclusive
+    set({ highlight: { rect: { top, height }, dentistId: "" } });
+  },
+
+  clearHighlight() {
+    set({ highlight: { dentistId: "", rect: null } });
+  },
 }));
