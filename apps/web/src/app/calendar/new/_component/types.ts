@@ -1,5 +1,11 @@
 export type CalendarView = "day" | "week";
 
+export interface Patient {
+  id: string;
+  name: string;
+  avatar: string;
+}
+
 export interface Appointment {
   id: number;
   dentistId: number;

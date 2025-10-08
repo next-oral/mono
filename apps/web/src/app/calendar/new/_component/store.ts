@@ -25,8 +25,16 @@ interface CalendarState {
   appointments: Appointment[];
   updateAppointment: (appointment: Appointment) => void;
 
-  highlight: { dentistId: string | number; rect: HighlightRect };
-  setHighlight: (dentistId: string | number, rect: HighlightRect) => void;
+  highlight: {
+    dentistId: string | number;
+    currentDate: Date;
+    rect: HighlightRect;
+  };
+  setHighlight: (
+    dentistId: string | number,
+    currentDate: Date,
+    rect: HighlightRect,
+  ) => void;
 
   setHighlightBySlots: (
     startSlot: number,
@@ -69,9 +77,9 @@ export const useCalendarStore = create<CalendarState>((set) => ({
       ),
     })),
 
-  highlight: { dentistId: "", rect: null },
-  setHighlight(dentistId, rect) {
-    set({ highlight: { dentistId, rect } });
+  highlight: { dentistId: "", currentDate: new Date(), rect: null },
+  setHighlight(dentistId, currentDate, rect) {
+    set({ highlight: { dentistId, currentDate, rect } });
   },
 
   // convenience: build rect from slot indexes (inclusive)
@@ -80,10 +88,16 @@ export const useCalendarStore = create<CalendarState>((set) => ({
     const bottomSlot = Math.max(startSlot, endSlot);
     const top = topSlot * slotHeightPx;
     const height = (bottomSlot - topSlot + 1) * slotHeightPx; // inclusive
-    set({ highlight: { rect: { top, height }, dentistId: "" } });
+    set({
+      highlight: {
+        rect: { top, height },
+        currentDate: new Date(),
+        dentistId: "",
+      },
+    });
   },
 
   clearHighlight() {
-    set({ highlight: { dentistId: "", rect: null } });
+    set({ highlight: { dentistId: "", currentDate: new Date(), rect: null } });
   },
 }));

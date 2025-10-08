@@ -1,4 +1,4 @@
-import type { Appointment } from "./types";
+import type { Appointment, Patient } from "./types";
 
 export const SLOT_HEIGHT_PX = 24; // keep in sync with the row height (min-h-6 ≈ 24px)
 export const MINUTES_PER_SLOT = 15;
@@ -245,3 +245,21 @@ export const appointments = [
     color: "teal",
   },
 ] satisfies Appointment[];
+
+export const patients = [
+  {
+    id: "1",
+    name: "Mavins Bernado",
+    avatar: "https://github.com/shadcn.png",
+  },
+  {
+    id: "2",
+    name: "Sarah Johnson",
+    avatar: "https://github.com/shadcn.png",
+  },
+  {
+    id: "3",
+    name: "Michael Chen",
+    avatar: "https://github.com/evilrabbit.png",
+  },
+] satisfies Patient[];

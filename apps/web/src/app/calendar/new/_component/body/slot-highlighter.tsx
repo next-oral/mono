@@ -11,6 +11,7 @@ import {
 
 import { SLOT_HEIGHT_PX } from "../constants";
 import { useCalendarStore } from "../store";
+import { getTimeStringFromTop } from "../utils";
 
 const HOLD_MS = 300; // the 300ms threshold
 const MOVE_CANCEL_PX = 6; // small move cancels the hold before it arms
@@ -35,7 +36,6 @@ export function SlotHighlighter({
   const setShowNewAppointmentDialog = useCalendarStore(
     (state) => state.setShowNewAppointmentDialog,
   );
-  const clearHighlight = useCalendarStore((state) => state.clearHighlight);
 
   // minutes per slot = 15 (by design)
   const MINUTES_PER_SLOT = 15;
@@ -61,23 +61,6 @@ export function SlotHighlighter({
     const top = slotIndexToTopPx(topSlot);
     const height = (bottomSlot - topSlot + 1) * SLOT_HEIGHT_PX; // inclusive of last slot
     return { top, height };
-  }
-  function getTimeStringFromTop(topPx: number | null, heightPx: number | null) {
-    if (!isNaN(Number(topPx)) && !isNaN(Number(heightPx))) {
-      const startMinutes = (Number(topPx) / SLOT_HEIGHT_PX) * MINUTES_PER_SLOT;
-      const endMinutes =
-        ((Number(topPx) + heightPx!) / SLOT_HEIGHT_PX) * MINUTES_PER_SLOT;
-      console.log(startMinutes, endMinutes);
-
-      const dayStart = startOfDay(currentDate);
-      const startDate = addMinutes(dayStart, startMinutes);
-      const endDate = addMinutes(dayStart, endMinutes);
-
-      return {
-        startStr: format(startDate, "h:mm a"),
-        endStr: format(endDate, "h:mm a"),
-      };
-    }
   }
 
   function clearHoldTimer() {
@@ -115,7 +98,7 @@ export function SlotHighlighter({
       const slot = yToSlotIndex(localY);
       startSlotRef.current = slot;
       const r = slotRangeToRect(slot, slot);
-      setHighlight(currentDentistId, r);
+      setHighlight(currentDentistId, currentDate, r);
     }, HOLD_MS);
 
     // prevent text selection / native drag
@@ -151,7 +134,7 @@ export function SlotHighlighter({
     if (armedRef.current && startSlotRef.current !== null) {
       const slot = yToSlotIndex(localY);
       const r = slotRangeToRect(startSlotRef.current, slot);
-      setHighlight(currentDentistId, r);
+      setHighlight(currentDentistId, currentDate, r);
       e.preventDefault();
     }
   }
@@ -188,6 +171,7 @@ export function SlotHighlighter({
     ? getTimeStringFromTop(
         Number(highlight.rect?.top),
         Number(highlight.rect?.height),
+        currentDate,
       )
     : null;
 

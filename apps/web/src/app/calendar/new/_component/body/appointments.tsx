@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { addMinutes, format, formatISO } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 import {
   Avatar,
@@ -26,18 +26,8 @@ import type { Appointment, AppointmentGroup } from "../types";
 import { dentists, MINUTES_PER_SLOT, SLOT_HEIGHT_PX } from "../constants";
 import { useCalendarStore } from "../store";
 import { colors } from "../types";
+import { computePositionAndSize } from "../utils";
 import { AppointmentDetailsBody } from "./appointment-detail";
-
-function computePositionAndSize(startISO: string, endISO: string) {
-  const start = new Date(startISO);
-  const end = new Date(endISO);
-  const startMinutes = start.getHours() * 60 + start.getMinutes();
-  const endMinutes = end.getHours() * 60 + end.getMinutes();
-  const durationMinutes = Math.max(0, endMinutes - startMinutes);
-  const topPx = (startMinutes / MINUTES_PER_SLOT) * SLOT_HEIGHT_PX;
-  const heightPx = (durationMinutes / MINUTES_PER_SLOT) * SLOT_HEIGHT_PX;
-  return { topPx, heightPx };
-}
 
 export function DayViewAppointmentCard({
   appointment,
@@ -72,8 +62,6 @@ export function DayViewAppointmentCard({
     const observer = new ResizeObserver((_entries, _observer) => {
       setIsResizing(true);
 
-      console.log("resizing");
-
       clearTimeout(timeout);
       timeout = window.setTimeout(() => setIsResizing(false), 250);
 
@@ -106,29 +94,43 @@ export function DayViewAppointmentCard({
   const color = colors[appointment.color];
 
   return (
-    <div
-      ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-      className={cn(
-        "absolute z-10 flex cursor-grab resize-y gap-1 overflow-y-auto rounded border p-1 text-xs active:cursor-grabbing",
-        color.bg,
-      )}
-      style={{
-        top: `${adjustedTopPx + offset}px`,
-        height: `${heightPx - 2 * offset}px`,
-        left: `${offset}px`,
-        right: `${offset}px`,
-        maxWidth: `calc(100% - ${2 * offset}px)`, // Ensure it doesn't exceed column width
-        transform: transform
-          ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-          : undefined,
-        opacity: isDragging ? 0.9 : 1,
-      }}
-    >
-      <div className={cn("h-full w-1 rounded-full", color.accent)} />
-      {appointment.description}
-    </div>
+    <Dialog>
+      <DialogTrigger asChild>
+        <div
+          ref={setNodeRef}
+          {...attributes}
+          {...listeners}
+          className={cn(
+            "absolute z-10 flex cursor-pointer resize-y gap-1 overflow-y-auto rounded border p-1 text-xs active:z-13 active:cursor-grabbing",
+            color.bg,
+          )}
+          style={{
+            top: `${adjustedTopPx + offset}px`,
+            height: `${heightPx - 2 * offset}px`,
+            left: `${offset}px`,
+            right: `${offset}px`,
+            maxWidth: `calc(100% - ${2 * offset}px)`, // Ensure it doesn't exceed column width
+            transform: transform
+              ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+              : undefined,
+            opacity: isDragging ? 0.9 : 1,
+          }}
+        >
+          <div className={cn("h-full w-1 rounded-full", color.accent)} />
+          <div className="">
+            <h4 className="flex items-center gap-1 text-xs">
+              {format(appointment.startTime, "h:mm a")}{" "}
+              <ArrowRight className="size-2" />
+              {format(appointment.endTime, "h:mm a")}
+            </h4>
+            {appointment.description}
+          </div>
+        </div>
+      </DialogTrigger>
+      <DialogContent className="px-0">
+        <AppointmentDetailsBody appointment={appointment} />
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -215,7 +217,9 @@ export function WeekViewAppointmentCard({
             {/* {showFullInfo ? ( */}
             <div className="flex flex-col justify-between">
               <div className="flex flex-col gap-1">
-                <h4 className="text-xs leading-tight font-medium">{text}</h4>
+                <h4 className="truncate text-xs leading-tight font-medium">
+                  {text}
+                </h4>
                 <p className="text-[12px] leading-tight font-medium opacity-50">
                   {duration}
                 </p>
@@ -223,16 +227,6 @@ export function WeekViewAppointmentCard({
 
               {getDentistAvatar()}
             </div>
-            {/* ) : (
-              <div className="flex flex-col gap-1">
-                <h4 className="text-xs leading-tight font-medium">
-                  {truncateText(text, 15)}
-                </h4>
-                <p className="text-[12px] leading-tight font-medium opacity-50">
-                  {truncateText(duration, 15)}
-                </p>
-              </div>
-            )} */}
           </div>
         </div>
       </DialogTrigger>
@@ -248,10 +242,6 @@ export function WeekViewAppointmentCard({
         {group.appointments[appointmentStep] ? (
           <AppointmentDetailsBody
             appointment={group.appointments[appointmentStep]}
-            dentistForThisAppointment={dentists.find(
-              (d) => d.id === group.appointments[appointmentStep]?.dentistId,
-            )}
-            patientNote={group.appointments[appointmentStep].description}
           />
         ) : (
           <div>No appointment details available.</div>

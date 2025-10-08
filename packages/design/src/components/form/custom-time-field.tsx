@@ -9,6 +9,7 @@ import type { ClassValue } from "class-variance-authority/types";
 import type React from "react";
 import type { Control, FieldValues, Path } from "react-hook-form";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { format, parse } from "date-fns";
 import { Check, ChevronDown, ChevronUp, Clock, X } from "lucide-react";
 
 import { Button } from "@repo/design/components/ui/button";
@@ -383,7 +384,7 @@ function TimePicker({
   const minutes = Array.from({ length: 60 }, (_, i) => i);
 
   useEffect(() => {
-    const date = parseTime(initialTime);
+    const date = parse(initialTime, "h:mm aa", new Date());
     let hours = date.getHours();
     const minutes = date.getMinutes();
     const ampm = hours >= 12 ? "PM" : "AM";
@@ -404,7 +405,7 @@ function TimePicker({
     }
     const date = new Date();
     date.setHours(finalHours, selectedMinute, 0, 0);
-    onSelect(formatTime(date));
+    onSelect(format(date, "h:mm aa"));
   };
 
   return (

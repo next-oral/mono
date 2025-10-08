@@ -18,24 +18,21 @@ import {
 } from "@repo/design/components/ui/avatar";
 import { Button } from "@repo/design/components/ui/button";
 import { ScrollArea } from "@repo/design/components/ui/scroll-area";
-import {
-  convert24hTo12h,
-  getScheduleDuration,
-} from "@repo/design/lib/calendar";
 import { cn } from "@repo/design/lib/utils";
 
 import type { Appointment, Dentist } from "../types";
+import { dentists } from "../constants";
 
 interface AppointmentDetailsBodyProps {
   appointment: Appointment;
-  dentistForThisAppointment: Dentist | undefined;
-  patientNote: string;
+  // dentistForThisAppointment: Dentist | undefined;
+  // patientNote: string;
 }
 
 export function AppointmentDetailsBody({
   appointment,
-  dentistForThisAppointment,
-  patientNote,
+  // dentistForThisAppointment,
+  // patientNote,
 }: AppointmentDetailsBodyProps) {
   const [noteExtended, setIsNoteExtended] = useState(false);
   const options: Intl.DateTimeFormatOptions = {
@@ -66,6 +63,10 @@ export function AppointmentDetailsBody({
     end: appointment.endTime,
   });
   const scheduleDuration = `${interval.days ? interval.days + "D" : ""} ${interval.hours ? interval.hours + "h" : ""} ${interval.minutes ? interval.minutes + "m" : ""}`;
+
+  const dentistForThisAppointment = dentists.find(
+    (d) => d.id === appointment?.dentistId,
+  );
 
   return (
     <ScrollArea className="max-h-[80vh]">
@@ -164,7 +165,10 @@ export function AppointmentDetailsBody({
                 "text-xs opacity-80 transition-all duration-700 ease-in-out",
               )}
             >
-              {patientNote.slice(0, noteExtended ? patientNote.length : 220)}
+              {appointment.description.slice(
+                0,
+                noteExtended ? appointment.description.length : 220,
+              )}
             </p>
             <div
               className={cn(

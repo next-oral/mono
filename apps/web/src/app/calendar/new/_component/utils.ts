@@ -1,17 +1,39 @@
-import {
-  add,
-  addMinutes,
-  format,
-  getHours,
-  getMinutes,
-  getTime,
-  isSameDay,
-  startOfDay,
-  startOfToday,
-} from "date-fns";
+import { add, addMinutes, format, isSameDay, startOfDay } from "date-fns";
 
-import type { Appointment, AppointmentGroup, HighlightRect } from "./types";
-import { MINUTES_PER_SLOT } from "./constants";
+import type { Appointment, AppointmentGroup } from "./types";
+import { MINUTES_PER_SLOT, SLOT_HEIGHT_PX } from "./constants";
+
+export function computePositionAndSize(startISO: string, endISO: string) {
+  const start = new Date(startISO);
+  const end = new Date(endISO);
+  const startMinutes = start.getHours() * 60 + start.getMinutes();
+  const endMinutes = end.getHours() * 60 + end.getMinutes();
+  const durationMinutes = Math.max(0, endMinutes - startMinutes);
+  const topPx = (startMinutes / MINUTES_PER_SLOT) * SLOT_HEIGHT_PX;
+  const heightPx = (durationMinutes / MINUTES_PER_SLOT) * SLOT_HEIGHT_PX;
+  return { topPx, heightPx };
+}
+
+export function getTimeStringFromTop(
+  topPx: number | null,
+  heightPx: number | null,
+  currentDate: Date,
+) {
+  if (!isNaN(Number(topPx)) && !isNaN(Number(heightPx))) {
+    const startMinutes = (Number(topPx) / SLOT_HEIGHT_PX) * MINUTES_PER_SLOT;
+    const endMinutes =
+      ((Number(topPx) + heightPx!) / SLOT_HEIGHT_PX) * MINUTES_PER_SLOT;
+
+    const dayStart = startOfDay(currentDate);
+    const startDate = addMinutes(dayStart, startMinutes);
+    const endDate = addMinutes(dayStart, endMinutes);
+
+    return {
+      startStr: format(startDate, "h:mm a"),
+      endStr: format(endDate, "h:mm a"),
+    };
+  }
+}
 
 /**
  * Group appointments for a single day into overlapping groups with a maximum duration cap.
@@ -98,7 +120,6 @@ export function groupAppointmentsForDay(
 
   // 5. Map internal groups back to AppointmentGroup (string times, original appointments)
   const result: AppointmentGroup[] = groups.map((g) => {
-    console.log(g.startMin, g.endMin);
     const startTime = startOfDay(dayISO);
 
     return {
@@ -117,27 +138,4 @@ export function groupAppointmentsForDay(
   });
 
   return result;
-}
-
-export function getHighlightTimes(
-  highlight: HighlightRect,
-  slotHeightPx = 25,
-  date: Date,
-) {
-  if (!highlight) return null;
-
-  const startMinutes = (highlight.top / slotHeightPx) * MINUTES_PER_SLOT;
-  const endMinutes =
-    ((highlight.top + highlight.height) / slotHeightPx) * MINUTES_PER_SLOT;
-
-  const dayStart = startOfDay(date);
-  const startDate = addMinutes(dayStart, startMinutes);
-  const endDate = addMinutes(dayStart, endMinutes);
-
-  return {
-    startDate,
-    endDate,
-    startStr: format(startDate, "h:mm a"),
-    endStr: format(endDate, "h:mm a"),
-  };
 }
