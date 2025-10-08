@@ -40,16 +40,15 @@ export const toothName = [
 
 async function seed() {
   const {
-    account,
-    user,
+    // account,
+    // user,
     verification,
     session,
-    team,
-    teamMember,
-    organization,
     invitation,
-    member,
     waitlist,
+    // team,
+    // teamMember,
+    // member,
     ...schema
   } = drizzleSchema;
 
@@ -62,26 +61,63 @@ async function seed() {
     await drizzleReset(db, schema);
 
     await drizzleSeed(db, schema).refine((funcs) => ({
+      // Seed base orgs to satisfy FK orgId on dependent tables
+      team: {
+        count: 3,
+        columns: {
+          createdAt: funcs.date(),
+        },
+      },
+      user: {
+        count: 3,
+        columns: {
+          name: funcs.fullName(),
+          createdAt: funcs.date(),
+        },
+      },
+      teamMember: {
+        count: 3,
+        columns: {
+          createdAt: funcs.date(),
+        },
+      },
+      member: {
+        count: 3,
+        columns: {
+          createdAt: funcs.date(),
+        },
+      },
+
+      organization: {
+        count: 3,
+        columns: {
+          createdAt: funcs.date(),
+        },
+      },
       patient: {
         count: 800,
         columns: {
+          dob: funcs.date({ minDate: "1900-01-01", maxDate: "2010-12-31" }),
           phone: funcs.phoneNumber({ template: "(###) ###-####" }),
         },
       },
       address: {
         count: 800,
         columns: {
-          zip: funcs.postcode(),
+          zipCode: funcs.postcode(),
           state: funcs.state(),
           city: funcs.city(),
           street: funcs.streetAddress(),
+          country: funcs.country(),
         },
       },
       appointment: {
         count: 2000,
         columns: {
-          time: funcs.date(),
-          notes: funcs.loremIpsum(),
+          start: funcs.date({ minDate: "2025-01-01", maxDate: "2026-12-31" }),
+          end: funcs.date({ minDate: "2025-01-01", maxDate: "2026-12-31" }),
+          note: funcs.loremIpsum(),
+          description: funcs.loremIpsum(),
         },
       },
       clinicalNote: {

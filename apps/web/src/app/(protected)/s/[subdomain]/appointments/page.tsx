@@ -1,249 +1,185 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery, useZero } from "@rocicorp/zero/react";
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import type { DragEndEvent } from "@dnd-kit/core";
+import { useEffect } from "react";
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { restrictToFirstScrollableAncestor } from "@dnd-kit/modifiers";
+import { useZero } from "@rocicorp/zero/react";
 
 import type { Mutators } from "@repo/zero/src/mutators";
-import type { Schema } from "@repo/zero/src/schema";
-import { Button } from "@repo/design/components/ui/button";
-import { ScrollArea } from "@repo/design/components/ui/scroll-area";
+import type { Appointment, Schema } from "@repo/zero/src/schema";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/design/components/ui/select";
+  ScrollArea,
+  ScrollBar,
+} from "@repo/design/src/components/ui/scroll-area";
 
-import { cn } from "~/lib/utils";
+import { authClient } from "~/auth/client";
+import { useZeroQuery } from "~/providers/zero";
+import { DayView } from "./_component/body/day-view";
+import { TimeLabels } from "./_component/body/time-labels";
+import { WeekView } from "./_component/body/week-view";
+import { MINUTES_PER_SLOT, SLOT_HEIGHT_PX } from "./_component/constants";
+import { CalendarHeader } from "./_component/header";
+import { buildQuery } from "./_component/query";
+import { useCalendarStore } from "./_component/store";
 
-export default function AppointmentsPage() {
-  const [selectedView, setSelectedView] = useState<"Day" | "Week">("Day");
-  const [selectedDentist, setSelectedDentist] = useState("All dentists");
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 11)); // June 11, 2025
+function checkAppointmentOverlap(
+  first: Appointment,
+  second: Appointment,
+): boolean {
+  const start1 = first.start;
+  const end1 = first.end;
+  const start2 = second.start;
+  const end2 = second.end;
 
-  const timeSlots = [
-    "12 AM",
-    "1 AM",
-    "2 AM",
-    "3 AM",
-    "4 AM",
-    "5 AM",
-    "6 AM",
-    "7 AM",
-    "8 AM",
-    "9 AM",
-    "10 AM",
-    "11 AM",
-    "12 PM",
-    "1 PM",
-    "2 PM",
-    "3 PM",
-    "4 PM",
-    "5 PM",
-    "6 PM",
-    "7 PM",
-    "8 PM",
-    "9 PM",
-    "10 PM",
-    "11 PM",
-  ];
-  // Todo: Fix day dates
-  const getWeekDates = (date: Date) => {
-    const week = [];
-    const startOfWeek = new Date(date);
-    const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Monday start
-    startOfWeek.setDate(diff);
+  // Check if appointments overlap
+  // Two appointments overlap if one starts before the other ends
+  return start1 < end2 && start2 < end1;
+}
 
-    for (let i = 0; i < 7; i++) {
-      const weekDate = new Date(startOfWeek);
-      weekDate.setDate(startOfWeek.getDate() + i);
-      week.push(weekDate);
+function hasCollision(
+  newAppointment: Appointment,
+  existingAppointments: Appointment[],
+): boolean {
+  return existingAppointments.some((existing) => {
+    // Skip the same appointment (when moving within the same dentist)
+    if (existing.id === newAppointment.id) return false;
+
+    // console.log("existing", existing);
+
+    // Only check appointments for the same dentist
+    if (existing.dentistId !== newAppointment.dentistId) return false;
+
+    const result = checkAppointmentOverlap(newAppointment, existing);
+    if (result) {
+      console.log("result", result, newAppointment, existing);
     }
-    return week;
-  };
+    return result;
+  });
+}
 
-  const weekDates = getWeekDates(currentDate);
-  const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+export default function AppointmentPage() {
+  return <Calendar />;
+}
 
-  const formatDate = (date: Date) => {
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    };
-    return date.toLocaleDateString("en-US", options);
-  };
-
-  const isToday = (date: Date) => {
-    const today = new Date();
-    return date.toDateString() === today.toDateString();
-  };
-
+function Calendar() {
   const z = useZero<Schema, Mutators>();
+  const { data: activeOrganization } = authClient.useActiveOrganization();
+  const { data: organizations } = authClient.useListOrganizations();
+  const orgId = activeOrganization?.id ?? organizations?.[0]?.id ?? "";
 
-  const [dentists, { type: dentistsType }] = useQuery(z.query.dentist);
-  const [appointments, { type }] = useQuery(
-    z.query.appointment.where(({ cmp, or }) => {
-      return or(
-        cmp("dentistId", "=", selectedDentist),
-        cmp("dentistId", "=", "All dentists"),
-      );
+  const currentDate = useCalendarStore((state) => state.currentDate);
+
+  const { data: dentists } = useZeroQuery(buildQuery(z, currentDate, orgId));
+
+  const appointments = dentists.flatMap((dentist) => dentist.appointments);
+
+  const updateAppointment = useCalendarStore(
+    (state) => state.updateAppointment,
+  );
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
     }),
   );
 
-  return (
-    <div className="mx-auto max-h-screen w-full max-w-7xl overflow-y-auto p-4">
-      <pre>{JSON.stringify(appointments, null, 2)}</pre>
-    </div>
-  );
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over, delta } = event;
+    if (!over) return;
+
+    const draggedId = String(active.id);
+    const overId = String(over.id);
+    const isDentistTarget = overId.startsWith("dentist-");
+    const targetDentistId = isDentistTarget
+      ? overId.replace("dentist-", "")
+      : "";
+
+    const item = appointments.find((a) => a.id === draggedId);
+
+    if (!item) return;
+    const minutesDelta =
+      Math.round(delta.y / SLOT_HEIGHT_PX) * MINUTES_PER_SLOT;
+
+    const start = new Date(item.start);
+    const end = new Date(item.end);
+    const newStart = new Date(start.getTime());
+    const newEnd = new Date(end.getTime());
+    newStart.setMinutes(start.getMinutes() + minutesDelta);
+    newEnd.setMinutes(end.getMinutes() + minutesDelta);
+
+    const newAppointment = {
+      ...item,
+      dentistId: !targetDentistId ? item.dentistId : targetDentistId,
+      start: newStart.getTime(),
+      end: newEnd.getTime(),
+    } satisfies Appointment;
+
+    // Check for collisions before updating
+    if (hasCollision(newAppointment, appointments)) {
+      console.warn("Cannot move appointment: time slot is already occupied");
+      return;
+    }
+
+    z.mutate.appointment.update({
+      ...newAppointment,
+      start: new Date(newAppointment.start),
+      end: new Date(newAppointment.end),
+      updatedAt: Date.now(),
+    });
+    updateAppointment(newAppointment);
+  }
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-4">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="text-muted-foreground text-xs font-medium">
-            Show
-          </span>
-          <Select value={selectedDentist} onValueChange={setSelectedDentist}>
-            <SelectTrigger className="h-8 w-[130px] text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All dentists">All dentists</SelectItem>
-              <SelectItem value="Dr. Smith">Dr. Smith</SelectItem>
-              <SelectItem value="Dr. Johnson">Dr. Johnson</SelectItem>
-              <SelectItem value="Dr. Williams">Dr. Williams</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-7 w-7">
-              <ChevronLeft className="h-3 w-3" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7">
-              <ChevronRight className="h-3 w-3" />
-            </Button>
-          </div>
-
-          <span className="text-sm font-semibold">
-            {formatDate(currentDate)}
-          </span>
-
-          <div className="bg-muted flex items-center rounded-lg p-0.5">
-            <Button
-              variant={selectedView === "Day" ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setSelectedView("Day")}
-              className={cn("h-7 px-3 text-xs", {
-                "bg-popover shadow-m": selectedView === "Day",
-              })}
-            >
-              Day
-            </Button>
-            <Button
-              variant={selectedView === "Week" ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setSelectedView("Week")}
-              className={cn("h-7 px-3 text-xs", {
-                "bg-popover shadow-m": selectedView === "Week",
-              })}
-            >
-              Week
-            </Button>
-          </div>
-
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 text-xs">
-            New Appointment
-          </Button>
-
-          <Button variant="ghost" size="icon" className="h-7 w-7">
-            <MoreHorizontal className="h-3 w-3" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Calendar Content */}
-      <ScrollArea className="h-[600px] w-full">
-        <div className="min-w-[800px]">
-          {/* All Day Section */}
-          <div className="border-border mb-4 border-b pb-3">
-            <div className="flex items-center">
-              <div className="text-muted-foreground w-12 text-xs font-medium">
-                All Day
-              </div>
-              {selectedView === "Day" ? (
-                <div className="bg-muted/30 h-8 flex-1 rounded-sm"></div>
-              ) : (
-                <div className="grid flex-1 grid-cols-7 gap-px">
-                  {weekDates.map((date, index) => (
-                    <div
-                      key={index}
-                      className="bg-muted/30 h-8 rounded-sm"
-                    ></div>
-                  ))}
-                </div>
-              )}
+    <div className="h-screen w-full overflow-hidden">
+      <CalendarHeader />
+      <div className="border-b" />
+      <DndContext
+        sensors={sensors}
+        onDragEnd={handleDragEnd}
+        modifiers={[restrictToFirstScrollableAncestor]}
+      >
+        <ScrollArea className="h-screen flex-row">
+          <div className="relative flex">
+            <div className="bg-background sticky top-0 left-0 z-30 flex w-20 items-center justify-center">
+              <TimeLabels />
             </div>
+            <DayView />
+            <WeekView />
           </div>
-
-          {selectedView === "Week" && (
-            <div className="mb-4 flex items-center">
-              <div className="w-12"></div>
-              <div className="grid flex-1 grid-cols-7 gap-px">
-                {weekDates.map((date, index) => (
-                  <div key={index} className="py-2 text-center">
-                    <div className="flex flex-col items-center">
-                      <span className="text-muted-foreground text-xs font-medium">
-                        {dayNames[index]} {date.getDate()}
-                      </span>
-                      {isToday(date) && (
-                        <div className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500"></div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Time Slots */}
-          <div className="space-y-0">
-            {timeSlots.map((time, index) => (
-              <div
-                key={time}
-                className="border-border/30 flex items-start border-t first:border-t-0"
-              >
-                <div className="text-muted-foreground w-12 pt-2 pr-2 text-right text-xs font-medium">
-                  {time}
-                </div>
-                {selectedView === "Day" ? (
-                  <div className="relative min-h-[40px] flex-1">
-                    <div className="hover:bg-muted/20 absolute inset-0 cursor-pointer transition-colors"></div>
-                  </div>
-                ) : (
-                  <div className="grid flex-1 grid-cols-7 gap-px">
-                    {weekDates.map((date, dayIndex) => (
-                      <div
-                        key={dayIndex}
-                        className="border-border/20 relative min-h-[40px] border-r last:border-r-0"
-                      >
-                        <div className="hover:bg-muted/20 absolute inset-0 cursor-pointer transition-colors"></div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </ScrollArea>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      </DndContext>
+      <SetCalendarScrollPosition />
     </div>
   );
+}
+
+function SetCalendarScrollPosition() {
+  // Scroll to 7 AM on component mount
+  useEffect(() => {
+    const scrollTo7AM = () => {
+      // Calculate scroll position for 7 AM
+      // 7 hours * 4 slots per hour * 24px per slot = 672px
+      const scrollPosition = 7 * 4 * SLOT_HEIGHT_PX;
+
+      // Find the scrollable container
+      const scrollContainer = document.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      );
+      if (scrollContainer) scrollContainer.scrollTop = scrollPosition;
+    };
+
+    // Small delay to ensure the DOM is fully rendered
+    const timeoutId = setTimeout(scrollTo7AM, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, []);
+
+  return null;
 }

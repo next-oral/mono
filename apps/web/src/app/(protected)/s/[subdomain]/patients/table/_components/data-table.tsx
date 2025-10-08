@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@repo/design/components/ui/table";
 import { cn } from "@repo/design/lib/utils";
+import { DataTablePagination } from "@repo/design/src/components/data-table/data-table-pagination";
 import { DataTableSkeleton } from "@repo/design/src/components/data-table/data-table-skeleton";
 import { DataTableViewOptions } from "@repo/design/src/components/data-table/data-table-view-options";
 
@@ -54,7 +55,7 @@ export function DataTable({
               ))}
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows?.length ? (
+              {table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
@@ -115,7 +116,7 @@ export function DataTable({
           </Table>
         </div>
       </div>
-      {/* <DataTablePagination table={table} /> */}
+      <DataTablePagination table={table} />
     </div>
   );
 }

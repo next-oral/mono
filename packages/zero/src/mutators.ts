@@ -1,25 +1,60 @@
 import type { CustomMutatorDefs, Transaction } from "@rocicorp/zero";
+import { createId } from "@paralleldrive/cuid2";
 
-import type { AddressInsertSchema } from "@repo/database/schema";
+import type {
+  AddressInsertSchema,
+  AppointmentInsertSchema,
+} from "@repo/database/schema";
 
 import type { AuthData, Schema } from "./schema";
 
 export function createMutators(_authData: AuthData | undefined) {
   return {
     address: {
-      insert: async (tx: Transaction<Schema>, addr: AddressInsertSchema) => {
-        const now = Date.now();
+      create: async (tx: Transaction<Schema>, addr: AddressInsertSchema) => {
+        const id = createId();
         return await tx.mutate.address.insert({
           ...addr,
-          id: crypto.randomUUID(),
-          createdAt: now,
-          updatedAt: now,
+          id,
+          updatedAt: Date.now(),
+        });
+      },
+      update: async (
+        tx: Transaction<Schema>,
+        addr: AddressInsertSchema & { id: string },
+      ) => {
+        console.log("addr", addr);
+        await tx.mutate.address.update({
+          ...addr,
+          updatedAt: Date.now(),
         });
       },
     },
 
+    appointment: {
+      create: async (tx: Transaction<Schema>, apt: AppointmentInsertSchema) => {
+        const id = createId();
+        return await tx.mutate.appointment.insert({
+          ...apt,
+          id,
+          start: new Date(apt.start).getTime(),
+          end: new Date(apt.end).getTime(),
+          updatedAt: Date.now(),
+        });
+      },
+      update: async (
+        tx: Transaction<Schema>,
+        apt: AppointmentInsertSchema & { id: string; updatedAt: number },
+      ) => {
+        await tx.mutate.appointment.update({
+          ...apt,
+          start: new Date(apt.start).getTime(),
+          end: new Date(apt.end).getTime(),
+        });
+      },
+    },
     patient: {
-      insert: async (
+      create: async (
         tx: Transaction<Schema>,
         pat: {
           id: string;

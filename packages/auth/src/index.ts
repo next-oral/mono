@@ -48,6 +48,20 @@ export function initAuth(options: InitAuthOptions) {
         },
       },
     },
+    // databaseHooks: {
+    //   session: {
+    //     create: {
+    //       before: async (session) => {
+    //         return {
+    //           data: {
+    //             ...session,
+    //             activeOrganizationId: organization.id,
+    //           },
+    //         };
+    //       },
+    //     },
+    //   },
+    // },
     advanced: {
       cookiePrefix: "nextoral",
       crossSubDomainCookies: {

@@ -1,13 +1,13 @@
 "use client";
 
+import type { Row, Zero } from "@rocicorp/zero";
+import type { SortingState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
-import { Row, Zero } from "@rocicorp/zero";
-import { useQuery, useZero } from "@rocicorp/zero/react";
+import { useZero } from "@rocicorp/zero/react";
 import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -26,7 +26,7 @@ import {
   DataTableFilter,
   useDataTableFilters,
 } from "~/components/data-table-filter";
-import { useZeroQueryStatus } from "~/providers/zero";
+import { useZeroQuery } from "~/providers/zero";
 import {
   createTSTColumns,
   createTSTFilters,
@@ -41,7 +41,7 @@ function baseQuery(zero: Zero<Schema, Mutators>) {
 
 export type PatientRow = Row<ReturnType<typeof baseQuery>>;
 
-export function PatientsZeroTable({
+export function PatientsTable({
   state,
 }: {
   state: {
@@ -80,11 +80,11 @@ export function PatientsZeroTable({
           // NOTE: This currently applies all conditions; depending on Zero's API, OR matching may require a different method.
 
           query = query.related("address", (p) =>
-            p.where(({ cmp, or }) =>
-              or(
-                cmp("street", op, `%${value}%`),
-                cmp("city", op, `%${value}%`),
-                cmp("country", op, `%${value}%`),
+            p.where((ops) =>
+              ops.or(
+                ops.cmp("street", op, `%${value}%`),
+                ops.cmp("city", op, `%${value}%`),
+                ops.cmp("country", op, `%${value}%`),
               ),
             ),
           );
@@ -117,8 +117,7 @@ export function PatientsZeroTable({
       : query.orderBy("createdAt", "desc");
   }
 
-  const [patients, { type }] = useQuery(buildQuery(z));
-  const { isPending } = useZeroQueryStatus(type);
+  const { data: patients, isPending } = useZeroQuery(buildQuery(z));
 
   const {
     columns,

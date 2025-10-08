@@ -1,18 +1,16 @@
 "use client";
 
+import type { SortingState, Updater } from "@tanstack/react-table";
 import { useCallback } from "react";
-import { SortingState, Updater } from "@tanstack/react-table";
 import { parseAsJson, useQueryState } from "nuqs";
 import { z } from "zod";
 
 import { getSortingStateParser } from "@repo/design/src/lib/parsers";
 
+import type { PatientRow } from "./table/_components/patients-table";
 import type { FiltersState } from "~/components/data-table-filter/core/types";
 import { patientColumnDefs } from "./table/_components/columns";
-import {
-  PatientRow,
-  PatientsZeroTable,
-} from "./table/_components/patients-zero-table";
+import { PatientsTable } from "./table/_components/patients-table";
 
 const filtersSchema = z.custom<FiltersState>();
 
@@ -39,8 +37,8 @@ export default function Page() {
     [sorting, setSorting],
   );
   return (
-    <div className="flex h-full flex-col overflow-hidden">
-      <PatientsZeroTable
+    <div className="flex h-full flex-col overflow-hidden px-5">
+      <PatientsTable
         state={{ filters, setFilters, sorting, setSorting: onSortingChange }}
       />
     </div>

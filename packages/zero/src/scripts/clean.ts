@@ -2,19 +2,18 @@ import { exec } from "../index";
 
 console.log("Cleaning up resources...");
 
-// eslint-disable-next-line turbo/no-undeclared-env-vars
-if (process.env.CLEAN_ZERO) {
-  try {
-    exec("rm -f .tmp/next-oral.db*");
-  } catch (err) {
-    console.info((err as Error).message);
-  }
-
-  try {
-    exec("docker rm -f next-oral");
-  } catch (err) {
-    console.info((err as Error).message);
-  }
+// if (process.env.CLEAN_ZERO) {
+try {
+  exec("rm -f .tmp/next-oral.db*");
+} catch (err) {
+  console.info((err as Error).message);
 }
+
+try {
+  exec("docker rm -f next-oral");
+} catch (err) {
+  console.info((err as Error).message);
+}
+// }
 
 console.log("Cleanup complete.");

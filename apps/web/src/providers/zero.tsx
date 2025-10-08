@@ -1,20 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import type { Query, Schema } from "@rocicorp/zero";
+import { useEffect, useRef, useState } from "react";
 import { Zero } from "@rocicorp/zero";
-import { ZeroProvider } from "@rocicorp/zero/react";
+import { useQuery, ZeroProvider } from "@rocicorp/zero/react";
 
-import { createMutators, Mutators } from "@repo/zero/mutators";
-import { Schema, schema } from "@repo/zero/schema";
+import { createMutators } from "@repo/zero/mutators";
+import { schema } from "@repo/zero/schema";
 
 import { authClient } from "~/auth/client";
 import { env } from "~/env";
 
 //! TODO: this is a for a fake pending state
-export function useZeroQueryStatus(
-  type: "unknown" | "complete",
-  timeoutSeconds = 5,
-) {
+export function useZeroQuery<
+  TSchema extends Schema,
+  TTable extends keyof TSchema["tables"] & string,
+  TReturn,
+>(z: Query<Schema, TTable, TReturn>, timeoutSeconds = 5) {
+  const [result, { type }] = useQuery(z);
   const [status, setStatus] = useState<"unknown" | "complete" | "error">(type);
 
   useEffect(() => {
@@ -33,24 +36,28 @@ export function useZeroQueryStatus(
   return {
     isPending: status === "unknown",
     isError: status === "error",
+    data: result,
   };
 }
 
 export function ZeroQueryProvider({ children }: { children: React.ReactNode }) {
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
 
   const userID = session?.user.id ?? "anon";
 
-  const zero = new Zero({
-    schema,
-    userID,
-    server: env.NEXT_PUBLIC_ZERO_SERVER_URL,
-    mutators: createMutators({ sub: userID }),
-  });
+  const zero = useRef(
+    new Zero({
+      schema,
+      userID,
+      server: env.NEXT_PUBLIC_ZERO_SERVER_URL,
+      mutators: createMutators(undefined),
+    }),
+  );
+  if (isPending) return <div>Loading...</div>;
 
   return (
     <ZeroProvider
-      zero={zero}
+      zero={zero.current}
       init={(z) => {
         z.preload(z.query.patient);
       }}

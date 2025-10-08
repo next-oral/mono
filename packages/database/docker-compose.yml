@@ -1,0 +1,35 @@
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:17
+    command: |
+      postgres 
+      -c wal_level=logical
+      -d 1
+    volumes:
+      - nextoral_data:/var/lib/postgresql/data
+    ports:
+      - ${DEV_PG_PORT}:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DEV_PG_PASSWORD}
+      - POSTGRES_DB=main
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  neon-proxy:
+    container_name: neon-proxy
+    image: ghcr.io/timowilhelm/local-neon-http-proxy:main
+    environment:
+      - PG_CONNECTION_STRING=postgres://postgres:postgres@postgres:5432/main
+    ports:
+      - "4444:4444"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  nextoral_data:

@@ -30,6 +30,7 @@ import { authClient } from "~/auth/client";
 import { env } from "~/env";
 import { slugify } from "~/lib/utils";
 import { useTRPC } from "~/trpc/react";
+import Loading from "../s/[subdomain]/loading";
 import { GettingStarted } from "./getting-started";
 import { WelcomePage } from "./welcome-page";
 
@@ -43,7 +44,9 @@ const Page = () => {
 
   const [slug, setQuerySlug] = useQueryState("id");
 
-  const { data: organizations } = authClient.useListOrganizations();
+  const { data: organizations, isPending: isOrganizationsPending } =
+    authClient.useListOrganizations();
+  // authClient.admin.
 
   console.log("", organizations);
 
@@ -84,14 +87,20 @@ const Page = () => {
     const org = organizations[0];
     if (!org) return;
 
+    void authClient.organization.setActive({
+      organizationId: org.id,
+    });
+
     router.push(
       `${env.NEXT_PUBLIC_PROTOCOL}://${org.slug}.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
     );
   }
 
+  if (isOrganizationsPending) return <Loading />;
+
   return (
     <div className="relative h-screen w-full overflow-hidden bg-gradient-to-b from-white to-blue-50">
-      <div className="absolute right-0 z-9999 flex w-full items-center justify-center p-2">
+      <div className="absolute right-0 z-800 flex w-full items-center justify-center p-2">
         <div className="mx-auto"></div>
 
         <UserAvatar

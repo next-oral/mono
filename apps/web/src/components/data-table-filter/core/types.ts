@@ -57,21 +57,21 @@ export type OptionBasedColumnDataType = Extract<
 /*
  * Maps a ColumnDataType to it's primitive type (i.e. string, number, etc.).
  */
-export type ColumnDataNativeMap = {
+export interface ColumnDataNativeMap {
   text: string;
   number: number;
   date: Date;
   option: string;
   multiOption: string[];
-};
+}
 
 /*
  * Represents the value of a column filter.
  * Contigent on the filtered column's data type.
  */
-export type FilterValues<T extends ColumnDataType> = Array<
-  ElementType<ColumnDataNativeMap[T]>
->;
+export type FilterValues<T extends ColumnDataType> = ElementType<
+  ColumnDataNativeMap[T]
+>[];
 
 /*
  * An accessor function for a column's data.
@@ -99,12 +99,12 @@ export type TOrderFn<TVal = unknown> = (
 /*
  * The configuration for a column.
  */
-export type ColumnConfig<
+export interface ColumnConfig<
   TData,
   TType extends ColumnDataType = any,
   TVal = unknown,
   TId extends string = string,
-> = {
+> {
   id: TId;
   accessor: TAccessorFn<TData, TVal>;
   displayName: string;
@@ -120,7 +120,7 @@ export type ColumnConfig<
     ? TTransformOptionFn<TVal>
     : never;
   orderFn?: TType extends OptionBasedColumnDataType ? TOrderFn<TVal> : never;
-};
+}
 
 export type OptionColumnId<T> =
   T extends ColumnConfig<
@@ -133,7 +133,7 @@ export type OptionColumnId<T> =
     : never;
 
 export type OptionColumnIds<
-  T extends ReadonlyArray<ColumnConfig<any, any, any, any>>,
+  T extends readonly ColumnConfig<any, any, any, any>[],
 > = {
   [K in keyof T]: OptionColumnId<T[K]>;
 }[number];
@@ -144,7 +144,7 @@ export type NumberColumnId<T> =
     : never;
 
 export type NumberColumnIds<
-  T extends ReadonlyArray<ColumnConfig<any, any, any, any>>,
+  T extends readonly ColumnConfig<any, any, any, any>[],
 > = {
   [K in keyof T]: NumberColumnId<T[K]>;
 }[number];
@@ -152,7 +152,7 @@ export type NumberColumnIds<
 /*
  * Describes a helper function for creating column configurations.
  */
-export type ColumnConfigHelper<TData> = {
+export interface ColumnConfigHelper<TData> {
   accessor: <
     TAccessor extends TAccessorFn<TData>,
     TType extends ColumnDataType,
@@ -161,14 +161,14 @@ export type ColumnConfigHelper<TData> = {
     accessor: TAccessor,
     config?: Omit<ColumnConfig<TData, TType, TVal>, "accessor">,
   ) => ColumnConfig<TData, TType, unknown>;
-};
+}
 
-export type DataTableFilterConfig<TData> = {
+export interface DataTableFilterConfig<TData> {
   data: TData[];
   columns: ColumnConfig<TData>[];
-};
+}
 
-export type ColumnProperties<TData, TVal> = {
+export interface ColumnProperties<TData, TVal> {
   getOptions: () => ColumnOption[];
   getValues: () => ElementType<NonNullable<TVal>>[];
   getFacetedUniqueValues: () => Map<string, number> | undefined;
@@ -177,14 +177,14 @@ export type ColumnProperties<TData, TVal> = {
   prefetchValues: () => Promise<void>; // Prefetch values
   prefetchFacetedUniqueValues: () => Promise<void>; // Prefetch faceted unique values
   prefetchFacetedMinMaxValues: () => Promise<void>; // Prefetch faceted min/max values
-};
+}
 
-export type ColumnPrivateProperties<TData, TVal> = {
+export interface ColumnPrivateProperties<TData, TVal> {
   _prefetchedOptionsCache: ColumnOption[] | null;
   _prefetchedValuesCache: ElementType<NonNullable<TVal>>[] | null;
   _prefetchedFacetedUniqueValuesCache: Map<string, number> | null;
   _prefetchedFacetedMinMaxValuesCache: [number, number] | null;
-};
+}
 
 export type Column<
   TData,
@@ -264,13 +264,13 @@ export type MultiOptionFilterOperator =
   | "exclude if all";
 
 /* Maps filter operators to their respective data types */
-export type FilterOperators = {
+export interface FilterOperators {
   text: TextFilterOperator;
   number: NumberFilterOperator;
   date: DateFilterOperator;
   option: OptionFilterOperator;
   multiOption: MultiOptionFilterOperator;
-};
+}
 
 /*
  *
@@ -281,14 +281,14 @@ export type FilterOperators = {
  * - Values: An array of values to be used for the filter.
  *
  */
-export type FilterModel<TType extends ColumnDataType = any> = {
+export interface FilterModel<TType extends ColumnDataType = any> {
   columnId: string;
   type: TType;
   operator: FilterOperators[TType];
   values: FilterValues<TType>;
-};
+}
 
-export type FiltersState = Array<FilterModel>;
+export type FiltersState = FilterModel[];
 
 /*
  * FilterDetails is a type that represents the details of all the filter operators for a specific column data type.
@@ -299,10 +299,10 @@ export type FilterDetails<T extends ColumnDataType> = {
 
 export type FilterOperatorTarget = "single" | "multiple";
 
-export type FilterOperatorDetailsBase<
+export interface FilterOperatorDetailsBase<
   OperatorValue,
   T extends ColumnDataType,
-> = {
+> {
   /* The i18n key for the operator. */
   key: string;
   /* The operator value. Usually the string representation of the operator. */
@@ -314,14 +314,14 @@ export type FilterOperatorDetailsBase<
   /* The singular form of the operator, if applicable. */
   pluralOf?: FilterOperators[T];
   /* All related operators. Normally, all the operators which share the same target. */
-  relativeOf: FilterOperators[T] | Array<FilterOperators[T]>;
+  relativeOf: FilterOperators[T] | FilterOperators[T][];
   /* Whether the operator is negated. */
   isNegated: boolean;
   /* If the operator is not negated, this provides the negated equivalent. */
   negation?: FilterOperators[T];
   /* If the operator is negated, this provides the positive equivalent. */
   negationOf?: FilterOperators[T];
-};
+}
 
 /*
  *

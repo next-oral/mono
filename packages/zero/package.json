@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema/index.ts",
-    "./mutators": "./src/mutators.ts"
+    "./mutators": "./src/mutators.ts",
+    "./exports": "./src/exports.ts"
   },
   "scripts": {
     "build": "tsc",

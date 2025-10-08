@@ -9,9 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import type { Row } from "@rocicorp/zero";
-import type { DrizzleToZeroSchema, ZeroCustomType } from "drizzle-zero";
 import { createBuilder } from "@rocicorp/zero";
-
+import type { DrizzleToZeroSchema, ZeroCustomType } from "drizzle-zero";
 import type * as drizzleSchema from "../../../database/src/schema/index";
 
 type ZeroSchema = DrizzleToZeroSchema<typeof drizzleSchema>;
@@ -21,2689 +20,1468 @@ type ZeroSchema = DrizzleToZeroSchema<typeof drizzleSchema>;
  * This type is auto-generated from your Drizzle schema definition.
  */
 export const schema = {
-  tables: {
-    account: {
-      name: "account",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "account",
-            "id"
-          >,
+    "tables": {
+        "account": {
+            "name": "account",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "account", "id">
+                },
+                "accountId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "account", "accountId">,
+                    "serverName": "account_id"
+                },
+                "providerId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "account", "providerId">,
+                    "serverName": "provider_id"
+                },
+                "userId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "account", "userId">,
+                    "serverName": "user_id"
+                },
+                "accessToken": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "account", "accessToken">,
+                    "serverName": "access_token"
+                },
+                "refreshToken": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "account", "refreshToken">,
+                    "serverName": "refresh_token"
+                },
+                "idToken": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "account", "idToken">,
+                    "serverName": "id_token"
+                },
+                "accessTokenExpiresAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "account", "accessTokenExpiresAt">,
+                    "serverName": "access_token_expires_at"
+                },
+                "refreshTokenExpiresAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "account", "refreshTokenExpiresAt">,
+                    "serverName": "refresh_token_expires_at"
+                },
+                "scope": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "account", "scope">
+                },
+                "password": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "account", "password">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "account", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "account", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"]
         },
-        accountId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "account",
-            "accountId"
-          >,
-          serverName: "account_id",
+        "address": {
+            "name": "address",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "address", "id">
+                },
+                "street": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "address", "street">
+                },
+                "city": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "address", "city">
+                },
+                "state": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "address", "state">
+                },
+                "zipCode": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "address", "zipCode">,
+                    "serverName": "zip_code"
+                },
+                "country": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "address", "country">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "address", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "address", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"]
         },
-        providerId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "account",
-            "providerId"
-          >,
-          serverName: "provider_id",
+        "appointment": {
+            "name": "appointment",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "appointment", "id">
+                },
+                "orgId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "appointment", "orgId">,
+                    "serverName": "org_id"
+                },
+                "patId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "appointment", "patId">,
+                    "serverName": "pat_id"
+                },
+                "dentistId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "appointment", "dentistId">,
+                    "serverName": "dentist_id"
+                },
+                "status": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "appointment", "status">
+                },
+                "note": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "appointment", "note">
+                },
+                "colour": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "appointment", "colour">
+                },
+                "description": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "appointment", "description">
+                },
+                "type": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "appointment", "type">
+                },
+                "start": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "appointment", "start">
+                },
+                "end": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "appointment", "end">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "appointment", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "appointment", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"]
         },
-        userId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "account",
-            "userId"
-          >,
-          serverName: "user_id",
+        "auditLog": {
+            "name": "auditLog",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "auditLog", "id">
+                },
+                "orgId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "auditLog", "orgId">,
+                    "serverName": "org_id"
+                },
+                "userId": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "auditLog", "userId">,
+                    "serverName": "user_id"
+                },
+                "patId": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "auditLog", "patId">,
+                    "serverName": "pat_id"
+                },
+                "action": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "auditLog", "action">
+                },
+                "entity": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "auditLog", "entity">
+                },
+                "entityId": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "auditLog", "entityId">,
+                    "serverName": "entity_id"
+                },
+                "changes": {
+                    "type": "json",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "auditLog", "changes">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "auditLog", "createdAt">,
+                    "serverName": "created_at"
+                }
+            },
+            "primaryKey": ["id"],
+            "serverName": "audit_log"
         },
-        accessToken: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "account",
-            "accessToken"
-          >,
-          serverName: "access_token",
+        "clinicalNote": {
+            "name": "clinicalNote",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "clinicalNote", "id">
+                },
+                "appointmentId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "clinicalNote", "appointmentId">,
+                    "serverName": "appointment_id"
+                },
+                "dentistId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "clinicalNote", "dentistId">,
+                    "serverName": "dentist_id"
+                },
+                "notes": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "clinicalNote", "notes">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "clinicalNote", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "clinicalNote", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"],
+            "serverName": "clinical_note"
         },
-        refreshToken: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "account",
-            "refreshToken"
-          >,
-          serverName: "refresh_token",
+        "dentist": {
+            "name": "dentist",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "dentist", "id">
+                },
+                "orgId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "dentist", "orgId">,
+                    "serverName": "org_id"
+                },
+                "firstName": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "dentist", "firstName">,
+                    "serverName": "first_name"
+                },
+                "lastName": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "dentist", "lastName">,
+                    "serverName": "last_name"
+                },
+                "email": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "dentist", "email">
+                },
+                "phone": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "dentist", "phone">
+                },
+                "specialization": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "dentist", "specialization">
+                },
+                "licenseNumber": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "dentist", "licenseNumber">,
+                    "serverName": "license_number"
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "dentist", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "dentist", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"]
         },
-        idToken: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "account",
-            "idToken"
-          >,
-          serverName: "id_token",
+        "diagnosis": {
+            "name": "diagnosis",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "diagnosis", "id">
+                },
+                "code": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "diagnosis", "code">
+                },
+                "code_system": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "diagnosis", "code_system">
+                },
+                "description": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "diagnosis", "description">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "diagnosis", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "diagnosis", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"]
         },
-        accessTokenExpiresAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "account",
-            "accessTokenExpiresAt"
-          >,
-          serverName: "access_token_expires_at",
+        "file": {
+            "name": "file",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "file", "id">
+                },
+                "orgId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "file", "orgId">,
+                    "serverName": "org_id"
+                },
+                "patId": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "file", "patId">,
+                    "serverName": "pat_id"
+                },
+                "appointmentId": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "file", "appointmentId">,
+                    "serverName": "appointment_id"
+                },
+                "uploadedBy": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "file", "uploadedBy">,
+                    "serverName": "uploaded_by"
+                },
+                "fileType": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "file", "fileType">,
+                    "serverName": "file_type"
+                },
+                "storageUrl": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "file", "storageUrl">,
+                    "serverName": "storage_url"
+                },
+                "metadata": {
+                    "type": "json",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "file", "metadata">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "file", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "file", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"]
         },
-        refreshTokenExpiresAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "account",
-            "refreshTokenExpiresAt"
-          >,
-          serverName: "refresh_token_expires_at",
+        "form": {
+            "name": "form",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "form", "id">
+                },
+                "orgId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "form", "orgId">,
+                    "serverName": "org_id"
+                },
+                "name": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "form", "name">
+                },
+                "schema": {
+                    "type": "json",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "form", "schema">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "form", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "form", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"]
         },
-        scope: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "account",
-            "scope"
-          >,
+        "formResponse": {
+            "name": "formResponse",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "formResponse", "id">
+                },
+                "formId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "formResponse", "formId">,
+                    "serverName": "form_id"
+                },
+                "patId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "formResponse", "patId">,
+                    "serverName": "pat_id"
+                },
+                "submittedBy": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "formResponse", "submittedBy">,
+                    "serverName": "submitted_by"
+                },
+                "data": {
+                    "type": "json",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "formResponse", "data">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "formResponse", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "formResponse", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"],
+            "serverName": "form_response"
         },
-        password: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "account",
-            "password"
-          >,
+        "invitation": {
+            "name": "invitation",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "invitation", "id">
+                },
+                "organizationId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "invitation", "organizationId">,
+                    "serverName": "organization_id"
+                },
+                "email": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "invitation", "email">
+                },
+                "role": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "invitation", "role">
+                },
+                "status": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "invitation", "status">
+                },
+                "expiresAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "invitation", "expiresAt">,
+                    "serverName": "expires_at"
+                },
+                "inviterId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "invitation", "inviterId">,
+                    "serverName": "inviter_id"
+                }
+            },
+            "primaryKey": ["id"]
         },
-        createdAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "account",
-            "createdAt"
-          >,
-          serverName: "created_at",
+        "jwks": {
+            "name": "jwks",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "jwks", "id">
+                },
+                "publicKey": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "jwks", "publicKey">,
+                    "serverName": "public_key"
+                },
+                "privateKey": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "jwks", "privateKey">,
+                    "serverName": "private_key"
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "jwks", "createdAt">,
+                    "serverName": "created_at"
+                }
+            },
+            "primaryKey": ["id"]
         },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "account",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
+        "member": {
+            "name": "member",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "member", "id">
+                },
+                "organizationId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "member", "organizationId">,
+                    "serverName": "organization_id"
+                },
+                "userId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "member", "userId">,
+                    "serverName": "user_id"
+                },
+                "role": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "member", "role">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "member", "createdAt">,
+                    "serverName": "created_at"
+                }
+            },
+            "primaryKey": ["id"]
         },
-      },
-      primaryKey: ["id"],
+        "missingTooth": {
+            "name": "missingTooth",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "missingTooth", "id">
+                },
+                "patId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "missingTooth", "patId">,
+                    "serverName": "pat_id"
+                },
+                "toothId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "missingTooth", "toothId">,
+                    "serverName": "tooth_id"
+                },
+                "reason": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "missingTooth", "reason">
+                },
+                "dateDetected": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "missingTooth", "dateDetected">,
+                    "serverName": "date_detected"
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "missingTooth", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "missingTooth", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"],
+            "serverName": "missing_tooth"
+        },
+        "organization": {
+            "name": "organization",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "organization", "id">
+                },
+                "name": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "organization", "name">
+                },
+                "slug": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "organization", "slug">
+                },
+                "logo": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "organization", "logo">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "organization", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "metadata": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "organization", "metadata">
+                }
+            },
+            "primaryKey": ["id"]
+        },
+        "patient": {
+            "name": "patient",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "patient", "id">
+                },
+                "orgId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "patient", "orgId">,
+                    "serverName": "org_id"
+                },
+                "firstName": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "patient", "firstName">,
+                    "serverName": "first_name"
+                },
+                "lastName": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "patient", "lastName">,
+                    "serverName": "last_name"
+                },
+                "middleName": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "patient", "middleName">,
+                    "serverName": "middle_name"
+                },
+                "email": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "patient", "email">
+                },
+                "phone": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "patient", "phone">
+                },
+                "status": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "patient", "status">
+                },
+                "dob": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "patient", "dob">
+                },
+                "addressId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "patient", "addressId">,
+                    "serverName": "address_id"
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "patient", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "patient", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"]
+        },
+        "procedure": {
+            "name": "procedure",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "procedure", "id">
+                },
+                "code_system": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "procedure", "code_system">
+                },
+                "code": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "procedure", "code">
+                },
+                "description": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "procedure", "description">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "procedure", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "procedure", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"]
+        },
+        "session": {
+            "name": "session",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "session", "id">
+                },
+                "expiresAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "session", "expiresAt">,
+                    "serverName": "expires_at"
+                },
+                "token": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "session", "token">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "session", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "session", "updatedAt">,
+                    "serverName": "updated_at"
+                },
+                "ipAddress": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "session", "ipAddress">,
+                    "serverName": "ip_address"
+                },
+                "userAgent": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "session", "userAgent">,
+                    "serverName": "user_agent"
+                },
+                "userId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "session", "userId">,
+                    "serverName": "user_id"
+                },
+                "impersonatedBy": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "session", "impersonatedBy">,
+                    "serverName": "impersonated_by"
+                },
+                "activeTeamId": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "session", "activeTeamId">,
+                    "serverName": "active_team_id"
+                },
+                "activeOrganizationId": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "session", "activeOrganizationId">,
+                    "serverName": "active_organization_id"
+                }
+            },
+            "primaryKey": ["id"]
+        },
+        "team": {
+            "name": "team",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "team", "id">
+                },
+                "name": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "team", "name">
+                },
+                "organizationId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "team", "organizationId">,
+                    "serverName": "organization_id"
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "team", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "team", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"]
+        },
+        "teamMember": {
+            "name": "teamMember",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "teamMember", "id">
+                },
+                "teamId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "teamMember", "teamId">,
+                    "serverName": "team_id"
+                },
+                "userId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "teamMember", "userId">,
+                    "serverName": "user_id"
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "teamMember", "createdAt">,
+                    "serverName": "created_at"
+                }
+            },
+            "primaryKey": ["id"],
+            "serverName": "team_member"
+        },
+        "tooth": {
+            "name": "tooth",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "tooth", "id">
+                },
+                "name": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "tooth", "name">
+                },
+                "position": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "tooth", "position">
+                },
+                "notation": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "tooth", "notation">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "tooth", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "tooth", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"]
+        },
+        "toothMovement": {
+            "name": "toothMovement",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothMovement", "id">
+                },
+                "patId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothMovement", "patId">,
+                    "serverName": "pat_id"
+                },
+                "toothId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothMovement", "toothId">,
+                    "serverName": "tooth_id"
+                },
+                "type": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothMovement", "type">
+                },
+                "description": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothMovement", "description">
+                },
+                "startDate": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothMovement", "startDate">,
+                    "serverName": "start_date"
+                },
+                "endDate": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothMovement", "endDate">,
+                    "serverName": "end_date"
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothMovement", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothMovement", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"],
+            "serverName": "tooth_movement"
+        },
+        "toothSurface": {
+            "name": "toothSurface",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothSurface", "id">
+                },
+                "toothId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothSurface", "toothId">,
+                    "serverName": "tooth_id"
+                },
+                "surface": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothSurface", "surface">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothSurface", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "toothSurface", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"],
+            "serverName": "tooth_surface"
+        },
+        "treatmentItem": {
+            "name": "treatmentItem",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentItem", "id">
+                },
+                "treatmentPlanId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentItem", "treatmentPlanId">,
+                    "serverName": "treatment_plan_id"
+                },
+                "appointmentId": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentItem", "appointmentId">,
+                    "serverName": "appointment_id"
+                },
+                "dentistId": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentItem", "dentistId">,
+                    "serverName": "dentist_id"
+                },
+                "toothSurfaceId": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentItem", "toothSurfaceId">,
+                    "serverName": "tooth_surface_id"
+                },
+                "diagnosisId": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentItem", "diagnosisId">,
+                    "serverName": "diagnosis_id"
+                },
+                "procedureId": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentItem", "procedureId">,
+                    "serverName": "procedure_id"
+                },
+                "status": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentItem", "status">
+                },
+                "date": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentItem", "date">
+                },
+                "priority": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentItem", "priority">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentItem", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentItem", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"],
+            "serverName": "treatment_item"
+        },
+        "treatmentPlan": {
+            "name": "treatmentPlan",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentPlan", "id">
+                },
+                "patId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentPlan", "patId">,
+                    "serverName": "pat_id"
+                },
+                "dentistId": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentPlan", "dentistId">,
+                    "serverName": "dentist_id"
+                },
+                "notes": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentPlan", "notes">
+                },
+                "status": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentPlan", "status">
+                },
+                "createdBy": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentPlan", "createdBy">,
+                    "serverName": "created_by"
+                },
+                "editedBy": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentPlan", "editedBy">,
+                    "serverName": "edited_by"
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentPlan", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "treatmentPlan", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"],
+            "serverName": "treatment_plan"
+        },
+        "user": {
+            "name": "user",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "user", "id">
+                },
+                "name": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "user", "name">
+                },
+                "email": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "user", "email">
+                },
+                "emailVerified": {
+                    "type": "boolean",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "user", "emailVerified">,
+                    "serverName": "email_verified"
+                },
+                "image": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "user", "image">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "user", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "user", "updatedAt">,
+                    "serverName": "updated_at"
+                },
+                "role": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "user", "role">
+                },
+                "position": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "user", "position">
+                },
+                "locale": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "user", "locale">
+                },
+                "banned": {
+                    "type": "boolean",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "user", "banned">
+                },
+                "banReason": {
+                    "type": "string",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "user", "banReason">,
+                    "serverName": "ban_reason"
+                },
+                "banExpires": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "user", "banExpires">,
+                    "serverName": "ban_expires"
+                }
+            },
+            "primaryKey": ["id"]
+        },
+        "verification": {
+            "name": "verification",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "verification", "id">
+                },
+                "identifier": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "verification", "identifier">
+                },
+                "value": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "verification", "value">
+                },
+                "expiresAt": {
+                    "type": "number",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "verification", "expiresAt">,
+                    "serverName": "expires_at"
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "verification", "createdAt">,
+                    "serverName": "created_at"
+                },
+                "updatedAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "verification", "updatedAt">,
+                    "serverName": "updated_at"
+                }
+            },
+            "primaryKey": ["id"]
+        },
+        "waitlist": {
+            "name": "waitlist",
+            "columns": {
+                "id": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "waitlist", "id">
+                },
+                "firstName": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "waitlist", "firstName">,
+                    "serverName": "first_name"
+                },
+                "lastName": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "waitlist", "lastName">,
+                    "serverName": "last_name"
+                },
+                "email": {
+                    "type": "string",
+                    "optional": false,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "waitlist", "email">
+                },
+                "createdAt": {
+                    "type": "number",
+                    "optional": true,
+                    "customType": null as unknown as ZeroCustomType<ZeroSchema, "waitlist", "createdAt">,
+                    "serverName": "created_at"
+                }
+            },
+            "primaryKey": ["id"]
+        }
     },
-    address: {
-      name: "address",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "address",
-            "id"
-          >,
+    "relationships": {
+        "account": {
+            "user": [{ "sourceField": ["userId"], "destField": ["id"], "destSchema": "user", "cardinality": "one" }]
         },
-        street: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "address",
-            "street"
-          >,
+        "address": {
+            "patients": [{ "sourceField": ["id"], "destField": ["addressId"], "destSchema": "patient", "cardinality": "many" }]
         },
-        city: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "address",
-            "city"
-          >,
+        "appointment": {
+            "patient": [{ "sourceField": ["patId"], "destField": ["id"], "destSchema": "patient", "cardinality": "one" }],
+            "dentist": [{ "sourceField": ["dentistId"], "destField": ["id"], "destSchema": "dentist", "cardinality": "one" }]
         },
-        state: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "address",
-            "state"
-          >,
+        "dentist": {
+            "appointments": [{ "sourceField": ["id"], "destField": ["dentistId"], "destSchema": "appointment", "cardinality": "many" }]
         },
-        zipCode: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "address",
-            "zipCode"
-          >,
-          serverName: "zip_code",
+        "invitation": {
+            "organization": [{ "sourceField": ["organizationId"], "destField": ["id"], "destSchema": "organization", "cardinality": "one" }],
+            "inviter": [{ "sourceField": ["inviterId"], "destField": ["id"], "destSchema": "user", "cardinality": "one" }]
         },
-        country: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "address",
-            "country"
-          >,
+        "member": {
+            "organization": [{ "sourceField": ["organizationId"], "destField": ["id"], "destSchema": "organization", "cardinality": "one" }],
+            "user": [{ "sourceField": ["userId"], "destField": ["id"], "destSchema": "user", "cardinality": "one" }]
         },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "address",
-            "createdAt"
-          >,
-          serverName: "created_at",
+        "organization": {
+            "teams": [{ "sourceField": ["id"], "destField": ["organizationId"], "destSchema": "team", "cardinality": "many" }],
+            "members": [{ "sourceField": ["id"], "destField": ["organizationId"], "destSchema": "member", "cardinality": "many" }],
+            "invitations": [{ "sourceField": ["id"], "destField": ["organizationId"], "destSchema": "invitation", "cardinality": "many" }]
         },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "address",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
+        "patient": {
+            "address": [{ "sourceField": ["addressId"], "destField": ["id"], "destSchema": "address", "cardinality": "one" }],
+            "appointments": [{ "sourceField": ["id"], "destField": ["patId"], "destSchema": "appointment", "cardinality": "many" }]
         },
-      },
-      primaryKey: ["id"],
+        "session": {
+            "user": [{ "sourceField": ["userId"], "destField": ["id"], "destSchema": "user", "cardinality": "one" }]
+        },
+        "teamMember": {
+            "team": [{ "sourceField": ["teamId"], "destField": ["id"], "destSchema": "team", "cardinality": "one" }],
+            "user": [{ "sourceField": ["userId"], "destField": ["id"], "destSchema": "user", "cardinality": "one" }]
+        },
+        "team": {
+            "organization": [{ "sourceField": ["organizationId"], "destField": ["id"], "destSchema": "organization", "cardinality": "one" }],
+            "teamMembers": [{ "sourceField": ["id"], "destField": ["teamId"], "destSchema": "teamMember", "cardinality": "many" }]
+        },
+        "treatmentItem": {
+            "treatmentPlan": [{ "sourceField": ["treatmentPlanId"], "destField": ["id"], "destSchema": "treatmentPlan", "cardinality": "one" }]
+        },
+        "treatmentPlan": {
+            "treatmentItems": [{ "sourceField": ["id"], "destField": ["treatmentPlanId"], "destSchema": "treatmentItem", "cardinality": "many" }]
+        },
+        "user": {
+            "members": [{ "sourceField": ["id"], "destField": ["userId"], "destSchema": "member", "cardinality": "many" }],
+            "sessions": [{ "sourceField": ["id"], "destField": ["userId"], "destSchema": "session", "cardinality": "many" }],
+            "accounts": [{ "sourceField": ["id"], "destField": ["userId"], "destSchema": "account", "cardinality": "many" }],
+            "invitations": [{ "sourceField": ["id"], "destField": ["inviterId"], "destSchema": "invitation", "cardinality": "many" }]
+        }
     },
-    appointment: {
-      name: "appointment",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "appointment",
-            "id"
-          >,
-        },
-        orgId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "appointment",
-            "orgId"
-          >,
-          serverName: "org_id",
-        },
-        patId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "appointment",
-            "patId"
-          >,
-          serverName: "pat_id",
-        },
-        dentistId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "appointment",
-            "dentistId"
-          >,
-          serverName: "dentist_id",
-        },
-        status: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "appointment",
-            "status"
-          >,
-        },
-        notes: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "appointment",
-            "notes"
-          >,
-        },
-        type: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "appointment",
-            "type"
-          >,
-        },
-        time: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "appointment",
-            "time"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "appointment",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "appointment",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    auditLog: {
-      name: "auditLog",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "auditLog",
-            "id"
-          >,
-        },
-        orgId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "auditLog",
-            "orgId"
-          >,
-          serverName: "org_id",
-        },
-        userId: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "auditLog",
-            "userId"
-          >,
-          serverName: "user_id",
-        },
-        patId: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "auditLog",
-            "patId"
-          >,
-          serverName: "pat_id",
-        },
-        action: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "auditLog",
-            "action"
-          >,
-        },
-        entity: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "auditLog",
-            "entity"
-          >,
-        },
-        entityId: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "auditLog",
-            "entityId"
-          >,
-          serverName: "entity_id",
-        },
-        changes: {
-          type: "json",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "auditLog",
-            "changes"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "auditLog",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-      },
-      primaryKey: ["id"],
-      serverName: "audit_log",
-    },
-    clinicalNote: {
-      name: "clinicalNote",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "clinicalNote",
-            "id"
-          >,
-        },
-        appointmentId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "clinicalNote",
-            "appointmentId"
-          >,
-          serverName: "appointment_id",
-        },
-        dentistId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "clinicalNote",
-            "dentistId"
-          >,
-          serverName: "dentist_id",
-        },
-        notes: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "clinicalNote",
-            "notes"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "clinicalNote",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "clinicalNote",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-      serverName: "clinical_note",
-    },
-    dentist: {
-      name: "dentist",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "dentist",
-            "id"
-          >,
-        },
-        orgId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "dentist",
-            "orgId"
-          >,
-          serverName: "org_id",
-        },
-        firstName: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "dentist",
-            "firstName"
-          >,
-          serverName: "first_name",
-        },
-        lastName: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "dentist",
-            "lastName"
-          >,
-          serverName: "last_name",
-        },
-        email: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "dentist",
-            "email"
-          >,
-        },
-        phone: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "dentist",
-            "phone"
-          >,
-        },
-        specialization: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "dentist",
-            "specialization"
-          >,
-        },
-        licenseNumber: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "dentist",
-            "licenseNumber"
-          >,
-          serverName: "license_number",
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "dentist",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "dentist",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    diagnosis: {
-      name: "diagnosis",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "diagnosis",
-            "id"
-          >,
-        },
-        code: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "diagnosis",
-            "code"
-          >,
-        },
-        code_system: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "diagnosis",
-            "code_system"
-          >,
-        },
-        description: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "diagnosis",
-            "description"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "diagnosis",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "diagnosis",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    file: {
-      name: "file",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "file",
-            "id"
-          >,
-        },
-        orgId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "file",
-            "orgId"
-          >,
-          serverName: "org_id",
-        },
-        patId: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "file",
-            "patId"
-          >,
-          serverName: "pat_id",
-        },
-        appointmentId: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "file",
-            "appointmentId"
-          >,
-          serverName: "appointment_id",
-        },
-        uploadedBy: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "file",
-            "uploadedBy"
-          >,
-          serverName: "uploaded_by",
-        },
-        fileType: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "file",
-            "fileType"
-          >,
-          serverName: "file_type",
-        },
-        storageUrl: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "file",
-            "storageUrl"
-          >,
-          serverName: "storage_url",
-        },
-        metadata: {
-          type: "json",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "file",
-            "metadata"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "file",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "file",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    form: {
-      name: "form",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "form",
-            "id"
-          >,
-        },
-        orgId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "form",
-            "orgId"
-          >,
-          serverName: "org_id",
-        },
-        name: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "form",
-            "name"
-          >,
-        },
-        schema: {
-          type: "json",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "form",
-            "schema"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "form",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "form",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    formResponse: {
-      name: "formResponse",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "formResponse",
-            "id"
-          >,
-        },
-        formId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "formResponse",
-            "formId"
-          >,
-          serverName: "form_id",
-        },
-        patId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "formResponse",
-            "patId"
-          >,
-          serverName: "pat_id",
-        },
-        submittedBy: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "formResponse",
-            "submittedBy"
-          >,
-          serverName: "submitted_by",
-        },
-        responseData: {
-          type: "json",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "formResponse",
-            "responseData"
-          >,
-          serverName: "response_data",
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "formResponse",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "formResponse",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-      serverName: "form_response",
-    },
-    invitation: {
-      name: "invitation",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "invitation",
-            "id"
-          >,
-        },
-        organizationId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "invitation",
-            "organizationId"
-          >,
-          serverName: "organization_id",
-        },
-        email: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "invitation",
-            "email"
-          >,
-        },
-        role: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "invitation",
-            "role"
-          >,
-        },
-        status: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "invitation",
-            "status"
-          >,
-        },
-        expiresAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "invitation",
-            "expiresAt"
-          >,
-          serverName: "expires_at",
-        },
-        inviterId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "invitation",
-            "inviterId"
-          >,
-          serverName: "inviter_id",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    jwks: {
-      name: "jwks",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "jwks",
-            "id"
-          >,
-        },
-        publicKey: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "jwks",
-            "publicKey"
-          >,
-          serverName: "public_key",
-        },
-        privateKey: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "jwks",
-            "privateKey"
-          >,
-          serverName: "private_key",
-        },
-        createdAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "jwks",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    member: {
-      name: "member",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "member",
-            "id"
-          >,
-        },
-        organizationId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "member",
-            "organizationId"
-          >,
-          serverName: "organization_id",
-        },
-        userId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "member",
-            "userId"
-          >,
-          serverName: "user_id",
-        },
-        role: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "member",
-            "role"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "member",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    missingTooth: {
-      name: "missingTooth",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "missingTooth",
-            "id"
-          >,
-        },
-        patId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "missingTooth",
-            "patId"
-          >,
-          serverName: "pat_id",
-        },
-        toothId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "missingTooth",
-            "toothId"
-          >,
-          serverName: "tooth_id",
-        },
-        reason: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "missingTooth",
-            "reason"
-          >,
-        },
-        dateDetected: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "missingTooth",
-            "dateDetected"
-          >,
-          serverName: "date_detected",
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "missingTooth",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "missingTooth",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-      serverName: "missing_tooth",
-    },
-    organization: {
-      name: "organization",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "organization",
-            "id"
-          >,
-        },
-        name: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "organization",
-            "name"
-          >,
-        },
-        slug: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "organization",
-            "slug"
-          >,
-        },
-        logo: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "organization",
-            "logo"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "organization",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        metadata: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "organization",
-            "metadata"
-          >,
-        },
-      },
-      primaryKey: ["id"],
-    },
-    patient: {
-      name: "patient",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "patient",
-            "id"
-          >,
-        },
-        orgId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "patient",
-            "orgId"
-          >,
-          serverName: "org_id",
-        },
-        firstName: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "patient",
-            "firstName"
-          >,
-          serverName: "first_name",
-        },
-        lastName: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "patient",
-            "lastName"
-          >,
-          serverName: "last_name",
-        },
-        middleName: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "patient",
-            "middleName"
-          >,
-          serverName: "middle_name",
-        },
-        email: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "patient",
-            "email"
-          >,
-        },
-        phone: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "patient",
-            "phone"
-          >,
-        },
-        status: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "patient",
-            "status"
-          >,
-        },
-        dob: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "patient",
-            "dob"
-          >,
-        },
-        addressId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "patient",
-            "addressId"
-          >,
-          serverName: "address_id",
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "patient",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "patient",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    procedure: {
-      name: "procedure",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "procedure",
-            "id"
-          >,
-        },
-        code_system: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "procedure",
-            "code_system"
-          >,
-        },
-        code: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "procedure",
-            "code"
-          >,
-        },
-        description: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "procedure",
-            "description"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "procedure",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "procedure",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    session: {
-      name: "session",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "session",
-            "id"
-          >,
-        },
-        expiresAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "session",
-            "expiresAt"
-          >,
-          serverName: "expires_at",
-        },
-        token: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "session",
-            "token"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "session",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "session",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-        ipAddress: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "session",
-            "ipAddress"
-          >,
-          serverName: "ip_address",
-        },
-        userAgent: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "session",
-            "userAgent"
-          >,
-          serverName: "user_agent",
-        },
-        userId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "session",
-            "userId"
-          >,
-          serverName: "user_id",
-        },
-        impersonatedBy: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "session",
-            "impersonatedBy"
-          >,
-          serverName: "impersonated_by",
-        },
-        activeTeamId: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "session",
-            "activeTeamId"
-          >,
-          serverName: "active_team_id",
-        },
-        activeOrganizationId: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "session",
-            "activeOrganizationId"
-          >,
-          serverName: "active_organization_id",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    team: {
-      name: "team",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "team",
-            "id"
-          >,
-        },
-        name: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "team",
-            "name"
-          >,
-        },
-        organizationId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "team",
-            "organizationId"
-          >,
-          serverName: "organization_id",
-        },
-        createdAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "team",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "team",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    teamMember: {
-      name: "teamMember",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "teamMember",
-            "id"
-          >,
-        },
-        teamId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "teamMember",
-            "teamId"
-          >,
-          serverName: "team_id",
-        },
-        userId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "teamMember",
-            "userId"
-          >,
-          serverName: "user_id",
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "teamMember",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-      },
-      primaryKey: ["id"],
-      serverName: "team_member",
-    },
-    tooth: {
-      name: "tooth",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "tooth",
-            "id"
-          >,
-        },
-        name: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "tooth",
-            "name"
-          >,
-        },
-        position: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "tooth",
-            "position"
-          >,
-        },
-        notation: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "tooth",
-            "notation"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "tooth",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "tooth",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    toothMovement: {
-      name: "toothMovement",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothMovement",
-            "id"
-          >,
-        },
-        patId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothMovement",
-            "patId"
-          >,
-          serverName: "pat_id",
-        },
-        toothId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothMovement",
-            "toothId"
-          >,
-          serverName: "tooth_id",
-        },
-        type: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothMovement",
-            "type"
-          >,
-        },
-        description: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothMovement",
-            "description"
-          >,
-        },
-        startDate: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothMovement",
-            "startDate"
-          >,
-          serverName: "start_date",
-        },
-        endDate: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothMovement",
-            "endDate"
-          >,
-          serverName: "end_date",
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothMovement",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothMovement",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-      serverName: "tooth_movement",
-    },
-    toothSurface: {
-      name: "toothSurface",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothSurface",
-            "id"
-          >,
-        },
-        toothId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothSurface",
-            "toothId"
-          >,
-          serverName: "tooth_id",
-        },
-        surface: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothSurface",
-            "surface"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothSurface",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "toothSurface",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-      serverName: "tooth_surface",
-    },
-    treatmentItem: {
-      name: "treatmentItem",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentItem",
-            "id"
-          >,
-        },
-        treatmentPlanId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentItem",
-            "treatmentPlanId"
-          >,
-          serverName: "treatment_plan_id",
-        },
-        appointmentId: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentItem",
-            "appointmentId"
-          >,
-          serverName: "appointment_id",
-        },
-        dentistId: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentItem",
-            "dentistId"
-          >,
-          serverName: "dentist_id",
-        },
-        toothSurfaceId: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentItem",
-            "toothSurfaceId"
-          >,
-          serverName: "tooth_surface_id",
-        },
-        diagnosisId: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentItem",
-            "diagnosisId"
-          >,
-          serverName: "diagnosis_id",
-        },
-        procedureId: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentItem",
-            "procedureId"
-          >,
-          serverName: "procedure_id",
-        },
-        status: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentItem",
-            "status"
-          >,
-        },
-        date: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentItem",
-            "date"
-          >,
-        },
-        priority: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentItem",
-            "priority"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentItem",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentItem",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-      serverName: "treatment_item",
-    },
-    treatmentPlan: {
-      name: "treatmentPlan",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentPlan",
-            "id"
-          >,
-        },
-        patId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentPlan",
-            "patId"
-          >,
-          serverName: "pat_id",
-        },
-        dentistId: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentPlan",
-            "dentistId"
-          >,
-          serverName: "dentist_id",
-        },
-        notes: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentPlan",
-            "notes"
-          >,
-        },
-        status: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentPlan",
-            "status"
-          >,
-        },
-        createdBy: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentPlan",
-            "createdBy"
-          >,
-          serverName: "created_by",
-        },
-        editedBy: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentPlan",
-            "editedBy"
-          >,
-          serverName: "edited_by",
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentPlan",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "treatmentPlan",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-      serverName: "treatment_plan",
-    },
-    user: {
-      name: "user",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "user",
-            "id"
-          >,
-        },
-        name: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "user",
-            "name"
-          >,
-        },
-        email: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "user",
-            "email"
-          >,
-        },
-        emailVerified: {
-          type: "boolean",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "user",
-            "emailVerified"
-          >,
-          serverName: "email_verified",
-        },
-        image: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "user",
-            "image"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "user",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "user",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-        role: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "user",
-            "role"
-          >,
-        },
-        position: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "user",
-            "position"
-          >,
-        },
-        locale: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "user",
-            "locale"
-          >,
-        },
-        banned: {
-          type: "boolean",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "user",
-            "banned"
-          >,
-        },
-        banReason: {
-          type: "string",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "user",
-            "banReason"
-          >,
-          serverName: "ban_reason",
-        },
-        banExpires: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "user",
-            "banExpires"
-          >,
-          serverName: "ban_expires",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    verification: {
-      name: "verification",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "verification",
-            "id"
-          >,
-        },
-        identifier: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "verification",
-            "identifier"
-          >,
-        },
-        value: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "verification",
-            "value"
-          >,
-        },
-        expiresAt: {
-          type: "number",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "verification",
-            "expiresAt"
-          >,
-          serverName: "expires_at",
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "verification",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-        updatedAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "verification",
-            "updatedAt"
-          >,
-          serverName: "updated_at",
-        },
-      },
-      primaryKey: ["id"],
-    },
-    waitlist: {
-      name: "waitlist",
-      columns: {
-        id: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "waitlist",
-            "id"
-          >,
-        },
-        firstName: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "waitlist",
-            "firstName"
-          >,
-          serverName: "first_name",
-        },
-        lastName: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "waitlist",
-            "lastName"
-          >,
-          serverName: "last_name",
-        },
-        email: {
-          type: "string",
-          optional: false,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "waitlist",
-            "email"
-          >,
-        },
-        createdAt: {
-          type: "number",
-          optional: true,
-          customType: null as unknown as ZeroCustomType<
-            ZeroSchema,
-            "waitlist",
-            "createdAt"
-          >,
-          serverName: "created_at",
-        },
-      },
-      primaryKey: ["id"],
-    },
-  },
-  relationships: {
-    account: {
-      user: [
-        {
-          sourceField: ["userId"],
-          destField: ["id"],
-          destSchema: "user",
-          cardinality: "one",
-        },
-      ],
-    },
-    address: {
-      patients: [
-        {
-          sourceField: ["id"],
-          destField: ["addressId"],
-          destSchema: "patient",
-          cardinality: "many",
-        },
-      ],
-    },
-    appointment: {
-      patient: [
-        {
-          sourceField: ["patId"],
-          destField: ["id"],
-          destSchema: "patient",
-          cardinality: "one",
-        },
-      ],
-      dentist: [
-        {
-          sourceField: ["dentistId"],
-          destField: ["id"],
-          destSchema: "dentist",
-          cardinality: "one",
-        },
-      ],
-    },
-    clinicalNote: {
-      appointment: [
-        {
-          sourceField: ["appointmentId"],
-          destField: ["id"],
-          destSchema: "appointment",
-          cardinality: "one",
-        },
-      ],
-      dentist: [
-        {
-          sourceField: ["dentistId"],
-          destField: ["id"],
-          destSchema: "dentist",
-          cardinality: "one",
-        },
-      ],
-    },
-    dentist: {
-      appointments: [
-        {
-          sourceField: ["id"],
-          destField: ["dentistId"],
-          destSchema: "appointment",
-          cardinality: "many",
-        },
-      ],
-    },
-    file: {
-      patient: [
-        {
-          sourceField: ["patId"],
-          destField: ["id"],
-          destSchema: "patient",
-          cardinality: "one",
-        },
-      ],
-      appointment: [
-        {
-          sourceField: ["appointmentId"],
-          destField: ["id"],
-          destSchema: "appointment",
-          cardinality: "one",
-        },
-      ],
-    },
-    form: {
-      responses: [
-        {
-          sourceField: ["id"],
-          destField: ["formId"],
-          destSchema: "formResponse",
-          cardinality: "many",
-        },
-      ],
-    },
-    formResponse: {
-      form: [
-        {
-          sourceField: ["formId"],
-          destField: ["id"],
-          destSchema: "form",
-          cardinality: "one",
-        },
-      ],
-      patient: [
-        {
-          sourceField: ["patId"],
-          destField: ["id"],
-          destSchema: "patient",
-          cardinality: "one",
-        },
-      ],
-    },
-    invitation: {
-      organization: [
-        {
-          sourceField: ["organizationId"],
-          destField: ["id"],
-          destSchema: "organization",
-          cardinality: "one",
-        },
-      ],
-      inviter: [
-        {
-          sourceField: ["inviterId"],
-          destField: ["id"],
-          destSchema: "user",
-          cardinality: "one",
-        },
-      ],
-    },
-    member: {
-      organization: [
-        {
-          sourceField: ["organizationId"],
-          destField: ["id"],
-          destSchema: "organization",
-          cardinality: "one",
-        },
-      ],
-      user: [
-        {
-          sourceField: ["userId"],
-          destField: ["id"],
-          destSchema: "user",
-          cardinality: "one",
-        },
-      ],
-    },
-    missingTooth: {
-      patient: [
-        {
-          sourceField: ["patId"],
-          destField: ["id"],
-          destSchema: "patient",
-          cardinality: "one",
-        },
-      ],
-      tooth: [
-        {
-          sourceField: ["toothId"],
-          destField: ["id"],
-          destSchema: "tooth",
-          cardinality: "one",
-        },
-      ],
-    },
-    organization: {
-      teams: [
-        {
-          sourceField: ["id"],
-          destField: ["organizationId"],
-          destSchema: "team",
-          cardinality: "many",
-        },
-      ],
-      members: [
-        {
-          sourceField: ["id"],
-          destField: ["organizationId"],
-          destSchema: "member",
-          cardinality: "many",
-        },
-      ],
-      invitations: [
-        {
-          sourceField: ["id"],
-          destField: ["organizationId"],
-          destSchema: "invitation",
-          cardinality: "many",
-        },
-      ],
-    },
-    patient: {
-      address: [
-        {
-          sourceField: ["addressId"],
-          destField: ["id"],
-          destSchema: "address",
-          cardinality: "one",
-        },
-      ],
-      appointments: [
-        {
-          sourceField: ["id"],
-          destField: ["patId"],
-          destSchema: "appointment",
-          cardinality: "many",
-        },
-      ],
-    },
-    session: {
-      user: [
-        {
-          sourceField: ["userId"],
-          destField: ["id"],
-          destSchema: "user",
-          cardinality: "one",
-        },
-      ],
-    },
-    teamMember: {
-      team: [
-        {
-          sourceField: ["teamId"],
-          destField: ["id"],
-          destSchema: "team",
-          cardinality: "one",
-        },
-      ],
-      user: [
-        {
-          sourceField: ["userId"],
-          destField: ["id"],
-          destSchema: "user",
-          cardinality: "one",
-        },
-      ],
-    },
-    team: {
-      organization: [
-        {
-          sourceField: ["organizationId"],
-          destField: ["id"],
-          destSchema: "organization",
-          cardinality: "one",
-        },
-      ],
-      teamMembers: [
-        {
-          sourceField: ["id"],
-          destField: ["teamId"],
-          destSchema: "teamMember",
-          cardinality: "many",
-        },
-      ],
-    },
-    toothMovement: {
-      patient: [
-        {
-          sourceField: ["patId"],
-          destField: ["id"],
-          destSchema: "patient",
-          cardinality: "one",
-        },
-      ],
-      tooth: [
-        {
-          sourceField: ["toothId"],
-          destField: ["id"],
-          destSchema: "tooth",
-          cardinality: "one",
-        },
-      ],
-    },
-    tooth: {
-      surfaces: [
-        {
-          sourceField: ["id"],
-          destField: ["toothId"],
-          destSchema: "toothSurface",
-          cardinality: "many",
-        },
-      ],
-      missingTeeth: [
-        {
-          sourceField: ["id"],
-          destField: ["toothId"],
-          destSchema: "missingTooth",
-          cardinality: "many",
-        },
-      ],
-      toothMovements: [
-        {
-          sourceField: ["id"],
-          destField: ["toothId"],
-          destSchema: "toothMovement",
-          cardinality: "many",
-        },
-      ],
-    },
-    toothSurface: {
-      tooth: [
-        {
-          sourceField: ["toothId"],
-          destField: ["id"],
-          destSchema: "tooth",
-          cardinality: "one",
-        },
-      ],
-    },
-    treatmentItem: {
-      treatmentPlan: [
-        {
-          sourceField: ["treatmentPlanId"],
-          destField: ["id"],
-          destSchema: "treatmentPlan",
-          cardinality: "one",
-        },
-      ],
-      appointment: [
-        {
-          sourceField: ["appointmentId"],
-          destField: ["id"],
-          destSchema: "appointment",
-          cardinality: "one",
-        },
-      ],
-      dentist: [
-        {
-          sourceField: ["dentistId"],
-          destField: ["id"],
-          destSchema: "dentist",
-          cardinality: "one",
-        },
-      ],
-      toothSurface: [
-        {
-          sourceField: ["toothSurfaceId"],
-          destField: ["id"],
-          destSchema: "toothSurface",
-          cardinality: "one",
-        },
-      ],
-      diagnosis: [
-        {
-          sourceField: ["diagnosisId"],
-          destField: ["id"],
-          destSchema: "diagnosis",
-          cardinality: "one",
-        },
-      ],
-      procedure: [
-        {
-          sourceField: ["procedureId"],
-          destField: ["id"],
-          destSchema: "procedure",
-          cardinality: "one",
-        },
-      ],
-    },
-    treatmentPlan: {
-      patient: [
-        {
-          sourceField: ["patId"],
-          destField: ["id"],
-          destSchema: "patient",
-          cardinality: "one",
-        },
-      ],
-      dentist: [
-        {
-          sourceField: ["dentistId"],
-          destField: ["id"],
-          destSchema: "dentist",
-          cardinality: "one",
-        },
-      ],
-      treatmentItems: [
-        {
-          sourceField: ["id"],
-          destField: ["treatmentPlanId"],
-          destSchema: "treatmentItem",
-          cardinality: "many",
-        },
-      ],
-    },
-    user: {
-      members: [
-        {
-          sourceField: ["id"],
-          destField: ["userId"],
-          destSchema: "member",
-          cardinality: "many",
-        },
-      ],
-      sessions: [
-        {
-          sourceField: ["id"],
-          destField: ["userId"],
-          destSchema: "session",
-          cardinality: "many",
-        },
-      ],
-      accounts: [
-        {
-          sourceField: ["id"],
-          destField: ["userId"],
-          destSchema: "account",
-          cardinality: "many",
-        },
-      ],
-      invitations: [
-        {
-          sourceField: ["id"],
-          destField: ["inviterId"],
-          destSchema: "invitation",
-          cardinality: "many",
-        },
-      ],
-    },
-  },
-  enableLegacyQueries: true,
-  enableLegacyMutators: true,
+    "enableLegacyQueries": true,
+    "enableLegacyMutators": true
 } as const;
 
 /**

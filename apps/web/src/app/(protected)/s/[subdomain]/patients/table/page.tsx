@@ -9,10 +9,7 @@ import { getSortingStateParser } from "@repo/design/src/lib/parsers";
 
 import type { FiltersState } from "~/components/data-table-filter/core/types";
 import { patientColumnDefs } from "./_components/columns";
-import {
-  PatientRow,
-  PatientsZeroTable,
-} from "./_components/patients-zero-table";
+import { PatientRow, PatientsTable } from "./_components/patients-table";
 
 const filtersSchema = z.custom<FiltersState>();
 
@@ -40,7 +37,7 @@ export default function Page() {
   );
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <PatientsZeroTable
+      <PatientsTable
         state={{ filters, setFilters, sorting, setSorting: onSortingChange }}
       />
     </div>

@@ -56,7 +56,12 @@ export default function AppointmentPage() {
 }
 
 function Calendar() {
-  // const [items, setItems] = useState<Appointment[]>(appointments);
+  // console.log("dentists", dentists);
+
+  // const [appointment, { type }] = useQuery(zero.query.appointment);
+
+  // console.log("appointment", appointment);
+
   const appointments = useCalendarStore((state) => state.appointments);
   const updateAppointment = useCalendarStore(
     (state) => state.updateAppointment,
@@ -101,7 +106,7 @@ function Calendar() {
       endTime: newEnd.toISOString(),
     };
 
-    //   // Check for collisions before updating
+    // Check for collisions before updating
     if (hasCollision(newAppointment, appointments)) {
       console.warn("Cannot move appointment: time slot is already occupied");
       return;

@@ -78,3 +78,20 @@ export const treatmentItemPriorityEnum = pgEnum("treatment_item_priority", [
   "MEDIUM",
   "HIGH",
 ]);
+
+export const colourEnum = pgEnum("colour", [
+  "sky",
+  "pink",
+  "orange",
+  "purple",
+  "green",
+  "blue",
+  "red",
+  "yellow",
+  "rose",
+  "lime",
+  "indigo",
+  "teal",
+]);
+
+export type Colour = (typeof colourEnum.enumValues)[number];

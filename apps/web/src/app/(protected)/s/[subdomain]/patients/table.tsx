@@ -1,12 +1,14 @@
 "use client";
 
+import type { Row, Zero } from "@rocicorp/zero";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Row, Zero } from "@rocicorp/zero";
 import { useQuery, useZero } from "@rocicorp/zero/react";
 import { Plus, User } from "lucide-react";
-import { parseAsInteger, useQueryState, useQueryStates } from "nuqs";
+import { parseAsInteger, useQueryStates } from "nuqs";
 
 import type { ExtendedColumnFilter } from "@repo/design/src/types/data-table";
+import type { Mutators } from "@repo/zero/src/mutators";
+import type { Schema } from "@repo/zero/src/schema";
 import { DataTable } from "@repo/design/components/data-table/data-table";
 import { Button } from "@repo/design/components/ui/button";
 import { Checkbox } from "@repo/design/components/ui/checkbox";
@@ -25,11 +27,8 @@ import {
 } from "@repo/design/src/components/ui/popover";
 import { useDataTable } from "@repo/design/src/hooks/use-data-table";
 import { CheckCircle, MoreVertical, XCircle } from "@repo/design/src/icons";
-import { Mutators } from "@repo/zero/src/mutators";
-import { Schema } from "@repo/zero/src/schema";
 
 import { authClient } from "~/auth/client";
-import { useZeroQueryStatus } from "~/providers/zero";
 import { FloatingBar } from "./floating-bar";
 
 const treatments = [
@@ -99,16 +98,14 @@ export const sampleData = Array.from({ length: 150 }, (_, i) => ({
 }));
 
 const limit = 1000;
-function listQuery(zero: Zero<Schema, Mutators>, q: string | undefined) {
+export function listQuery(zero: Zero<Schema, Mutators>, q: string | undefined) {
   let query = zero.query.patient
     .orderBy("createdAt", "desc")
     .related("address")
     .limit(limit);
 
   if (q) {
-    // simple name search on first or last name
     query = query.where("firstName", "ILIKE", `%${q}%`);
-    // ('lastName', 'ILIKE', `%${q}%`);
   }
   return query;
 }
@@ -318,7 +315,7 @@ export const PatientsTable = () => {
   // const [title] = useQueryState("title", parseAsString.withDefault(""));
 
   function fetchPatients(z: Zero<Schema, Mutators>) {
-    let query = z.query.patient.related("address");
+    const query = z.query.patient.related("address");
 
     return query;
   }
