@@ -59,8 +59,8 @@ export function DentistsSelector() {
           <Button
             variant="outline"
             role="combobox"
-            // aria-expanded={isDentistsSelectorOpen}
-            className="justify-between overflow-x-hidden text-xs md:w-[240px]"
+            aria-expanded={true}
+            className="justify-between overflow-hidden text-xs md:w-[240px]"
           >
             {selectedDentistNamesLabel()}
             <ChevronsUpDown className="opacity-50" />

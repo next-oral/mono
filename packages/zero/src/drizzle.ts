@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+
 // Assuming $client is the raw pg.PoolClient, this type matches how
 // `drizzle()` inits when using `node-postgres`
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";

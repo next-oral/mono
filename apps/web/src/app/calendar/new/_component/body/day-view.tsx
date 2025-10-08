@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { isSameDay } from "date-fns";
 
 import { DAY_HEIGHT_PX } from "../constants";
@@ -7,6 +8,7 @@ import { useCalendarStore } from "../store";
 import { DayViewAppointmentCard } from "./appointments";
 import { CalenderCellLines } from "./calender-cell-lines";
 import { DroppableColumn } from "./droppable-column";
+import { SlotHighlighter } from "./slot-highlighter";
 
 export function DayView() {
   const calendarView = useCalendarStore((state) => state.calendarView);
@@ -40,6 +42,11 @@ export function DayView() {
               appointment={appointment}
             />
           ))}
+
+          <SlotHighlighter
+            currentDate={currentDate}
+            currentDentistId={dentist.id}
+          />
         </div>
       </DroppableColumn>
     );
