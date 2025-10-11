@@ -193,6 +193,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
               return value;
             }
           },
+          //@ts-expect-error asdss
           serialize: (
             value: string | number | [number, number] | null,
           ): string => {

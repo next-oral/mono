@@ -6,8 +6,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema/index.ts",
-    "./mutators": "./src/mutators.ts",
-    "./exports": "./src/exports.ts"
+    "./mutators": "./src/mutators/index.ts",
+    "./exports": "./src/exports.ts",
+    "./drizzle": "./src/drizzle.ts"
   },
   "scripts": {
     "build": "tsc",
@@ -15,7 +16,6 @@
     "zero:dev": "pnpm with-env tsx src/scripts/dev.ts",
     "dev:clean": "pnpm with-env tsx src/scripts/clean.ts",
     "dev:db": "pnpm with-env tsx src/scripts/db.ts",
-    "dev:studio": "pnpm with-env npx drizzle-kit studio --host 192.168.100.14",
     "dev:zero": "pnpm with-env zero-cache-dev",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
@@ -35,6 +35,7 @@
   },
   "prettier": "@repo/prettier-config",
   "dependencies": {
+    "@repo/auth": "workspace:*",
     "@repo/database": "workspace:*",
     "@rocicorp/zero": "^0.23.2025090100",
     "concurrently": "^9.2.1",

@@ -1,17 +1,11 @@
 "use client";
 
 import React, { useRef } from "react";
-import {
-  addMinutes,
-  format,
-  intervalToDuration,
-  parse,
-  startOfDay,
-} from "date-fns";
+import { intervalToDuration, parse } from "date-fns";
 
 import { SLOT_HEIGHT_PX } from "../constants";
+import { getTimeStringFromTop } from "../header/new-appointment";
 import { useCalendarStore } from "../store";
-import { getTimeStringFromTop } from "../utils";
 
 const HOLD_MS = 30; // the 300ms threshold
 const MOVE_CANCEL_PX = 6; // small move cancels the hold before it arms
@@ -34,11 +28,11 @@ export function SlotHighlighter({
   const highlight = useCalendarStore((state) => state.highlight);
   const setHighlight = useCalendarStore((state) => state.setHighlight);
   const setShowNewAppointmentDialog = useCalendarStore(
-    (state) => state.setShowNewAppointmentDialog,
+    (state) => state.setShowAppointmentSheet,
   );
 
   // minutes per slot = 15 (by design)
-  const MINUTES_PER_SLOT = 15;
+  // const MINUTES_PER_SLOT = 15;
 
   function clampToContainer(y: number, containerHeight: number) {
     if (y < 0) return 0;
@@ -123,7 +117,9 @@ export function SlotHighlighter({
         clearHoldTimer();
         try {
           container.releasePointerCapture(Number(pointerIdRef.current));
-        } catch {}
+        } catch {
+          // ignore
+        }
         pointerIdRef.current = null;
         downPosRef.current = null;
       }
@@ -131,7 +127,7 @@ export function SlotHighlighter({
     }
 
     // if armed, update highlight range
-    if (armedRef.current && startSlotRef.current !== null) {
+    if (startSlotRef.current !== null) {
       const slot = yToSlotIndex(localY);
       const r = slotRangeToRect(startSlotRef.current, slot);
       setHighlight(currentDentistId, currentDate, r);
@@ -152,7 +148,8 @@ export function SlotHighlighter({
       }
     }
 
-    // If user held long enough (armed), open the dialog.
+    // If user held long enough (armed), open the dialog only when a valid selection exists
+    // and it corresponds to the current dentist column.
     if (armedRef.current) {
       setShowNewAppointmentDialog(true);
       // note: we intentionally keep the highlight in store (you can clear it if you want)
@@ -167,13 +164,11 @@ export function SlotHighlighter({
     e.preventDefault();
   }
 
-  const timeBadge = highlight
-    ? getTimeStringFromTop(
-        Number(highlight.rect?.top),
-        Number(highlight.rect?.height),
-        currentDate,
-      )
-    : null;
+  const timeBadge = getTimeStringFromTop(
+    Number(highlight.rect?.top),
+    Number(highlight.rect?.height),
+    currentDate,
+  );
 
   const startDate = parse(String(timeBadge?.startStr), "h:mm a", currentDate);
   const endDate = parse(String(timeBadge?.endStr), "h:mm a", currentDate);
@@ -183,7 +178,6 @@ export function SlotHighlighter({
   return (
     <div
       ref={containerRef}
-      // absolute inset-0 to overlay full column area
       className="absolute inset-0 h-full w-full"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -193,7 +187,7 @@ export function SlotHighlighter({
       style={{ touchAction: "none" }}
     >
       {/* Render highlight (only visible during dragging/armed) */}
-      {highlight && highlight.dentistId == currentDentistId && (
+      {highlight.dentistId === currentDentistId && (
         <div
           className="pointer-events-none absolute right-0 left-0 overflow-hidden rounded-sm bg-blue-500/70 p-2"
           style={{

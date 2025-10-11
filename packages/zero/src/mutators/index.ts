@@ -1,18 +1,17 @@
 import type { CustomMutatorDefs, Transaction } from "@rocicorp/zero";
 import { createId } from "@paralleldrive/cuid2";
 
-import type {
-  AddressInsertSchema,
-  AppointmentInsertSchema,
-} from "@repo/database/schema";
+import type { Session } from "@repo/auth";
+import type { AddressInsertSchema } from "@repo/database/schema";
 
-import type { AuthData, Schema } from "./schema";
+import type { Appointment, Schema } from "../schema";
 
-export function createMutators(_authData: AuthData | undefined) {
+export function createMutators(_session: Session | null) {
   return {
     address: {
       create: async (tx: Transaction<Schema>, addr: AddressInsertSchema) => {
-        const id = createId();
+        //! TODO: create id on the client
+        const id = "anno";
         return await tx.mutate.address.insert({
           ...addr,
           id,
@@ -23,7 +22,6 @@ export function createMutators(_authData: AuthData | undefined) {
         tx: Transaction<Schema>,
         addr: AddressInsertSchema & { id: string },
       ) => {
-        console.log("addr", addr);
         await tx.mutate.address.update({
           ...addr,
           updatedAt: Date.now(),
@@ -32,24 +30,48 @@ export function createMutators(_authData: AuthData | undefined) {
     },
 
     appointment: {
-      create: async (tx: Transaction<Schema>, apt: AppointmentInsertSchema) => {
+      // create: async (
+      //   tx: Transaction<Schema>,
+      //   apt: AppointmentInsertSchema & { id: string },
+      // ) => {
+      //   await tx.mutate.appointment.upsert({
+      //     ...apt,
+      //     start: new Date(apt.start).getTime(),
+      //     end: new Date(apt.end).getTime(),
+      //     updatedAt: Date.now(),
+      //   });
+      // },
+      create: async (
+        tx: Transaction<Schema>,
+        apt: Omit<Appointment, "updatedAt" | "createdAt">,
+      ) => {
         const id = createId();
-        return await tx.mutate.appointment.insert({
+        await tx.mutate.appointment.upsert({
           ...apt,
           id,
-          start: new Date(apt.start).getTime(),
-          end: new Date(apt.end).getTime(),
           updatedAt: Date.now(),
         });
       },
       update: async (
         tx: Transaction<Schema>,
-        apt: AppointmentInsertSchema & { id: string; updatedAt: number },
+        apt: Appointment & { id: string; updatedAt: number },
       ) => {
-        await tx.mutate.appointment.update({
-          ...apt,
-          start: new Date(apt.start).getTime(),
-          end: new Date(apt.end).getTime(),
+        await tx.mutate.appointment.update(apt);
+      },
+      // update: async (
+      //   tx: Transaction<Schema>,
+      //   apt: AppointmentInsertSchema & { id: string; updatedAt: number },
+      // ) => {
+      //   await tx.mutate.appointment.update({
+      //     ...apt,
+      //     start: new Date(apt.start).getTime(),
+      //     end: new Date(apt.end).getTime(),
+      //     updatedAt: Date.now(),
+      //   });
+      // },
+      delete: async (tx: Transaction<Schema>, apt: { id: string }) => {
+        await tx.mutate.appointment.delete({
+          id: apt.id,
         });
       },
     },

@@ -21,7 +21,10 @@ export const domainRouter = {
       }),
     )
     .query(async ({ input, ctx }) => {
-     return {createdAt: Date.now(), emoji: ""} satisfies Subdomain;
+      return {
+        createdAt: Date.now(),
+        emoji: "ds",
+      } satisfies Subdomain;
       const sanitizedSubdomain = input.domain
         .toLowerCase()
         .replace(/[^a-z0-9-]/g, "");
@@ -43,7 +46,10 @@ export const domainRouter = {
               emoji: "🌍",
             },
           );
-
+          return {
+            createdAt: Date.now(),
+            emoji: "ds",
+          } satisfies Subdomain;
           if (set && typeof set === "object") return set;
         }
       }

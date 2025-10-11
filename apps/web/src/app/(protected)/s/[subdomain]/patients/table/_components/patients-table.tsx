@@ -22,6 +22,7 @@ import {
 import { Plus } from "@repo/design/src/icons";
 
 import type { FiltersState } from "~/components/data-table-filter/core/types";
+import { authClient } from "~/auth/client";
 import {
   DataTableFilter,
   useDataTableFilters,
@@ -35,8 +36,8 @@ import { patientColumnDefs } from "./columns";
 import { DataTable } from "./data-table";
 import { columnsConfig } from "./filters";
 
-function baseQuery(zero: Zero<Schema, Mutators>) {
-  return zero.query.patient.related("address");
+function baseQuery(zero: Zero<Schema, Mutators>, orgId: string) {
+  return zero.query.patient.where("orgId", "=", orgId).related("address");
 }
 
 export type PatientRow = Row<ReturnType<typeof baseQuery>>;
@@ -52,9 +53,16 @@ export function PatientsTable({
   };
 }) {
   const z = useZero<Schema, Mutators>();
+  const { data: activeOrganization } = authClient.useActiveOrganization();
+  const { data: organizations } = authClient.useListOrganizations();
+  const orgId = activeOrganization?.id ?? organizations?.[0]?.id ?? "";
+
+  // const { data: patients } = useZeroQuery(
+  //   z.query.patient.where("orgId", "=", orgId),
+  // );
 
   function buildQuery(zero: Zero<Schema, Mutators>) {
-    let query = baseQuery(zero);
+    let query = baseQuery(zero, orgId);
 
     for (const f of state.filters) {
       if (f.type !== "text") continue;
@@ -125,7 +133,6 @@ export function PatientsTable({
     actions,
     strategy,
     pagination,
-
     onPaginationChange,
   } = useDataTableFilters({
     strategy: "server",

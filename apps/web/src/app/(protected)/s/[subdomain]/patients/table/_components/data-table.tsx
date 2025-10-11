@@ -1,4 +1,4 @@
-import type { Table as TanStackTable } from "@tanstack/react-table";
+import type { Row, Table as TanStackTable } from "@tanstack/react-table";
 import { flexRender } from "@tanstack/react-table";
 import { XIcon } from "lucide-react";
 
@@ -22,10 +22,12 @@ export function DataTable({
   table,
   actions,
   isLoading,
+  onRowClick,
 }: {
   table: TanStackTable<any>;
   isLoading?: boolean;
   actions?: DataTableFilterActions;
+  onRowClick?: (row: Row<{ id: string }>) => void;
 }) {
   return (
     <div className="flex flex-col gap-2.5 rounded-lg border bg-slate-50 p-2">
@@ -61,6 +63,7 @@ export function DataTable({
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                     className="h-12"
+                    onClick={() => onRowClick?.(row)}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell className="h-12" key={cell.id}>

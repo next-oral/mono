@@ -97,15 +97,18 @@ export const sampleData = Array.from({ length: 150 }, (_, i) => ({
   ).toISOString(),
 }));
 
-const limit = 1000;
 export function listQuery(zero: Zero<Schema, Mutators>, q: string | undefined) {
   let query = zero.query.patient
     .orderBy("createdAt", "desc")
-    .related("address")
-    .limit(limit);
+    .related("address");
 
   if (q) {
-    query = query.where("firstName", "ILIKE", `%${q}%`);
+    query = query.where((ops) =>
+      ops.or(
+        ops.cmp("firstName", "ILIKE", `%${q}%`),
+        ops.cmp("lastName", "ILIKE", `%${q}%`),
+      ),
+    );
   }
   return query;
 }

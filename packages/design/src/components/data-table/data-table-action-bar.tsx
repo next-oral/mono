@@ -1,9 +1,10 @@
 "use client";
 
 import type { Table } from "@tanstack/react-table";
+import type { motion } from "motion/react";
 import * as React from "react";
 import { Loader, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence } from "motion/react";
 import * as ReactDOM from "react-dom";
 
 import { Button } from "@repo/design/components/ui/button";
@@ -22,62 +23,62 @@ interface DataTableActionBarProps<TData>
   container?: Element | DocumentFragment | null;
 }
 
-function DataTableActionBar<TData>({
-  table,
-  visible: visibleProp,
-  container: containerProp,
-  children,
-  className,
-  ...props
-}: DataTableActionBarProps<TData>) {
-  const [mounted, setMounted] = React.useState(false);
+// function DataTableActionBar<TData>({
+//   table,
+//   visible: visibleProp,
+//   container: containerProp,
+//   children,
+//   className,
+//   ...props
+// }: DataTableActionBarProps<TData>) {
+//   const [mounted, setMounted] = React.useState(false);
 
-  React.useLayoutEffect(() => {
-    setMounted(true);
-  }, []);
+//   React.useLayoutEffect(() => {
+//     setMounted(true);
+//   }, []);
 
-  React.useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        table.toggleAllRowsSelected(false);
-      }
-    }
+//   React.useEffect(() => {
+//     function onKeyDown(event: KeyboardEvent) {
+//       if (event.key === "Escape") {
+//         table.toggleAllRowsSelected(false);
+//       }
+//     }
 
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [table]);
+//     window.addEventListener("keydown", onKeyDown);
+//     return () => window.removeEventListener("keydown", onKeyDown);
+//   }, [table]);
 
-  const container =
-    containerProp ?? (mounted ? globalThis.document.body : null);
+//   const container =
+//     containerProp ?? (mounted ? globalThis.document.body : null);
 
-  if (!container) return null;
+//   if (!container) return null;
 
-  const visible =
-    visibleProp ?? table.getFilteredSelectedRowModel().rows.length > 0;
+//   const visible =
+//     visibleProp ?? table.getFilteredSelectedRowModel().rows.length > 0;
 
-  return ReactDOM.createPortal(
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          role="toolbar"
-          aria-orientation="horizontal"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.2, ease: "easeInOut" }}
-          className={cn(
-            "bg-background text-foreground fixed inset-x-0 bottom-6 z-50 mx-auto flex w-fit flex-wrap items-center justify-center gap-2 rounded-md border p-2 shadow-sm",
-            className,
-          )}
-          {...props}
-        >
-          {children}
-        </motion.div>
-      )}
-    </AnimatePresence>,
-    container,
-  );
-}
+//   return ReactDOM.createPortal(
+//     <AnimatePresence>
+//       {visible && (
+//         <motion.div
+//           role="toolbar"
+//           aria-orientation="horizontal"
+//           initial={{ opacity: 0, y: 20 }}
+//           animate={{ opacity: 1, y: 0 }}
+//           exit={{ opacity: 0, y: 20 }}
+//           transition={{ duration: 0.2, ease: "easeInOut" }}
+//           className={cn(
+//             "bg-background text-foreground fixed inset-x-0 bottom-6 z-50 mx-auto flex w-fit flex-wrap items-center justify-center gap-2 rounded-md border p-2 shadow-sm",
+//             className,
+//           )}
+//           {...props}
+//         >
+//           {children}
+//         </motion.div>
+//       )}
+//     </AnimatePresence>,
+//     container,
+//   );
+// }
 
 interface DataTableActionBarActionProps
   extends React.ComponentProps<typeof Button> {
@@ -173,7 +174,7 @@ function DataTableActionBarSelection<TData>({
 }
 
 export {
-  DataTableActionBar,
+  // DataTableActionBar,
   DataTableActionBarAction,
   DataTableActionBarSelection,
 };

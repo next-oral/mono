@@ -22,7 +22,7 @@ export function getTimeStringFromTop(
   if (!isNaN(Number(topPx)) && !isNaN(Number(heightPx))) {
     const startMinutes = (Number(topPx) / SLOT_HEIGHT_PX) * MINUTES_PER_SLOT;
     const endMinutes =
-      ((Number(topPx) + heightPx!) / SLOT_HEIGHT_PX) * MINUTES_PER_SLOT;
+      ((Number(topPx) + Number(heightPx)) / SLOT_HEIGHT_PX) * MINUTES_PER_SLOT;
 
     const dayStart = startOfDay(currentDate);
     const startDate = addMinutes(dayStart, startMinutes);

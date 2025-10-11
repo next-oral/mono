@@ -12,7 +12,6 @@ import {
 import { Control, FieldValues, Path, useForm } from "react-hook-form";
 import z from "zod";
 
-import { CustomCommandField } from "@repo/design/src/components/form/custom-command-field";
 import {
   Avatar,
   AvatarFallback,
@@ -653,8 +652,8 @@ export default function CustomComboboxField<T extends FieldValues>({
                 >
                   {field.value || defaultSelected
                     ? renderSelectedOption(
-                      field.value || String(defaultSelected),
-                    )
+                        field.value || String(defaultSelected),
+                      )
                     : placeholder}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>

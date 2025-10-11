@@ -1,31 +1,30 @@
-import type {
-  PermissionsConfig,
-  Row,
-  Schema as ZeroSchema,
-} from "@rocicorp/zero";
+import type { PermissionsConfig } from "@rocicorp/zero";
 import { ANYONE_CAN, definePermissions } from "@rocicorp/zero";
 
-import { schema as genSchema } from "./schema.gen";
+import type {
+  Address,
+  Appointment,
+  ClinicalNote,
+  Dentist,
+  Form,
+  FormResponse,
+  MissingTooth,
+  Patient,
+  Tooth,
+  ToothMovement,
+  TreatmentPlan,
+  Verification,
+} from "./schema.gen";
+import { schema } from "./schema.gen";
 
-export const schema = {
-  ...genSchema,
-  enableLegacyMutators: false,
-} as const satisfies ZeroSchema;
+export * from "./schema.gen";
+
+// export const schema = {
+//   ...genSchema,
+//   enableLegacyMutators: false,
+// } as const satisfies ZeroSchema;
 
 export type Schema = typeof schema;
-export type Form = Row<typeof schema.tables.form>;
-export type File = Row<typeof schema.tables.file>;
-export type Tooth = Row<typeof schema.tables.tooth>;
-export type Dentist = Row<typeof schema.tables.dentist>;
-export type Patient = Row<typeof schema.tables.patient>;
-export type Address = Row<typeof schema.tables.address>;
-export type Appointment = Row<typeof schema.tables.appointment>;
-export type ClinicalNote = Row<typeof schema.tables.clinicalNote>;
-export type Verification = Row<typeof schema.tables.verification>;
-export type FormResponse = Row<typeof schema.tables.formResponse>;
-export type MissingTooth = Row<typeof schema.tables.missingTooth>;
-export type ToothMovement = Row<typeof schema.tables.toothMovement>;
-export type TreatmentPlan = Row<typeof schema.tables.treatmentPlan>;
 
 export type Tables = keyof Schema["tables"];
 export type SchemaRow =
@@ -45,6 +44,8 @@ export type SchemaRow =
 export interface AuthData {
   // The logged-in user.
   sub: string;
+  role: string;
+  orgId: string;
 }
 
 export const permissions = definePermissions<{}, Schema>(schema, () => {
@@ -63,7 +64,7 @@ export const permissions = definePermissions<{}, Schema>(schema, () => {
       row: { select: ANYONE_CAN },
     },
     appointment: {
-      row: { select: ANYONE_CAN },
+      row: { select: ANYONE_CAN, delete: ANYONE_CAN },
     },
     file: {
       row: { select: ANYONE_CAN },

@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef } from "react";
 import { isSameDay } from "date-fns";
 
 import { DAY_HEIGHT_PX } from "../constants";
