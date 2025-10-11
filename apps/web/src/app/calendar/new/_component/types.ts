@@ -7,8 +7,8 @@ export interface Patient {
 }
 
 export interface Appointment {
-  id: number;
-  dentistId: number;
+  id: string;
+  dentistId: string;
   patientId: string;
   patientName: string;
   description: string;
@@ -25,7 +25,7 @@ export interface AppointmentGroup {
 }
 
 export interface Dentist {
-  id: number;
+  id: string;
   name: string;
   avatar: string;
   startDate: string;

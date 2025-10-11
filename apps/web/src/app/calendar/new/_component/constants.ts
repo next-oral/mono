@@ -7,61 +7,61 @@ export const DAY_HEIGHT_PX = SLOTS_PER_DAY * SLOT_HEIGHT_PX; // 2304px
 
 export const dentists = [
   {
-    id: 1,
+    id: "1",
     name: "josh keneddy",
     avatar: "https://github.com/shadcn.png",
     startDate: "2023-08-25",
   },
   {
-    id: 2,
+    id: "2",
     name: "princewill maximillian",
     avatar: "https://placehold.co/100x100/F0F8FF/333?text=PM",
     startDate: "2021-05-12",
   },
   {
-    id: 3,
+    id: "3",
     name: "ebere adeotun",
     avatar: "https://github.com/evilrabbit.png",
     startDate: "2022-03-04",
   },
   {
-    id: 4,
+    id: "4",
     name: "john doe",
     avatar: "https://github.com/shadcn.png",
     startDate: "2020-07-19",
   },
   {
-    id: 5,
+    id: "5",
     name: "harry simmons",
     avatar: "https://github.com/leerob.png",
     startDate: "2023-01-20",
   },
   {
-    id: 6,
+    id: "6",
     name: "beatrice salvador",
     avatar: "https://github.com/evilrabbit.png",
     startDate: "2021-09-08",
   },
   {
-    id: 7,
+    id: "7",
     name: "joy madueke",
     avatar: "https://github.com/leerob.png",
     startDate: "2022-11-15",
   },
   {
-    id: 8,
+    id: "8",
     name: "santiago de-lima",
     avatar: "https://placehold.co/100x100/F0F8FF/333?text=SDL",
     startDate: "2023-04-30",
   },
   {
-    id: 9,
+    id: "9",
     name: "tola oluwatosin",
     avatar: "https://placehold.co/100x100/F0F8FF/333?text=TO",
     startDate: "2020-06-22",
   },
   {
-    id: 10,
+    id: "10",
     name: "kvicha belmond kvarakeslia",
     avatar: "https://placehold.co/100x100/F0F8FF/333?text=KBK",
     startDate: "2023-07-07",
@@ -70,8 +70,8 @@ export const dentists = [
 
 export const appointments = [
   {
-    id: 1,
-    dentistId: 1,
+    id: "1",
+    dentistId: "1",
     patientId: "P-1001",
     patientName: "robert downy",
     description: "New patient exam",
@@ -81,8 +81,8 @@ export const appointments = [
     color: "sky",
   },
   {
-    id: 2,
-    dentistId: 1,
+    id: "2",
+    dentistId: "1",
     patientId: "P-1002",
     patientName: "robert downy",
     description: "Routine cleaning",
@@ -92,8 +92,8 @@ export const appointments = [
     color: "pink",
   },
   {
-    id: 3,
-    dentistId: 1,
+    id: "3",
+    dentistId: "1",
     patientId: "P-1003",
     patientName: "robert downy",
     description: "Filling - molar",
@@ -103,8 +103,8 @@ export const appointments = [
     color: "orange",
   },
   {
-    id: 4,
-    dentistId: 2,
+    id: "4",
+    dentistId: "2",
     patientId: "P-2001",
     patientName: "robert downy",
     description: "Whitening consultation",
@@ -114,8 +114,8 @@ export const appointments = [
     color: "purple",
   },
   {
-    id: 5,
-    dentistId: 2,
+    id: "5",
+    dentistId: "2",
     patientId: "P-2002",
     patientName: "robert downy",
     description: "Root canal - premolar",
@@ -125,8 +125,8 @@ export const appointments = [
     color: "green",
   },
   {
-    id: 6,
-    dentistId: 3,
+    id: "6",
+    dentistId: "3",
     patientId: "P-3001",
     patientName: "robert downy",
     description: "Invisalign follow-up",
@@ -136,8 +136,8 @@ export const appointments = [
     color: "blue",
   },
   {
-    id: 7,
-    dentistId: 3,
+    id: "7",
+    dentistId: "3",
     patientId: "P-3002",
     patientName: "robert downy",
     description: "Crown preparation",
@@ -147,8 +147,8 @@ export const appointments = [
     color: "red",
   },
   {
-    id: 8,
-    dentistId: 4,
+    id: "8",
+    dentistId: "4",
     patientId: "P-4001",
     patientName: "robert downy",
     description: "Emergency toothache",
@@ -158,8 +158,8 @@ export const appointments = [
     color: "yellow",
   },
   {
-    id: 9,
-    dentistId: 4,
+    id: "9",
+    dentistId: "4",
     patientId: "P-4002",
     patientName: "robert downy",
     description: "Extraction - wisdom tooth",
@@ -169,8 +169,8 @@ export const appointments = [
     color: "blue",
   },
   {
-    id: 10,
-    dentistId: 5,
+    id: "10",
+    dentistId: "5",
     patientId: "P-5001",
     patientName: "robert downy",
     description: "Pediatric check-up",
@@ -180,8 +180,8 @@ export const appointments = [
     color: "lime",
   },
   {
-    id: 11,
-    dentistId: 5,
+    id: "11",
+    dentistId: "5",
     patientId: "P-5002",
     patientName: "robert downy",
     description: "Deep cleaning",
@@ -193,8 +193,8 @@ export const appointments = [
     color: "indigo",
   },
   {
-    id: 12,
-    dentistId: 5,
+    id: "12",
+    dentistId: "5",
     patientId: "P-5003",
     patientName: "robert downy",
     description: "Bridge fitting",
@@ -206,8 +206,8 @@ export const appointments = [
     color: "teal",
   },
   {
-    id: 13,
-    dentistId: 5,
+    id: "13",
+    dentistId: "5",
     patientId: "P-5003",
     patientName: "robert downy",
     description: "Bridge fitting",
@@ -219,8 +219,8 @@ export const appointments = [
     color: "teal",
   },
   {
-    id: 14,
-    dentistId: 5,
+    id: "14",
+    dentistId: "5",
     patientId: "P-5003",
     patientName: "robert downy",
     description: "Bridge fitting",
@@ -232,8 +232,8 @@ export const appointments = [
     color: "teal",
   },
   {
-    id: 15,
-    dentistId: 5,
+    id: "15",
+    dentistId: "5",
     patientId: "P-5003",
     patientName: "robert downy",
     description: "Bridge fitting",
@@ -248,18 +248,28 @@ export const appointments = [
 
 export const patients = [
   {
-    id: "1",
+    id: "P-4001",
     name: "Mavins Bernado",
     avatar: "https://github.com/shadcn.png",
   },
   {
-    id: "2",
+    id: "P-5003",
     name: "Sarah Johnson",
     avatar: "https://github.com/shadcn.png",
   },
   {
-    id: "3",
+    id: "P-5002",
     name: "Michael Chen",
+    avatar: "https://github.com/evilrabbit.png",
+  },
+  {
+    id: "P-5001",
+    name: "kingsley coman",
+    avatar: "https://github.com/evilrabbit.png",
+  },
+  {
+    id: "P-3001",
+    name: "jeremy doku",
     avatar: "https://github.com/evilrabbit.png",
   },
 ] satisfies Patient[];

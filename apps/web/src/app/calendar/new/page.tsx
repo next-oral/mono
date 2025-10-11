@@ -84,7 +84,7 @@ function Calendar() {
       ? Number(overId.replace("dentist-", ""))
       : NaN;
 
-    const item = appointments.find((a) => a.id === draggedId);
+    const item = appointments.find((a) => a.id === draggedId.toString());
 
     if (!item) return;
     const minutesDelta =

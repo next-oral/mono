@@ -27,7 +27,7 @@ concurrently(
       prefixColor: "#11ffcc",
     },
   ],
-  {
-    outputStream: fs.createWriteStream("zero.log"),
-  },
+  // {
+  //   outputStream: fs.createWriteStream("zero.log"),
+  // },
 );

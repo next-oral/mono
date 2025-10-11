@@ -21,6 +21,7 @@ export const domainRouter = {
       }),
     )
     .query(async ({ input, ctx }) => {
+     return {createdAt: Date.now(), emoji: ""} satisfies Subdomain;
       const sanitizedSubdomain = input.domain
         .toLowerCase()
         .replace(/[^a-z0-9-]/g, "");

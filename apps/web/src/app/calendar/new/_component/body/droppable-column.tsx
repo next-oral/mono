@@ -30,7 +30,7 @@ export function DroppableColumn({
   children: React.ReactNode;
 }) {
   const filteredDentists = useCalendarStore((state) => state.filteredDentists);
-  const currentDentist = dentists.find((dentist) => dentist.id === dentistId);
+  const currentDentist = dentists.find((dentist) => dentist.id == dentistId.toString());
   const { setNodeRef, isOver } = useDroppable({
     id: `dentist-${dentistId}`,
   });

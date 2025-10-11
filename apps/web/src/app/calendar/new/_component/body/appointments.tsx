@@ -28,6 +28,8 @@ import { useCalendarStore } from "../store";
 import { colors } from "../types";
 import { computePositionAndSize } from "../utils";
 import { AppointmentDetailsBody } from "./appointment-detail";
+import { DeleteAppointmentDialog } from "./delete-appointment-dialog";
+import { EditAppointment } from "./edit-appointment";
 
 export function DayViewAppointmentCard({
   appointment,
@@ -129,6 +131,20 @@ export function DayViewAppointmentCard({
       </DialogTrigger>
       <DialogContent className="px-0">
         <AppointmentDetailsBody appointment={appointment} />
+
+        <DialogFooter className="px-0">
+          <div className="flex gap-2 px-4 *:flex-1">
+            <DeleteAppointmentDialog
+              appointment={appointment}
+              triggerInner="text"
+            />
+
+            <EditAppointment
+              appointment={appointment}
+              triggerChild={<Button variant={"secondary"}>Edit Details</Button>}
+            />
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -217,10 +233,10 @@ export function WeekViewAppointmentCard({
             {/* {showFullInfo ? ( */}
             <div className="flex flex-col justify-between">
               <div className="flex flex-col gap-1">
-                <h4 className="truncate text-xs leading-tight font-medium">
+                <h4 className="truncate-text text-xs leading-tight font-medium">
                   {text}
                 </h4>
-                <p className="text-[12px] leading-tight font-medium opacity-50">
+                <p className="truncate-text text-[12px] leading-tight font-medium opacity-50">
                   {duration}
                 </p>
               </div>

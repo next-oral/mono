@@ -169,3 +169,21 @@ export function parseTimeToMinutes(timeStr: string): number {
   // 4. Calculate total minutes.
   return hours * 60 + minutes;
 }
+
+/**
+ * Formats a name string to its possessive form by adding 's or just '.
+ * Follows the standard rule: add 's unless the name already ends in 's'.
+ *
+ * @param name The name to format (e.g., "John", "James").
+ * @returns The possessive form (e.g., "John's", "James'").
+ */
+export function formatPossessiveName(name: string): string {
+  // Check if the name ends with 's' (case-insensitive)
+  if (name.toLowerCase().endsWith("s")) {
+    // If it ends in 's' (e.g., "James", "Charles"), add only an apostrophe.
+    return name + "'";
+  } else {
+    // Otherwise (e.g., "John", "Mary"), add apostrophe and 's'.
+    return name + "'s";
+  }
+}
