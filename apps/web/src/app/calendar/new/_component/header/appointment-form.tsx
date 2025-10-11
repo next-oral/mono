@@ -1,9 +1,8 @@
-import type { ClassValue } from "clsx";
-import type { Control, FieldValues, Path } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, parse } from "date-fns";
-import { useForm } from "react-hook-form";
+import { ClassValue } from "clsx";
+import { addMinutes, format, isAfter, isBefore, parse } from "date-fns";
+import { Control, FieldValues, Path, useForm } from "react-hook-form";
 import z from "zod";
 
 import {
@@ -11,7 +10,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@repo/design/src/components/ui/avatar";
-import { Badge } from "@repo/design/src/components/ui/badge";
 import { Button } from "@repo/design/src/components/ui/button";
 import { Calendar } from "@repo/design/src/components/ui/calendar";
 import {
@@ -39,13 +37,9 @@ import {
   PopoverTrigger,
 } from "@repo/design/src/components/ui/popover";
 import { ScrollArea } from "@repo/design/src/components/ui/scroll-area";
+import { SheetClose, SheetFooter } from "@repo/design/src/components/ui/sheet";
 import { Textarea } from "@repo/design/src/components/ui/textarea";
-import {
-  CalendarIcon,
-  Check,
-  ChevronsUpDown,
-  User,
-} from "@repo/design/src/icons";
+import { CalendarIcon, Check, ChevronsUpDown } from "@repo/design/src/icons";
 import {
   cn,
   parseTimeToMinutes,
@@ -53,6 +47,54 @@ import {
 } from "@repo/design/src/lib/utils";
 
 import { dentists, patients } from "../constants";
+import { useCalendarStore } from "../store";
+import { computePositionAndSize } from "../utils";
+
+/**
+ *
+ * This function first parses the string into a Date object based on its length
+ * and then uses 'format' to output the desired "HH:MM" string.
+ *
+ * @param timeStr The 24-hour time string ("08:30:15" or "08:30").
+ * @returns The normalized time string in "HH:MM" format.
+ */
+function normalizeTimeFormat(timeStr: string): string {
+  // Determine the input format string based on string length
+  let inputFormat: string;
+  const referenceDate = new Date();
+
+  // Use the length to determine the correct parsing mask
+  if (timeStr.length >= 8 && timeStr.lastIndexOf(":") === 5) {
+    // Matches "HH:mm:ss"
+    inputFormat = "HH:mm:ss";
+  } else if (timeStr.length >= 5 && timeStr.indexOf(":") === 2) {
+    // Matches "HH:mm"
+    inputFormat = "HH:mm";
+  } else {
+    // If format is completely unknown, return original string or throw error
+    console.error(`Unknown time string format: ${timeStr}`);
+    return timeStr;
+  }
+
+  try {
+    // 1. Parse the time string into a Date object
+    const dateObj = parse(timeStr, inputFormat, referenceDate);
+
+    // 2. Check if parsing failed (e.g., "99:99")
+    if (isNaN(dateObj.getTime())) {
+      throw new Error("Invalid time component parsed.");
+    }
+
+    // 3. Format the Date object to the desired "HH:MM" output
+    return format(dateObj, "HH:mm");
+  } catch (error) {
+    console.error(
+      `Failed to parse time string "${timeStr}" with date-fns:`,
+      error,
+    );
+    return timeStr;
+  }
+}
 
 const timeFieldSchema = z
   .object({
@@ -83,8 +125,6 @@ const appointmentFormSchema = z.object({
   dentistId: z.string().min(1, "Please select a dentist"),
   date: z.string().min(1, "Please select a date"),
   time: timeFieldSchema,
-  // startTime: z.string().min(1, "Please select a start time"),
-  // endTime: z.string().min(1, "Please select an end time"),
   notes: z.string().max(150, "Notes must be 150 characters or less").optional(),
 });
 
@@ -103,10 +143,16 @@ interface AppointmentFormProps {
   maxNotesLength?: number;
 }
 
-function parseTimeFromMeridianTo24h(timeString?: string) {
-  if (!timeString) return "00:00:00";
+function parseTimeFromMeridianTo24h(type: "from" | "to", timeString?: string) {
+  if (!timeString) return type == "from" ? "00:00" : "00:30";
   const parsedDate = parse(timeString, "hh:mm a", new Date());
   return format(parsedDate, "HH:mm:ss");
+}
+
+function parseTimeFrom24hToMeridian(timeString?: string) {
+  if (!timeString) return "12:00 am";
+  const parsedDate = parse(timeString, "HH:mm:ss", new Date());
+  return format(parsedDate, "hh:mm a ");
 }
 
 export function AppointmentForm({
@@ -116,14 +162,17 @@ export function AppointmentForm({
   submitLabel = "Save Appointment",
   maxNotesLength = 150,
 }: AppointmentFormProps) {
+  const setHighlight = useCalendarStore((state) => state.setHighlight);
+  const setCurrentDate = useCalendarStore((state) => state.setCurrentDate);
+
   const form = useForm<AppointmentFormData>({
     resolver: zodResolver(appointmentFormSchema),
     defaultValues: {
       patientId: initialValues?.patientId || "",
       dentistId: initialValues?.dentistId || "",
       time: {
-        from: parseTimeFromMeridianTo24h(initialValues?.time?.from),
-        to: parseTimeFromMeridianTo24h(initialValues?.time?.to),
+        from: parseTimeFromMeridianTo24h("from", initialValues?.time?.from),
+        to: parseTimeFromMeridianTo24h("to", initialValues?.time?.to),
       },
       date: initialValues?.date || "",
       notes: initialValues?.notes || "",
@@ -136,7 +185,58 @@ export function AppointmentForm({
 
   const selectedPatientId = form.watch("patientId");
   const selectedDentistId = form.watch("dentistId");
+  const selectedDate = form.watch("date");
+  const selectedTime = form.watch("time");
   const notesValue = form.watch("notes");
+
+  useEffect(() => {
+    setCurrentDate(new Date(selectedDate));
+  }, [form.watch("date")]);
+
+  useEffect(() => {
+    const fromStr = normalizeTimeFormat(String(selectedTime.from));
+    const toStr = normalizeTimeFormat(String(selectedTime.to));
+    if (!fromStr || !toStr) return;
+
+    const fromDate = parse(fromStr, "HH:mm", new Date());
+    const toDate = parse(toStr, "HH:mm", new Date());
+    const minToDate = addMinutes(fromDate, 15);
+
+    if (isBefore(toDate, minToDate)) {
+      const maxToDate = parse("23:45:00", "HH:mm:ss", new Date());
+      const newToDate = isAfter(minToDate, maxToDate) ? maxToDate : minToDate;
+      form.setValue("time.to", format(newToDate, "HH:mm"));
+    }
+  }, [form.watch("time.from"), form]);
+
+  useEffect(() => {
+    if (selectedDentistId && selectedDate) {
+      const parsedFromTime = parse(
+        normalizeTimeFormat(String(selectedTime.from)),
+        "HH:mm",
+        new Date(selectedDate),
+      );
+      const parsedToTime = parse(
+        normalizeTimeFormat(String(selectedTime.to)),
+        "HH:mm",
+        new Date(selectedDate),
+      );
+
+      const rect = computePositionAndSize(
+        parsedFromTime.toISOString(),
+        parsedToTime.toISOString(),
+      );
+      setHighlight(selectedDentistId, new Date(selectedDate), {
+        height: rect.heightPx,
+        top: rect.topPx,
+      });
+    }
+  }, [
+    form.watch("time.from"),
+    form.watch("time.to"),
+    form.watch("dentistId"),
+    form.watch("date"),
+  ]);
 
   const selectedPatient = patients.find((p) => p.id === selectedPatientId);
   const selectedDentist = dentists.find(
@@ -145,24 +245,23 @@ export function AppointmentForm({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-6 px-4"
-      >
-        <ScrollArea className="">
-          <div className="flex max-h-[20%] flex-col gap-4">
+      <ScrollArea className="max-h-[80vh]">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <div className="flex flex-col gap-6 px-2">
             <CustomComboboxField
               control={form.control}
               name="patientId"
               options={patients}
               label="Patient"
+              defaultSelected={selectedPatient?.id}
             />
+
             <CustomComboboxField
               control={form.control}
               name="dentistId"
               options={dentists as unknown as ComboboxOption[]}
               label="Attending Dentist"
-              // defaultSelected={selectedDentist}
+              defaultSelected={selectedDentist?.id}
             />
 
             <FormField
@@ -217,7 +316,8 @@ export function AppointmentForm({
                           id="time-picker"
                           step="900"
                           defaultValue="12:00:00"
-                          className="bg-background appearance-none text-xs [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                          max="23:00:00"
+                          className="bg-background appearance-none text-sm [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                           {...field}
                         />
                       </FormControl>
@@ -228,24 +328,39 @@ export function AppointmentForm({
                 <FormField
                   control={form.control}
                   name="time.to"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormControl>
-                        <Input
-                          type="time"
-                          step="900"
-                          defaultValue="12:30:00"
-                          className="bg-background appearance-none text-xs [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const fromStr = selectedTime.from; // Watch inside render for dynamic min
+                    let minTo = "00:15"; // Fallback
+                    if (fromStr) {
+                      const fromDate = parse(
+                        normalizeTimeFormat(fromStr),
+                        "HH:mm",
+                        new Date(),
+                      );
+                      minTo = format(addMinutes(fromDate, 15), "HH:mm");
+                    }
+                    return (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <Input
+                            type="time"
+                            step="900"
+                            defaultValue="12:30:00"
+                            min={minTo}
+                            max="23:45:00"
+                            className="bg-background appearance-none text-sm [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
             </div>
 
+            <hr />
             <FormField
               control={form.control}
               name="notes"
@@ -262,7 +377,7 @@ export function AppointmentForm({
                       <Textarea
                         {...field}
                         placeholder="Add any additional notes about the patient or appointment..."
-                        className="min-h-[120px] resize-none"
+                        className="focus-visible:border-secondary-foreground/50 min-h-[120px] resize-none focus-visible:ring-0"
                         maxLength={maxNotesLength}
                       />
                       <div className="text-muted-foreground absolute right-3 bottom-3 text-xs">
@@ -275,27 +390,25 @@ export function AppointmentForm({
               )}
             />
           </div>
-        </ScrollArea>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-2">
-          {/* <Button type="submit">{submitLabel}</Button> */}
-        </div>
-      </form>
+          {/* Action Buttons */}
+          <SheetFooter className="px-0">
+            <hr />
+            <SheetClose asChild>
+              <Button variant={"outline"}>Discard</Button>
+            </SheetClose>
+          </SheetFooter>
+        </form>
+      </ScrollArea>
     </Form>
   );
 }
-
-type ComboboxVariant = "default" | "compact" | "minimal";
 
 interface ComboboxOption {
   id: string;
   name: string;
   avatar?: string; // URL or path to avatar image
-  email?: string; // Optional email for additional info
-  role?: string; // Optional role/title
   disabled?: boolean;
-  badge?: string; // Optional badge text
 }
 
 interface CustomComboboxFieldProps<T extends FieldValues> {
@@ -306,24 +419,10 @@ interface CustomComboboxFieldProps<T extends FieldValues> {
   searchPlaceholder?: string;
   description?: string;
   options: ComboboxOption[];
-  defaultSelected?: ComboboxOption;
-  emptyMessage?: string;
-  variant?: ComboboxVariant;
-  showAvatar?: boolean;
-  showEmail?: boolean;
-  showRole?: boolean;
-  showBadge?: boolean;
-  allowClear?: boolean;
-  isNotLabeled?: boolean;
+  defaultSelected?: string | number;
   disabled?: boolean;
-  hidden?: boolean;
   readOnly?: boolean;
   onValueChange?: (value: string) => void;
-  fieldClassName?: ClassValue;
-  labelClassName?: ClassValue;
-  triggerClassName?: ClassValue;
-  contentClassName?: ClassValue;
-  avatarClassName?: ClassValue;
 }
 
 const getInitials = (name: string): string => {
@@ -340,58 +439,27 @@ export default function CustomComboboxField<T extends FieldValues>({
   description = "",
   options = [],
   defaultSelected,
-  emptyMessage = "No results found.",
-  variant = "default",
-  showAvatar = true,
-  showEmail = false,
-  showRole = false,
-  showBadge = false,
-  allowClear = false,
-  isNotLabeled = false,
   disabled = false,
-  hidden = false,
   readOnly = false,
   onValueChange,
-  fieldClassName = "",
-  labelClassName = "",
-  triggerClassName = "",
-  contentClassName = "",
-  avatarClassName = "",
 }: CustomComboboxFieldProps<T>) {
   const [open, setOpen] = useState(false);
 
   const renderSelectedOption = (selectedId: string) => {
-    const selected = options.find((option) => option.id === selectedId);
+    const selected = options.find((option) => option.id == selectedId);
     if (!selected) return placeholder;
 
     return (
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        {showAvatar && (
-          <Avatar className={cn("h-8 w-8 flex-shrink-0", avatarClassName)}>
-            <AvatarImage src={selected.avatar} alt={selected.name} />
-            <AvatarFallback className="text-foreground bg-primary/70 text-xs font-semibold">
-              {getInitials(selected.name)}
-            </AvatarFallback>
-          </Avatar>
-        )}
+        <Avatar className="h-8 w-8 flex-shrink-0">
+          <AvatarImage src={selected.avatar} alt={selected.name} />
+          <AvatarFallback className="text-foreground bg-primary/70 text-xs font-semibold">
+            {getInitials(selected.name)}
+          </AvatarFallback>
+        </Avatar>
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="truncate text-sm font-medium">{selected.name}</span>
-          {showEmail && selected.email && (
-            <span className="text-muted-foreground truncate text-xs">
-              {selected.email}
-            </span>
-          )}
-          {showRole && selected.role && (
-            <span className="text-muted-foreground truncate text-xs">
-              {selected.role}
-            </span>
-          )}
         </div>
-        {showBadge && selected.badge && (
-          <Badge variant="secondary" className="flex-shrink-0 text-xs">
-            {selected.badge}
-          </Badge>
-        )}
       </div>
     );
   };
@@ -399,36 +467,19 @@ export default function CustomComboboxField<T extends FieldValues>({
   const renderOption = (option: ComboboxOption, isSelected: boolean) => {
     return (
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        {showAvatar && (
-          <Avatar className={cn("h-8 w-8 flex-shrink-0", avatarClassName)}>
-            <AvatarImage src={option.avatar} alt={option.name} />
-            <AvatarFallback
-              className={cn(
-                "text-foreground bg-primary/70 text-xs font-semibold",
-              )}
-            >
-              {getInitials(option.name)}
-            </AvatarFallback>
-          </Avatar>
-        )}
+        <Avatar className="h-8 w-8 flex-shrink-0">
+          <AvatarImage src={option.avatar} alt={option.name} />
+          <AvatarFallback
+            className={cn(
+              "text-foreground bg-primary/70 text-xs font-semibold",
+            )}
+          >
+            {getInitials(option.name)}
+          </AvatarFallback>
+        </Avatar>
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="truncate text-sm font-medium">{option.name}</span>
-          {showEmail && option.email && (
-            <span className="text-muted-foreground truncate text-xs">
-              {option.email}
-            </span>
-          )}
-          {showRole && option.role && (
-            <span className="text-muted-foreground truncate text-xs">
-              {option.role}
-            </span>
-          )}
         </div>
-        {showBadge && option.badge && (
-          <Badge variant="secondary" className="flex-shrink-0 text-xs">
-            {option.badge}
-          </Badge>
-        )}
         {isSelected && <Check className="ml-auto h-4 w-4 flex-shrink-0" />}
       </div>
     );
@@ -441,76 +492,47 @@ export default function CustomComboboxField<T extends FieldValues>({
       disabled={disabled}
       // defaultValue={defaultSelected}
       render={({ field, fieldState }) => (
-        <FormItem className={cn("space-y-2", fieldClassName)} hidden={hidden}>
-          {!isNotLabeled && (
-            <FormLabel
-              className={cn(
-                "text-foreground text-sm font-medium capitalize",
-                labelClassName,
-              )}
-            >
-              {label || splitCamelCaseToWords(name)}
-            </FormLabel>
-          )}
+        <FormItem className="">
+          <FormLabel className="text-foreground text-sm font-medium capitalize">
+            {label || splitCamelCaseToWords(name)}
+          </FormLabel>
 
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-              <FormControl className="-mt-2">
+              <FormControl className="-mt-1">
                 <Button
                   variant="outline"
                   role="combobox"
                   aria-expanded={open}
                   disabled={disabled || readOnly}
                   className={cn(
-                    "border-input bg-background hover:bg-background focus-visible:ring-ring w-full justify-between rounded-lg border px-3 py-6 text-left font-normal shadow-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-                    triggerClassName,
+                    "border-input bg-background hover:bg-background w-full justify-between rounded-lg border px-3 py-6 text-left font-normal capitalize shadow-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                     {
                       "border-destructive bg-destructive/5": fieldState.error,
                       "text-muted-foreground": !field.value,
                     },
                   )}
                 >
-                  {field.value
-                    ? renderSelectedOption(field.value)
+                  {field.value || defaultSelected
+                    ? renderSelectedOption(
+                        field.value || String(defaultSelected),
+                      )
                     : placeholder}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent
-              className={cn(
-                "popover-content-width-full w-full bg-red-500 p-0",
-                contentClassName,
-              )}
-              align="start"
-            >
-              <Command>
+            <PopoverContent className="w-full p-0" align="start">
+              <Command className="w-full">
                 <CommandInput placeholder={searchPlaceholder} className="h-9" />
                 <CommandList>
                   <CommandEmpty className="py-6 text-center text-sm">
-                    {emptyMessage}
+                    No result found
                   </CommandEmpty>
                   <CommandGroup>
-                    {allowClear && field.value && (
-                      <CommandItem
-                        value=""
-                        onSelect={() => {
-                          field.onChange("");
-                          onValueChange?.("");
-                          setOpen(false);
-                        }}
-                        className="text-muted-foreground"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="border-muted-foreground/30 flex h-8 w-8 items-center justify-center rounded-full border-2 border-dashed">
-                            <User className="h-4 w-4" />
-                          </div>
-                          <span>Clear selection</span>
-                        </div>
-                      </CommandItem>
-                    )}
                     {options.map((option) => {
                       const isSelected = field.value === option.id;
+
                       return (
                         <CommandItem
                           key={option.id}

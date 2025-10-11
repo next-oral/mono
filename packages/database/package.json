@@ -28,7 +28,7 @@
     "push": "pnpm with-env drizzle-kit push",
     "seed": "pnpm with-env tsx src/seed.ts",
     "migrate": "pnpm with-env drizzle-kit generate",
-    "studio": "pnpm with-env drizzle-kit studio",
+    "studio": "pnpm with-env drizzle-kit studio --verbose",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "with-env": "dotenv -e ../../.env --"
   },

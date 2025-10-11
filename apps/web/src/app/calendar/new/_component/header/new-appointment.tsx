@@ -43,9 +43,9 @@ export function NewAppointment() {
       <SheetTrigger asChild>
         <Button>New Appointment</Button>
       </SheetTrigger>
-      <SheetContent>
-        <SheetHeader>
-          <SheetTitle>New Appointment</SheetTitle>
+      <SheetContent className="px-0">
+        <SheetHeader className="px-0">
+          <SheetTitle className="px-2 pb-3">New Appointment</SheetTitle>
           <SheetDescription className="sr-only">
             Create a new Appointment
           </SheetDescription>
@@ -62,12 +62,6 @@ export function NewAppointment() {
             },
           }}
         />
-
-        <SheetFooter>
-          <SheetClose asChild>
-            <Button variant={"outline"}>Cancel</Button>
-          </SheetClose>
-        </SheetFooter>
       </SheetContent>
     </Sheet>
   );

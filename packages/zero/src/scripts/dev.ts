@@ -1,3 +1,4 @@
+import fs from "fs";
 import { concurrently } from "concurrently";
 
 import { env } from "../env";
@@ -26,7 +27,7 @@ concurrently(
       prefixColor: "#11ffcc",
     },
   ],
-  // {
-  //   outputStream: fs.createWriteStream("zero.log"),
-  // },
+  {
+    outputStream: fs.createWriteStream("zero.log"),
+  },
 );
