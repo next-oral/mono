@@ -6,8 +6,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema/index.ts",
-    "./mutators": "./src/mutators.ts",
-    "./exports": "./src/exports.ts"
+    "./mutators": "./src/mutators/index.ts",
+    "./exports": "./src/exports.ts",
+    "./drizzle": "./src/drizzle.ts"
   },
   "scripts": {
     "build": "tsc",
@@ -34,6 +35,7 @@
   },
   "prettier": "@repo/prettier-config",
   "dependencies": {
+    "@repo/auth": "workspace:*",
     "@repo/database": "workspace:*",
     "@rocicorp/zero": "^0.23.2025090100",
     "concurrently": "^9.2.1",

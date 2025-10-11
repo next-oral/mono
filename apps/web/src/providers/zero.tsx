@@ -1,15 +1,15 @@
 "use client";
 
 import type { Query, Schema } from "@rocicorp/zero";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Zero } from "@rocicorp/zero";
 import { useQuery, ZeroProvider } from "@rocicorp/zero/react";
 
 import { createMutators } from "@repo/zero/mutators";
 import { schema } from "@repo/zero/schema";
 
+import Loading from "~/app/(protected)/s/[subdomain]/loading";
 import { authClient } from "~/auth/client";
-import { env } from "~/env";
 
 //! TODO: this is a for a fake pending state
 export function useZeroQuery<
@@ -40,29 +40,58 @@ export function useZeroQuery<
   };
 }
 
+const _user = {
+  sub: "anon",
+  name: "John Doe",
+  admin: true,
+  iat: 1516239022,
+};
 export function ZeroQueryProvider({ children }: { children: React.ReactNode }) {
   const { data: session, isPending } = authClient.useSession();
 
-  const userID = session?.user.id ?? "anon";
-
-  const zero = useRef(
-    new Zero({
-      schema,
-      userID,
-      server: env.NEXT_PUBLIC_ZERO_SERVER_URL,
-      mutators: createMutators(undefined),
-    }),
+  const zero = useMemo(
+    () =>
+      new Zero({
+        schema,
+        userID: session?.user.id ?? "anon",
+        server: typeof window !== "undefined" ? window.location.origin : null,
+        mutators: createMutators(session),
+      }),
+    [session],
   );
-  if (isPending) return <div>Loading...</div>;
 
+  if (isPending) return <Loading />;
   return (
     <ZeroProvider
-      zero={zero.current}
+      zero={zero}
       init={(z) => {
         z.preload(z.query.patient);
+        z.preload(z.query.dentist);
+        z.preload(z.query.appointment);
+        z.preload(z.query.clinicalNote);
       }}
     >
-      {children}
+      <WarnIfOffline isOnline={zero.online}>{children}</WarnIfOffline>
     </ZeroProvider>
   );
+}
+
+function WarnIfOffline({
+  isOnline,
+  children,
+}: {
+  isOnline: boolean;
+  children: React.ReactNode;
+}) {
+  useEffect(() => {
+    const handler = (event: BeforeUnloadEvent) => {
+      if (!isOnline && !navigator.onLine) event.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => {
+      window.removeEventListener("beforeunload", handler);
+    };
+  }, [isOnline]);
+
+  return children;
 }

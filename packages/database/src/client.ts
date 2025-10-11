@@ -39,10 +39,14 @@
 //   schema,
 // });
 
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { PoolClient } from "pg";
 import { Redis } from "@upstash/redis";
 import { drizzle } from "drizzle-orm/node-postgres";
 
 import * as schema from "./schema";
+
+export type Drizzle = NodePgDatabase<typeof schema> & { $client: PoolClient };
 
 if (!process.env.POSTGRES_URL) {
   throw new Error("Missing POSTGRES_URL");
@@ -56,3 +60,7 @@ export const redis = new Redis({
   url: process.env.KV_REST_API_URL,
   token: process.env.KV_REST_API_TOKEN,
 });
+
+// export const withDb = async (fn: (db: Drizzle) => Promise<void>) => {
+//   await fn(db);
+// };

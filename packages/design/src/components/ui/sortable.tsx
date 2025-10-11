@@ -6,6 +6,7 @@ import type {
   DragEndEvent,
   DraggableAttributes,
   DraggableSyntheticListeners,
+  DragOverlay,
   DragStartEvent,
   DropAnimation,
   ScreenReaderInstructions,
@@ -18,7 +19,6 @@ import {
   closestCorners,
   defaultDropAnimationSideEffects,
   DndContext,
-  DragOverlay,
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
@@ -40,7 +40,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Slot } from "@radix-ui/react-slot";
-import * as ReactDOM from "react-dom";
+
+// import * as ReactDOM from "react-dom";
 
 import { useComposedRefs } from "@repo/design/lib/compose-refs";
 import { cn } from "@repo/design/lib/utils";
@@ -535,7 +536,7 @@ SortableItemHandle.displayName = ITEM_HANDLE_NAME;
 const SortableOverlayContext = React.createContext(false);
 SortableOverlayContext.displayName = OVERLAY_NAME;
 
-const dropAnimation: DropAnimation = {
+const _dropAnimation: DropAnimation = {
   sideEffects: defaultDropAnimationSideEffects({
     styles: {
       active: {
@@ -553,37 +554,40 @@ interface SortableOverlayProps
     | React.ReactNode;
 }
 
-function SortableOverlay(props: SortableOverlayProps) {
-  const { container: containerProp, children, ...overlayProps } = props;
-
-  const context = useSortableContext(OVERLAY_NAME);
-
-  const [mounted, setMounted] = React.useState(false);
-  React.useLayoutEffect(() => setMounted(true), []);
-
-  const container =
-    containerProp ?? (mounted ? globalThis.document.body : null);
-
-  if (!container) return null;
-
-  return ReactDOM.createPortal(
-    <DragOverlay
-      dropAnimation={dropAnimation}
-      modifiers={context.modifiers}
-      className={cn(!context.flatCursor && "cursor-grabbing")}
-      {...overlayProps}
-    >
-      <SortableOverlayContext.Provider value={true}>
-        {context.activeId
-          ? typeof children === "function"
-            ? children({ value: context.activeId })
-            : children
-          : null}
-      </SortableOverlayContext.Provider>
-    </DragOverlay>,
-    container,
-  );
+function SortableOverlay(_props: SortableOverlayProps) {
+  return null;
 }
+// function SortableOverlay(props: SortableOverlayProps) {
+//   const { container: containerProp, children, ...overlayProps } = props;
+
+//   const context = useSortableContext(OVERLAY_NAME);
+
+//   const [mounted, setMounted] = React.useState(false);
+//   React.useLayoutEffect(() => setMounted(true), []);
+
+//   const container =
+//     containerProp ?? (mounted ? globalThis.document.body : null);
+
+//   if (!container) return null;
+
+//   return ReactDOM.createPortal(
+//     <DragOverlay
+//       dropAnimation={dropAnimation}
+//       modifiers={context.modifiers}
+//       className={cn(!context.flatCursor && "cursor-grabbing")}
+//       {...overlayProps}
+//     >
+//       <SortableOverlayContext.Provider value={true}>
+//         {context.activeId
+//           ? typeof children === "function"
+//             ? children({ value: context.activeId })
+//             : children
+//           : null}
+//       </SortableOverlayContext.Provider>
+//     </DragOverlay>,
+//     container,
+//   );
+// }
 
 export {
   SortableRoot as Sortable,

@@ -33,7 +33,7 @@ export const clinicalNote = pgTable("clinical_note", {
     .$defaultFn(() => createId()),
   appointmentId: text("appointment_id")
     .notNull()
-    .references(() => appointment.id),
+    .references(() => appointment.id, { onDelete: "cascade" }),
   dentistId: text("dentist_id")
     .notNull()
     .references(() => dentist.id),

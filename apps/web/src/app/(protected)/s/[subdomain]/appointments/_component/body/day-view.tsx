@@ -12,6 +12,7 @@ import { useCalendarStore } from "../store";
 import { DayViewAppointmentCard } from "./appointments";
 import { CalenderCellLines } from "./calender-cell-lines";
 import { DroppableColumn } from "./droppable-column";
+import { SlotHighlighter } from "./slot-highlighter";
 
 export function DayView() {
   const zero = useZero<Schema>();
@@ -49,6 +50,10 @@ export function DayView() {
               appointment={appointment}
             />
           ))}
+          <SlotHighlighter
+            currentDate={currentDate}
+            currentDentistId={dentist.id}
+          />
         </div>
       </DroppableColumn>
     );

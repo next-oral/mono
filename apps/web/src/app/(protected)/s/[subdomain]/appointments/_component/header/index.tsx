@@ -1,7 +1,7 @@
 import { CalendarViewSelector } from "./calendar-view-selector";
 import { DateSelector } from "./date-selector";
 import { DentistsSelector } from "./dentists-selector";
-import { NewAppointment } from "./new-appointment";
+import { AppointmentCrudSheet } from "./new-appointment";
 
 export function CalendarHeader() {
   return (
@@ -10,7 +10,7 @@ export function CalendarHeader() {
       <DateSelector />
       <div className="flex flex-wrap-reverse items-center gap-3">
         <CalendarViewSelector />
-        <NewAppointment />
+        <AppointmentCrudSheet type="new" />
       </div>
     </div>
   );

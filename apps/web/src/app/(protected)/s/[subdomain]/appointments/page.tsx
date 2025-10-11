@@ -1,7 +1,7 @@
 "use client";
 
-import type { DragEndEvent } from "@dnd-kit/core";
-import { useEffect } from "react";
+import type { DragEndEvent, DragMoveEvent } from "@dnd-kit/core";
+import { useEffect, useState } from "react";
 import {
   DndContext,
   PointerSensor,
@@ -21,6 +21,7 @@ import {
 import { authClient } from "~/auth/client";
 import { useZeroQuery } from "~/providers/zero";
 import { DayView } from "./_component/body/day-view";
+import { DragTimeIndicator } from "./_component/body/indicators";
 import { TimeLabels } from "./_component/body/time-labels";
 import { WeekView } from "./_component/body/week-view";
 import { MINUTES_PER_SLOT, SLOT_HEIGHT_PX } from "./_component/constants";
@@ -42,6 +43,32 @@ function checkAppointmentOverlap(
   return start1 < end2 && start2 < end1;
 }
 
+function calculateAppointment(
+  overId: string,
+  delta: number,
+  item: Appointment,
+) {
+  const minutesDelta = Math.round(delta / SLOT_HEIGHT_PX) * MINUTES_PER_SLOT;
+  const isDentistTarget = overId.startsWith("dentist-");
+  const targetDentistId = isDentistTarget ? overId.replace("dentist-", "") : "";
+
+  const start = new Date(item.start);
+  const end = new Date(item.end);
+  const newStart = new Date(start.getTime());
+  const newEnd = new Date(end.getTime());
+  newStart.setMinutes(start.getMinutes() + minutesDelta);
+  newEnd.setMinutes(end.getMinutes() + minutesDelta);
+
+  const newAppointment = {
+    ...item,
+    dentistId: !targetDentistId ? item.dentistId : targetDentistId,
+    start: newStart.getTime(),
+    end: newEnd.getTime(),
+  } satisfies Appointment;
+
+  return newAppointment;
+}
+
 function hasCollision(
   newAppointment: Appointment,
   existingAppointments: Appointment[],
@@ -50,16 +77,9 @@ function hasCollision(
     // Skip the same appointment (when moving within the same dentist)
     if (existing.id === newAppointment.id) return false;
 
-    // console.log("existing", existing);
-
-    // Only check appointments for the same dentist
     if (existing.dentistId !== newAppointment.dentistId) return false;
 
-    const result = checkAppointmentOverlap(newAppointment, existing);
-    if (result) {
-      console.log("result", result, newAppointment, existing);
-    }
-    return result;
+    return checkAppointmentOverlap(newAppointment, existing);
   });
 }
 
@@ -79,15 +99,14 @@ function Calendar() {
 
   const appointments = dentists.flatMap((dentist) => dentist.appointments);
 
-  const updateAppointment = useCalendarStore(
-    (state) => state.updateAppointment,
-  );
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 5 },
     }),
   );
+
+  const [activeAppointment, setActiveAppointment] =
+    useState<Appointment | null>(null);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over, delta } = event;
@@ -95,44 +114,45 @@ function Calendar() {
 
     const draggedId = String(active.id);
     const overId = String(over.id);
-    const isDentistTarget = overId.startsWith("dentist-");
-    const targetDentistId = isDentistTarget
+    const targetDentistId = overId.startsWith("dentist-")
       ? overId.replace("dentist-", "")
       : "";
 
     const item = appointments.find((a) => a.id === draggedId);
 
     if (!item) return;
-    const minutesDelta =
-      Math.round(delta.y / SLOT_HEIGHT_PX) * MINUTES_PER_SLOT;
+    const id = targetDentistId ? targetDentistId : item.dentistId;
+    const newAppointment = calculateAppointment(id, delta.y, item);
 
-    const start = new Date(item.start);
-    const end = new Date(item.end);
-    const newStart = new Date(start.getTime());
-    const newEnd = new Date(end.getTime());
-    newStart.setMinutes(start.getMinutes() + minutesDelta);
-    newEnd.setMinutes(end.getMinutes() + minutesDelta);
-
-    const newAppointment = {
-      ...item,
-      dentistId: !targetDentistId ? item.dentistId : targetDentistId,
-      start: newStart.getTime(),
-      end: newEnd.getTime(),
-    } satisfies Appointment;
+    console.log("newAppointment", newAppointment);
+    // return;
 
     // Check for collisions before updating
-    if (hasCollision(newAppointment, appointments)) {
+    if (!hasCollision(newAppointment, appointments)) {
+      z.mutate.appointment.update(newAppointment);
+    } else
       console.warn("Cannot move appointment: time slot is already occupied");
-      return;
-    }
 
-    z.mutate.appointment.update({
-      ...newAppointment,
-      start: new Date(newAppointment.start),
-      end: new Date(newAppointment.end),
-      updatedAt: Date.now(),
-    });
-    updateAppointment(newAppointment);
+    setActiveAppointment(null);
+  }
+
+  function handleDragMove(event: DragMoveEvent) {
+    const { delta, over, active } = event;
+
+    if (!over) return;
+    const draggedId = String(active.id);
+    const overId = String(over.id);
+    const targetDentistId = overId.startsWith("dentist-")
+      ? overId.replace("dentist-", "")
+      : "";
+
+    const item = appointments.find((a) => a.id === draggedId);
+    if (!item) return;
+
+    const id = !targetDentistId ? item.dentistId : targetDentistId;
+    const newAppointment = calculateAppointment(id, delta.y, item);
+
+    setActiveAppointment(newAppointment);
   }
 
   return (
@@ -142,6 +162,7 @@ function Calendar() {
       <DndContext
         sensors={sensors}
         onDragEnd={handleDragEnd}
+        onDragMove={handleDragMove}
         modifiers={[restrictToFirstScrollableAncestor]}
       >
         <ScrollArea className="h-screen flex-row">
@@ -156,6 +177,7 @@ function Calendar() {
         </ScrollArea>
       </DndContext>
       <SetCalendarScrollPosition />
+      <DragTimeIndicator appointment={activeAppointment} />
     </div>
   );
 }

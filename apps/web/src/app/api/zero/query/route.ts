@@ -24,11 +24,10 @@ export async function POST(request: Request) {
   try {
     const processed = await processor.process(createMutators(session), request);
 
-    // Set CORS headers to allow credentials
     return NextResponse.json(processed);
   } catch (err) {
-    console.error("Error processing request:", err);
-    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    console.error("Error processing query request:", err);
+    return NextResponse.json({ error: "Invalid session" }, { status: 401 });
   }
 }
 

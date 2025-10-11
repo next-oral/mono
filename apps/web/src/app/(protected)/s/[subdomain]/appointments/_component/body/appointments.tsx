@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { useZero } from "@rocicorp/zero/react";
 import { addMinutes, format } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { Mutators } from "@repo/zero/src/mutators";
 import type { Appointment, Schema } from "@repo/zero/src/schema";
@@ -26,9 +26,9 @@ import {
 import { cn } from "@repo/design/src/lib/utils";
 
 import type { AppointmentGroup } from "../types";
-import { useZeroQuery } from "~/providers/zero";
 import { dentists, MINUTES_PER_SLOT, SLOT_HEIGHT_PX } from "../constants";
 import { colors } from "../types";
+import { AppointmentDetailsBody } from "./appointment-detail";
 
 function computePositionAndSize(
   startISO: string | number,
@@ -53,17 +53,13 @@ export function DayViewAppointmentCard({
   offset?: number;
 }) {
   const z = useZero<Schema, Mutators>();
-  const { data: dentist } = useZeroQuery(
-    z.query.dentist.where("id", "=", appointment.dentistId).one(),
-  );
 
   const [isResizing, setIsResizing] = useState(false);
 
   const { attributes, listeners, setNodeRef, node, transform, isDragging } =
     useDraggable({
       id: appointment.id + (isResizing ? "-disabled" : ""),
-
-      disabled: isResizing ? true : undefined,
+      disabled: isResizing,
     });
   const { topPx, heightPx } = computePositionAndSize(
     appointment.start,
@@ -87,16 +83,18 @@ export function DayViewAppointmentCard({
       if (heightChanged) {
         prevHeight = newHeight;
         const time = addMinutes(
-          new Date(appointment.start),
+          appointment.start,
           Math.round(newHeight / SLOT_HEIGHT_PX) * MINUTES_PER_SLOT,
         );
-
-        z.mutate.appointment.update({
+        const newAppointment = {
           ...appointment,
-          start: new Date(appointment.start),
-          end: new Date(time),
+          start: appointment.start,
+          end: time.getTime(),
           updatedAt: Date.now(),
-        });
+        };
+        console.log("updated appointment", newAppointment);
+
+        z.mutate.appointment.update(newAppointment);
       }
       timeout = window.setTimeout(() => setIsResizing(false), 550);
     });
@@ -109,37 +107,53 @@ export function DayViewAppointmentCard({
     };
   }, [node]);
 
-  if (!dentist) return null;
-
   const HEADER_HEIGHT = 40; // min-h-10 = 40px
   const adjustedTopPx = Math.max(HEADER_HEIGHT, topPx);
 
   const color = colors[appointment.colour];
 
   return (
-    <div
-      ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-      className={cn(
-        "absolute z-10 flex cursor-grab resize-y gap-1 overflow-y-auto rounded border p-1 text-xs active:cursor-grabbing",
-        color.bg,
-      )}
-      style={{
-        top: `${adjustedTopPx + offset}px`,
-        height: `${heightPx - 4 * offset}px`,
-        left: `${offset}px`,
-        right: `${offset}px`,
-        maxWidth: `calc(100% - ${2 * offset}px)`, // Ensure it doesn't exceed column width
-        transform: transform
-          ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-          : undefined,
-        opacity: isDragging ? 0.9 : 1,
-      }}
-    >
-      <div className={cn("h-full w-1 rounded-full", color.accent)} />
-      {appointment.description}
-    </div>
+    <Dialog>
+      <DialogTrigger asChild>
+        <div
+          ref={setNodeRef}
+          {...attributes}
+          {...listeners}
+          className={cn(
+            "absolute z-10 flex cursor-pointer resize-y gap-1 overflow-y-auto rounded border p-1 text-xs active:z-13 active:cursor-grabbing",
+            color.bg,
+          )}
+          style={{
+            top: `${adjustedTopPx + offset}px`,
+            height: `${heightPx - 2 * offset}px`,
+            left: `${offset}px`,
+            right: `${offset}px`,
+            maxWidth: `calc(100% - ${2 * offset}px)`, // Ensure it doesn't exceed column width
+            transform: transform
+              ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+              : undefined,
+            opacity: isDragging ? 0.9 : 1,
+          }}
+        >
+          <div className={cn("h-full w-1 rounded-full", color.accent)} />
+          <div className="">
+            <h4 className="flex items-center gap-1 text-xs">
+              {format(appointment.start, "h:mm a")}{" "}
+              <ArrowRight className="size-2" />
+              {format(appointment.end, "h:mm a")}
+            </h4>
+            {appointment.description ?? appointment.note}
+          </div>
+        </div>
+      </DialogTrigger>
+      <DialogContent className="p-0">
+        <DialogHeader className="sr-only px-4">
+          <DialogTitle className="text-left">#{appointment.id}</DialogTitle>
+          <DialogDescription className="sr-only"></DialogDescription>
+        </DialogHeader>
+        <AppointmentDetailsBody appointment={appointment} />
+      </DialogContent>
+    </Dialog>
   );
 }
 

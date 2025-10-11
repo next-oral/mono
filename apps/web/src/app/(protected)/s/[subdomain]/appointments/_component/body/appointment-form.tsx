@@ -2,10 +2,15 @@ import type { ClassValue } from "clsx";
 import type { Control, FieldValues, Path } from "react-hook-form";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createId } from "@paralleldrive/cuid2";
+import { useZero } from "@rocicorp/zero/react";
 import { format, parse } from "date-fns";
 import { useForm } from "react-hook-form";
-import z from "zod";
+import * as z from "zod/v4";
 
+import type { Mutators } from "@repo/zero/src/mutators";
+import type { Appointment, Schema } from "@repo/zero/src/schema";
+import { aptTypeEnum, colourEnum } from "@repo/database/src/schema";
 import {
   Avatar,
   AvatarFallback,
@@ -52,7 +57,11 @@ import {
   splitCamelCaseToWords,
 } from "@repo/design/src/lib/utils";
 
-import { dentists, patients } from "../constants";
+import type { Color } from "../types";
+import { authClient } from "~/auth/client";
+import { useZeroQuery } from "~/providers/zero";
+import { buildQuery } from "../query";
+import { useCalendarStore } from "../store";
 
 const timeFieldSchema = z
   .object({
@@ -81,14 +90,22 @@ const timeFieldSchema = z
 const appointmentFormSchema = z.object({
   patientId: z.string().min(1, "Please select a patient"),
   dentistId: z.string().min(1, "Please select a dentist"),
+  type: z.enum(aptTypeEnum.enumValues),
   date: z.string().min(1, "Please select a date"),
   time: timeFieldSchema,
   // startTime: z.string().min(1, "Please select a start time"),
   // endTime: z.string().min(1, "Please select an end time"),
+  description: z
+    .string()
+    .max(150, "Description must be 150 characters or less")
+    .optional(),
   notes: z.string().max(150, "Notes must be 150 characters or less").optional(),
 });
 
-export type AppointmentFormData = z.infer<typeof appointmentFormSchema>;
+export type AppointmentFormData = z.infer<typeof appointmentFormSchema> & {
+  id?: string;
+  colour?: Color;
+};
 
 interface AppointmentFormProps {
   // Optional initial values for editing
@@ -101,188 +118,242 @@ interface AppointmentFormProps {
   submitLabel?: string;
   showCancelButton?: boolean;
   maxNotesLength?: number;
+  children: (props: { onSubmit: () => void }) => React.ReactNode;
 }
 
 function parseTimeFromMeridianTo24h(timeString?: string) {
-  if (!timeString) return "00:00:00";
+  if (!timeString) return format(new Date(), "HH:mm");
   const parsedDate = parse(timeString, "hh:mm a", new Date());
-  return format(parsedDate, "HH:mm:ss");
+  return format(parsedDate, "HH:mm");
 }
 
 export function AppointmentForm({
   initialValues = null,
   onSubmit,
-  onCancel,
-  submitLabel = "Save Appointment",
+
   maxNotesLength = 150,
+  children,
 }: AppointmentFormProps) {
+  const currentDate = useCalendarStore((state) => state.currentDate);
   const form = useForm<AppointmentFormData>({
     resolver: zodResolver(appointmentFormSchema),
     defaultValues: {
-      patientId: initialValues?.patientId || "",
-      dentistId: initialValues?.dentistId || "",
+      patientId: initialValues?.patientId,
+      dentistId: initialValues?.dentistId,
+      type: initialValues?.type,
       time: {
         from: parseTimeFromMeridianTo24h(initialValues?.time?.from),
         to: parseTimeFromMeridianTo24h(initialValues?.time?.to),
       },
-      date: initialValues?.date || "",
-      notes: initialValues?.notes || "",
+      date: initialValues?.date ?? currentDate.toISOString(),
+      notes: initialValues?.notes ?? initialValues?.description,
     },
   });
-
+  const z = useZero<Schema, Mutators>();
   const handleSubmit = (data: AppointmentFormData) => {
+    if (!data.time.from || !data.time.to) return;
     onSubmit?.(data);
+
+    const start = parse(data.time.from, "HH:mm", data.date).getTime();
+    const end = parse(data.time.to, "HH:mm", data.date).getTime();
+
+    const id = initialValues?.id ?? createId();
+    console.log("appointment id", id);
+    const ap = {
+      id,
+      start,
+      end,
+      colour:
+        initialValues?.colour ??
+        colourEnum.enumValues[
+          Math.floor(Math.random() * colourEnum.enumValues.length)
+        ] ??
+        "sky",
+      orgId: orgId,
+      patId: data.patientId,
+      dentistId: data.dentistId,
+      type: data.type,
+      note: data.notes ?? data.description ?? null,
+      status: "PENDING",
+      description: null,
+    } as Appointment;
+    z.mutate.appointment.create(ap);
   };
 
-  const selectedPatientId = form.watch("patientId");
-  const selectedDentistId = form.watch("dentistId");
   const notesValue = form.watch("notes");
 
-  const selectedPatient = patients.find((p) => p.id === selectedPatientId);
-  const selectedDentist = dentists.find(
-    (d) => String(d.id) === selectedDentistId,
+  const { data: activeOrganization } = authClient.useActiveOrganization();
+  const { data: organizations } = authClient.useListOrganizations();
+  const orgId = activeOrganization?.id ?? organizations?.[0]?.id ?? "";
+
+  const { data: patients } = useZeroQuery(
+    z.query.patient.where("orgId", "=", orgId),
   );
 
+  const { data: dentists } = useZeroQuery(buildQuery(z, currentDate, orgId));
+
+  const dentistsOptions = dentists.map((dentist) => ({
+    ...dentist,
+    name: `${dentist.firstName} ${dentist.lastName}`,
+  }));
+  const patientsOptions = patients.map((patient) => ({
+    ...patient,
+    name: `${patient.firstName} ${patient.lastName}`,
+  }));
+
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-6 px-4"
-      >
-        <ScrollArea className="">
-          <div className="flex max-h-[20%] flex-col gap-4">
-            <CustomComboboxField
-              control={form.control}
-              name="patientId"
-              options={patients}
-              label="Patient"
-            />
-            <CustomComboboxField
-              control={form.control}
-              name="dentistId"
-              options={dentists as unknown as ComboboxOption[]}
-              label="Attending Dentist"
-              // defaultSelected={selectedDentist}
-            />
+    <>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="space-y-6 px-4"
+        >
+          <ScrollArea className="">
+            <div className="flex max-h-[20%] flex-col gap-4">
+              <CustomComboboxField
+                control={form.control}
+                name="patientId"
+                options={patientsOptions}
+                label="Patient"
+              />
+              <CustomComboboxField
+                control={form.control}
+                name="dentistId"
+                options={dentistsOptions}
+                label="Attending Dentist"
+              />
+              <CustomComboboxField
+                control={form.control}
+                name="type"
+                showAvatar={false}
+                options={aptTypeEnum.enumValues
+                  .filter((type) =>
+                    type === "NEW_PATIENT" && initialValues?.patientId
+                      ? false
+                      : true,
+                  )
+                  .map((type) => ({
+                    id: type,
+                    name: type.toLowerCase().replace("_", " "),
+                  }))}
+                label="Type"
+              />
 
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "py-5 pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={new Date(field.value)}
-                        onSelect={field.onChange}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "py-5 pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground",
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={new Date(field.value)}
+                          onSelect={field.onChange}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-2">
-              <Label htmlFor="time-picker">Time duration</Label>
-              <div className="flex gap-2">
-                <FormField
-                  control={form.control}
-                  name="time.from"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormControl>
-                        <Input
-                          type="time"
-                          id="time-picker"
-                          step="900"
-                          defaultValue="12:00:00"
-                          className="bg-background appearance-none text-xs [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="time.to"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormControl>
-                        <Input
-                          type="time"
-                          step="900"
-                          defaultValue="12:30:00"
-                          className="bg-background appearance-none text-xs [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className="space-y-2">
+                <Label htmlFor="time-picker">Time duration</Label>
+                <div className="flex gap-2">
+                  <FormField
+                    control={form.control}
+                    name="time.from"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <Input
+                            type="time"
+                            id="time-picker"
+                            step="900"
+                            defaultValue="12:00:00"
+                            className="bg-background appearance-none text-xs [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="time.to"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <Input
+                            type="time"
+                            step="900"
+                            defaultValue="12:30:00"
+                            className="bg-background appearance-none text-xs [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
-            </div>
 
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="mb-2 flex items-center justify-between">
-                    <FormLabel className="text-muted-foreground text-xs tracking-wider uppercase">
-                      Extra
-                    </FormLabel>
-                  </div>
-                  <FormLabel>Patient notes</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Textarea
-                        {...field}
-                        placeholder="Add any additional notes about the patient or appointment..."
-                        className="min-h-[120px] resize-none"
-                        maxLength={maxNotesLength}
-                      />
-                      <div className="text-muted-foreground absolute right-3 bottom-3 text-xs">
-                        {notesValue?.length || 0}/{maxNotesLength}
-                      </div>
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="mb-2 flex items-center justify-between">
+                      <FormLabel className="text-muted-foreground text-xs tracking-wider uppercase">
+                        Extra
+                      </FormLabel>
                     </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </ScrollArea>
-
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-2">
-          {/* <Button type="submit">{submitLabel}</Button> */}
-        </div>
-      </form>
-    </Form>
+                    <FormLabel>Patient notes</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Textarea
+                          {...field}
+                          placeholder="Add any additional notes about the patient or appointment..."
+                          className="min-h-[120px] resize-none"
+                          maxLength={maxNotesLength}
+                        />
+                        <div className="text-muted-foreground absolute right-3 bottom-3 text-xs">
+                          {notesValue?.length ?? 0}/{maxNotesLength}
+                        </div>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </ScrollArea>
+        </form>
+      </Form>
+      {children({ onSubmit: () => handleSubmit(form.getValues()) })}
+    </>
   );
 }
 
@@ -291,8 +362,8 @@ type ComboboxVariant = "default" | "compact" | "minimal";
 interface ComboboxOption {
   id: string;
   name: string;
-  avatar?: string; // URL or path to avatar image
-  email?: string; // Optional email for additional info
+  image?: string; // URL or path to avatar image
+  email?: string | null; // Optional email for additional info
   role?: string; // Optional role/title
   disabled?: boolean;
   badge?: string; // Optional badge text
@@ -339,9 +410,9 @@ export default function CustomComboboxField<T extends FieldValues>({
   searchPlaceholder = "Search...",
   description = "",
   options = [],
-  defaultSelected,
+  // defaultSelected,
   emptyMessage = "No results found.",
-  variant = "default",
+  // variant = "default",
   showAvatar = true,
   showEmail = false,
   showRole = false,
@@ -368,7 +439,7 @@ export default function CustomComboboxField<T extends FieldValues>({
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {showAvatar && (
           <Avatar className={cn("h-8 w-8 flex-shrink-0", avatarClassName)}>
-            <AvatarImage src={selected.avatar} alt={selected.name} />
+            <AvatarImage src={selected.image} alt={selected.name} />
             <AvatarFallback className="text-foreground bg-primary/70 text-xs font-semibold">
               {getInitials(selected.name)}
             </AvatarFallback>
@@ -401,7 +472,7 @@ export default function CustomComboboxField<T extends FieldValues>({
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {showAvatar && (
           <Avatar className={cn("h-8 w-8 flex-shrink-0", avatarClassName)}>
-            <AvatarImage src={option.avatar} alt={option.name} />
+            <AvatarImage src={option.image} alt={option.name} />
             <AvatarFallback
               className={cn(
                 "text-foreground bg-primary/70 text-xs font-semibold",
@@ -484,7 +555,7 @@ export default function CustomComboboxField<T extends FieldValues>({
               )}
               align="start"
             >
-              <Command>
+              <Command className="w-full">
                 <CommandInput placeholder={searchPlaceholder} className="h-9" />
                 <CommandList>
                   <CommandEmpty className="py-6 text-center text-sm">

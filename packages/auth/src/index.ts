@@ -87,7 +87,6 @@ export function initAuth(options: InitAuthOptions) {
     ],
 
     plugins: [
-      nextCookies(),
       // jwt(),
       emailOTP({
         async sendVerificationOTP({ email, otp }) {
@@ -128,6 +127,7 @@ export function initAuth(options: InitAuthOptions) {
           });
         },
       }),
+      nextCookies(),
     ],
     emailAndPassword: {
       enabled: true,

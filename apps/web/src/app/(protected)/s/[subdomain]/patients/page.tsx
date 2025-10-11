@@ -12,12 +12,10 @@ import type { FiltersState } from "~/components/data-table-filter/core/types";
 import { patientColumnDefs } from "./table/_components/columns";
 import { PatientsTable } from "./table/_components/patients-table";
 
-const filtersSchema = z.custom<FiltersState>();
-
 export default function Page() {
-  const [filters, setFilters] = useQueryState<FiltersState>(
+  const [filters, setFilters] = useQueryState(
     "filters",
-    parseAsJson(filtersSchema.parse).withDefault([]),
+    parseAsJson(z.custom<FiltersState>()).withDefault([]),
   );
   const [sorting, setSorting] = useQueryState(
     "sort",

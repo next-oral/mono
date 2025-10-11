@@ -747,6 +747,9 @@ importers:
 
   packages/zero:
     dependencies:
+      '@repo/auth':
+        specifier: workspace:*
+        version: link:../auth
       '@repo/database':
         specifier: workspace:*
         version: link:../database

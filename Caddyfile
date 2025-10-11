@@ -1,4 +1,16 @@
 nextoral.localhost, *.nextoral.localhost {
 	tls internal
-	reverse_proxy localhost:3000
+	route {
+		# Proxy /yjs to localhost:1234 and strip the /yjs prefix
+		handle_path /yjs/* {
+			reverse_proxy localhost:1234
+		}
+
+		# Proxy /sync to localhost:4848 and preserve the /sync prefix
+		handle /sync/* {
+			reverse_proxy localhost:4848
+		}
+		
+		reverse_proxy localhost:3000
+	}
 }

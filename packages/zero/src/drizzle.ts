@@ -1,20 +1,18 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+// Assuming your Drizzle schema is exported from @acme/db
+import type { DBConnection, DBTransaction, Row } from "@rocicorp/zero/pg";
+import type { QueryResultRow } from "pg";
 
-/* eslint-disable @typescript-eslint/no-unsafe-return */
+import type { Drizzle } from "@repo/database/client";
 
-// Assuming $client is the raw pg.PoolClient, this type matches how
+// My Drizzle instance type, assuming $client is the raw pg.PoolClient, matches how
 // `drizzle()` inits when using `node-postgres`
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-
-import type { schema } from "./schema";
-
-type Drizzle = NodePgDatabase<typeof schema> & { $client: PoolClient };
 
 // Extract the Drizzle-specific transaction type
-type DrizzleTransaction = Parameters<Parameters<Drizzle["transaction"]>[0]>[0];
+export type DrizzleTransaction = Parameters<
+  Parameters<Drizzle["transaction"]>[0]
+>[0];
 
-class DrizzleConnection implements DBConnection<DrizzleTransaction> {
+export class DrizzleConnection implements DBConnection<DrizzleTransaction> {
   drizzle: Drizzle;
 
   constructor(drizzle: Drizzle) {
