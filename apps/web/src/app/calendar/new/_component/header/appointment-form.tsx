@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ClassValue } from "clsx";
-import { addMinutes, format, isAfter, isBefore, parse } from "date-fns";
+import {
+  addMinutes,
+  format,
+  isAfter,
+  isBefore,
+  parse,
+  parseISO,
+} from "date-fns";
 import { Control, FieldValues, Path, useForm } from "react-hook-form";
 import z from "zod";
 
@@ -46,55 +53,121 @@ import {
   splitCamelCaseToWords,
 } from "@repo/design/src/lib/utils";
 
-import { dentists, patients } from "../constants";
+import { DeleteAppointmentDialog } from "../body/delete-appointment-dialog";
+import { appointments, dentists, patients } from "../constants";
 import { useCalendarStore } from "../store";
+import { Appointment } from "../types";
 import { computePositionAndSize } from "../utils";
 
 /**
- *
- * This function first parses the string into a Date object based on its length
+ * This function first parses the string into a Date object based on its format (simple time, ISO, or meridian)
  * and then uses 'format' to output the desired "HH:MM" string.
  *
- * @param timeStr The 24-hour time string ("08:30:15" or "08:30").
+ * @param timeStr The 24-hour time string ("08:30:15", "08:30", ISO string, or meridian time "1 pm").
  * @returns The normalized time string in "HH:MM" format.
  */
-function normalizeTimeFormat(timeStr: string): string {
-  // Determine the input format string based on string length
-  let inputFormat: string;
+function normalizeTimeFormatTo24hWithNoSeconds(timeStr: string): string {
   const referenceDate = new Date();
-
-  // Use the length to determine the correct parsing mask
-  if (timeStr.length >= 8 && timeStr.lastIndexOf(":") === 5) {
-    // Matches "HH:mm:ss"
-    inputFormat = "HH:mm:ss";
-  } else if (timeStr.length >= 5 && timeStr.indexOf(":") === 2) {
-    // Matches "HH:mm"
-    inputFormat = "HH:mm";
-  } else {
-    // If format is completely unknown, return original string or throw error
-    console.error(`Unknown time string format: ${timeStr}`);
-    return timeStr;
-  }
+  let dateObj: Date | null = null;
+  let inputFormat: string | undefined = undefined;
 
   try {
-    // 1. Parse the time string into a Date object
-    const dateObj = parse(timeStr, inputFormat, referenceDate);
-
-    // 2. Check if parsing failed (e.g., "99:99")
-    if (isNaN(dateObj.getTime())) {
-      throw new Error("Invalid time component parsed.");
+    // 1. Attempt ISO 8601 parsing first (handles full date/time strings)
+    // We check for common ISO date characters to decide if we should use parseISO.
+    if (
+      timeStr.includes("-") ||
+      timeStr.includes("T") ||
+      timeStr.toLowerCase().endsWith("z")
+    ) {
+      const parsedIso = parseISO(timeStr);
+      // Check if parseISO returned a valid date
+      if (!isNaN(parsedIso.getTime())) {
+        dateObj = parsedIso;
+      }
     }
 
-    // 3. Format the Date object to the desired "HH:MM" output
-    return format(dateObj, "HH:mm");
+    // 2. Attempt 12-hour meridian parsing (e.g., "1am", "2 pm", "02:30 AM")
+    if (
+      !dateObj &&
+      (timeStr.toLowerCase().includes("am") ||
+        timeStr.toLowerCase().includes("pm"))
+    ) {
+      let meridianFormat: string | undefined;
+
+      // Determine the best format string based on whether minutes are included
+      if (timeStr.includes(":")) {
+        // Use 'h:mm aa' for times like "02:30 AM" or "2:30pm"
+        meridianFormat = "h:mm aa";
+      } else {
+        // Use 'h aa' for times like "1am" or "12 pm" (assumes no minutes or minutes are zero)
+        meridianFormat = "h aa";
+      }
+
+      // Clean the string slightly (replace multiple spaces with one) before parsing
+      const cleanedTimeStr = timeStr.trim().replace(/\s+/g, " ");
+      const parsedMeridian = parse(
+        cleanedTimeStr,
+        meridianFormat,
+        referenceDate,
+      );
+
+      // Check if meridian parsing was successful
+      if (!isNaN(parsedMeridian.getTime())) {
+        dateObj = parsedMeridian;
+      }
+    }
+
+    // 3. Fallback to simple 24-hour time parsing if ISO or meridian parsing was skipped or failed
+    if (!dateObj) {
+      if (timeStr.length >= 8 && timeStr.lastIndexOf(":") === 5) {
+        // Matches "HH:mm:ss"
+        inputFormat = "HH:mm:ss";
+      } else if (timeStr.length >= 5 && timeStr.indexOf(":") === 2) {
+        // Matches "HH:mm"
+        inputFormat = "HH:mm";
+      } else {
+        // If format is completely unknown, throw an error
+        console.error(`Unknown time string format: ${timeStr}`);
+        return timeStr;
+      }
+
+      const parsedSimple = parse(timeStr, inputFormat, referenceDate);
+
+      // Check if simple parsing failed (e.g., "99:99")
+      if (isNaN(parsedSimple.getTime())) {
+        throw new Error("Invalid time component parsed.");
+      }
+      dateObj = parsedSimple;
+    }
+
+    // 4. Format the valid Date object to the desired "HH:MM" output
+    if (dateObj) {
+      return format(dateObj, "HH:mm");
+    }
+
+    // Fallback if parsing failed somehow
+    return timeStr;
   } catch (error) {
+    // Catch errors from parseISO or parse, or the thrown error
     console.error(
       `Failed to parse time string "${timeStr}" with date-fns:`,
       error,
     );
-    return timeStr;
+    return "00:00";
   }
 }
+
+function parseTimeFromMeridianTo24h(type: "from" | "to", timeString?: string) {
+  if (!timeString) return type == "from" ? "00:00" : "00:30";
+  const parsedDate = parse(timeString, "hh:mm a", new Date());
+  return format(parsedDate, "HH:mm");
+}
+
+// function parseTimeFrom24hToMeridian(timeString?: string) {
+//   if (!timeString) return "12:00 am";
+//   const parsedDate = parse(timeString, "HH:mm:ss", new Date());
+//   return format(parsedDate, "hh:mm a ");
+// }
 
 const timeFieldSchema = z
   .object({
@@ -125,13 +198,18 @@ const appointmentFormSchema = z.object({
   dentistId: z.string().min(1, "Please select a dentist"),
   date: z.string().min(1, "Please select a date"),
   time: timeFieldSchema,
-  notes: z.string().max(150, "Notes must be 150 characters or less").optional(),
+  notes: z
+    .string()
+    .min(1, "Please input note")
+    .max(150, "Notes must be 150 characters or less"),
 });
 
 export type AppointmentFormData = z.infer<typeof appointmentFormSchema>;
 
 interface AppointmentFormProps {
   // Optional initial values for editing
+  page: "edit" | "new";
+  appointmentId?: string;
   initialValues?: Partial<AppointmentFormData> | null;
   // Callbacks
   onSubmit?: (data: AppointmentFormData) => void;
@@ -143,25 +221,17 @@ interface AppointmentFormProps {
   maxNotesLength?: number;
 }
 
-function parseTimeFromMeridianTo24h(type: "from" | "to", timeString?: string) {
-  if (!timeString) return type == "from" ? "00:00" : "00:30";
-  const parsedDate = parse(timeString, "hh:mm a", new Date());
-  return format(parsedDate, "HH:mm:ss");
-}
-
-function parseTimeFrom24hToMeridian(timeString?: string) {
-  if (!timeString) return "12:00 am";
-  const parsedDate = parse(timeString, "HH:mm:ss", new Date());
-  return format(parsedDate, "hh:mm a ");
-}
-
 export function AppointmentForm({
+  page,
+  appointmentId,
   initialValues = null,
-  onSubmit,
-  onCancel,
   submitLabel = "Save Appointment",
   maxNotesLength = 150,
 }: AppointmentFormProps) {
+  const updateAppointment = useCalendarStore(
+    (state) => state.updateAppointment,
+  );
+  const highlight = useCalendarStore((state) => state.highlight);
   const setHighlight = useCalendarStore((state) => state.setHighlight);
   const setCurrentDate = useCalendarStore((state) => state.setCurrentDate);
 
@@ -171,8 +241,12 @@ export function AppointmentForm({
       patientId: initialValues?.patientId || "",
       dentistId: initialValues?.dentistId || "",
       time: {
-        from: parseTimeFromMeridianTo24h("from", initialValues?.time?.from),
-        to: parseTimeFromMeridianTo24h("to", initialValues?.time?.to),
+        from: normalizeTimeFormatTo24hWithNoSeconds(
+          String(initialValues?.time?.from || "00:00"),
+        ),
+        to: normalizeTimeFormatTo24hWithNoSeconds(
+          String(initialValues?.time?.to || "00:00"),
+        ),
       },
       date: initialValues?.date || "",
       notes: initialValues?.notes || "",
@@ -180,7 +254,40 @@ export function AppointmentForm({
   });
 
   const handleSubmit = (data: AppointmentFormData) => {
-    onSubmit?.(data);
+    if (page === "new") {
+      const startTime = parse(
+        normalizeTimeFormatTo24hWithNoSeconds(String(data.time.from)),
+        "HH:mm",
+        new Date(data.date),
+      );
+      const endTime = parse(
+        normalizeTimeFormatTo24hWithNoSeconds(String(data.time.to)),
+        "HH:mm",
+        new Date(data.date),
+      );
+      const newAppointment = {
+        id: (Math.floor(Math.random() * 10000) + 1).toString(),
+        dentistId: data.dentistId,
+        patientId: data.patientId,
+        patientName:
+          patients.find(({ id }) => id == data.patientId)?.name ?? "john doe",
+        date: new Date(data.date).toISOString(),
+        description: data.notes,
+        color: "lime",
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+      } satisfies Appointment;
+
+      console.log(newAppointment);
+      // z.mutate.appointment.update({
+      //   ...newAppointment,
+      //   start: new Date(newAppointment.start),
+      //   end: new Date(newAppointment.end),
+      //   updatedAt: Date.now(),
+      // });
+      updateAppointment(newAppointment);
+    }
+    // console.log(data, page);
   };
 
   const selectedPatientId = form.watch("patientId");
@@ -194,8 +301,12 @@ export function AppointmentForm({
   }, [form.watch("date")]);
 
   useEffect(() => {
-    const fromStr = normalizeTimeFormat(String(selectedTime.from));
-    const toStr = normalizeTimeFormat(String(selectedTime.to));
+    const fromStr = normalizeTimeFormatTo24hWithNoSeconds(
+      String(selectedTime.from),
+    );
+    const toStr = normalizeTimeFormatTo24hWithNoSeconds(
+      String(selectedTime.to),
+    );
     if (!fromStr || !toStr) return;
 
     const fromDate = parse(fromStr, "HH:mm", new Date());
@@ -212,12 +323,12 @@ export function AppointmentForm({
   useEffect(() => {
     if (selectedDentistId && selectedDate) {
       const parsedFromTime = parse(
-        normalizeTimeFormat(String(selectedTime.from)),
+        normalizeTimeFormatTo24hWithNoSeconds(String(selectedTime.from)),
         "HH:mm",
         new Date(selectedDate),
       );
       const parsedToTime = parse(
-        normalizeTimeFormat(String(selectedTime.to)),
+        normalizeTimeFormatTo24hWithNoSeconds(String(selectedTime.to)),
         "HH:mm",
         new Date(selectedDate),
       );
@@ -226,10 +337,13 @@ export function AppointmentForm({
         parsedFromTime.toISOString(),
         parsedToTime.toISOString(),
       );
+
       setHighlight(selectedDentistId, new Date(selectedDate), {
         height: rect.heightPx,
         top: rect.topPx,
       });
+
+      console.log(highlight);
     }
   }, [
     form.watch("time.from"),
@@ -246,7 +360,7 @@ export function AppointmentForm({
   return (
     <Form {...form}>
       <ScrollArea className="max-h-[80vh]">
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="">
           <div className="flex flex-col gap-6 px-2">
             <CustomComboboxField
               control={form.control}
@@ -259,7 +373,13 @@ export function AppointmentForm({
             <CustomComboboxField
               control={form.control}
               name="dentistId"
-              options={dentists as unknown as ComboboxOption[]}
+              options={
+                dentists.map((dentist) => ({
+                  id: String(dentist.id),
+                  name: dentist.name,
+                  avatar: dentist.avatar,
+                })) as unknown as ComboboxOption[]
+              }
               label="Attending Dentist"
               defaultSelected={selectedDentist?.id}
             />
@@ -315,7 +435,7 @@ export function AppointmentForm({
                           type="time"
                           id="time-picker"
                           step="900"
-                          defaultValue="12:00:00"
+                          defaultValue="00:00"
                           max="23:00:00"
                           className="bg-background appearance-none text-sm [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                           {...field}
@@ -328,12 +448,13 @@ export function AppointmentForm({
                 <FormField
                   control={form.control}
                   name="time.to"
+                  defaultValue="00:00"
                   render={({ field }) => {
-                    const fromStr = selectedTime.from; // Watch inside render for dynamic min
+                    const fromStr = selectedTime.from ?? "00:00"; // Watch inside render for dynamic min
                     let minTo = "00:15"; // Fallback
                     if (fromStr) {
                       const fromDate = parse(
-                        normalizeTimeFormat(fromStr),
+                        normalizeTimeFormatTo24hWithNoSeconds(fromStr),
                         "HH:mm",
                         new Date(),
                       );
@@ -345,7 +466,7 @@ export function AppointmentForm({
                           <Input
                             type="time"
                             step="900"
-                            defaultValue="12:30:00"
+                            defaultValue="00:30:00"
                             min={minTo}
                             max="23:45:00"
                             className="bg-background appearance-none text-sm [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
@@ -394,9 +515,25 @@ export function AppointmentForm({
           {/* Action Buttons */}
           <SheetFooter className="px-0">
             <hr />
-            <SheetClose asChild>
-              <Button variant={"outline"}>Discard</Button>
-            </SheetClose>
+            <div className="flex justify-between gap-3 px-2">
+              <div className="flex gap-2">
+                <Button type="submit" aria-label="confirm" >{submitLabel}</Button>
+
+                <SheetClose asChild>
+                  <Button variant={"outline"}>Discard</Button>
+                </SheetClose>
+              </div>
+
+              {page === "edit" && (
+                <DeleteAppointmentDialog
+                  appointment={
+                    appointments.find(({ id }) => String(id) == appointmentId)!
+                  }
+                  triggerInner="icon"
+                  triggerClassName="bg-destructive/30 text-destructive hover:bg-destructive/40"
+                />
+              )}
+            </div>
           </SheetFooter>
         </form>
       </ScrollArea>

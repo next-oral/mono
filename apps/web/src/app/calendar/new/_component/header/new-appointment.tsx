@@ -43,8 +43,8 @@ export function NewAppointment() {
       <SheetTrigger asChild>
         <Button>New Appointment</Button>
       </SheetTrigger>
-      <SheetContent className="px-0">
-        <SheetHeader className="px-0">
+      <SheetContent className="px-0 max-sm:w-full">
+        <SheetHeader className="mb-0 px-0">
           <SheetTitle className="px-2 pb-3">New Appointment</SheetTitle>
           <SheetDescription className="sr-only">
             Create a new Appointment
@@ -53,6 +53,7 @@ export function NewAppointment() {
         </SheetHeader>
 
         <AppointmentForm
+          page="new"
           initialValues={{
             dentistId: String(highlight.dentistId),
             date: highlight.currentDate.toISOString(),
@@ -61,6 +62,7 @@ export function NewAppointment() {
               to: timeString?.endStr,
             },
           }}
+          submitLabel="Create Appointment"
         />
       </SheetContent>
     </Sheet>

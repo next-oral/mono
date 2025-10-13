@@ -143,3 +143,30 @@
 [38;2;255;17;204m[z0][39m [ [32m'pid=19740'[39m, [32m'worker=runner'[39m, [32m'component=process-manager'[39m ] stopping process-manager 
 [38;2;255;17;204m[z0][39m [31mpid=17384 zero-cache exited. Exiting.[39m
 [38;2;255;17;204m[z0][39m [41m[30m ELIFECYCLE [39m[49m [31mCommand failed with exit code 4294967295.[39m
+[38;2;255;17;204m[z0][39m [41m[30m ELIFECYCLE [39m[49m [31mCommand failed with exit code 4294967295.[39m
+[38;2;255;17;204m[z0][39m [0mwait-on tcp:localhost:5432 && sleep 2  && pnpm dev:zero exited with code 4294967295[0m
+[38;2;50;100;140m[db][39m 2025-10-09 18:05:42.986 UTC [31] LOG:  checkpoint starting: time
+[38;2;50;100;140m[db][39m 2025-10-09 18:05:43.103 UTC [31] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.032 s, sync=0.009 s, total=0.117 s; sync files=2, longest=0.005 s, average=0.005 s; distance=0 kB, estimate=0 kB; lsn=0/1D64EF0, redo lsn=0/1D64E98
+[38;2;50;100;140m[db][39m 2025-10-11 18:38:57.687 UTC [52] LOG:  invalid length of startup packet
+[38;2;50;100;140m[db][39m 2025-10-11 18:38:57.864 UTC [53] LOG:  invalid length of startup packet
+[38;2;50;100;140m[db][39m 2025-10-11 18:38:57.946 UTC [54] LOG:  invalid length of startup packet
+[38;2;50;100;140m[db][39m 2025-10-11 18:38:59.484 UTC [55] LOG:  invalid length of startup packet
+[38;2;50;100;140m[db][39m 2025-10-11 18:38:59.533 UTC [56] LOG:  invalid length of startup packet
+[38;2;50;100;140m[db][39m 2025-10-11 18:38:59.654 UTC [57] LOG:  invalid length of startup packet
+[38;2;50;100;140m[db][39m 2025-10-11 18:39:04.767 UTC [58] LOG:  invalid length of startup packet
+[38;2;50;100;140m[db][39m 2025-10-11 18:39:04.848 UTC [59] LOG:  invalid length of startup packet
+[38;2;50;100;140m[db][39m 2025-10-11 18:39:05.066 UTC [60] LOG:  invalid length of startup packet
+[38;2;50;100;140m[db][39m 2025-10-11 18:43:37.196 UTC [1] LOG:  received smart shutdown request
+[38;2;50;100;140m[db][39m 2025-10-11 18:43:37.264 UTC [1] LOG:  background worker "logical replication launcher" (PID 36) exited with exit code 1
+[38;2;50;100;140m[db][39m 2025-10-11 18:43:37.292 UTC [31] LOG:  shutting down
+[38;2;50;100;140m[db][39m 2025-10-11 18:43:37.305 UTC [31] LOG:  checkpoint starting: shutdown immediate
+[38;2;50;100;140m[db][39m 2025-10-11 18:43:37.696 UTC [31] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.060 s, sync=0.001 s, total=0.393 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=0 kB; lsn=0/1D64FA0, redo lsn=0/1D64FA0
+[38;2;50;100;140m[db][39m 2025-10-11 18:43:37.968 UTC [1] LOG:  database system is shut down
+[38;2;50;100;140m[db][39m ^C
+[38;2;255;85;21m[seed][39m ^C
+[38;2;50;100;140m[db][39m [0mpnpm dev:clean && pnpm dev:db exited with code 1[0m
+[38;2;17;255;204m[gz][39m ^C
+[38;2;255;85;21m[seed][39m [41m[30m ELIFECYCLE [39m[49m [31mCommand failed with exit code 3221225786.[39m
+[38;2;17;255;204m[gz][39m ^CTerminate batch job (Y/N)? 
+[38;2;17;255;204m[gz][39m [0mpnpm dlx chokidar-cli 'packages/database/src/schema/index.ts' -c 'pnpm -F @repo/database generate-zero-schema' exited with code 3221225786[0m
+[38;2;255;85;21m[seed][39m 

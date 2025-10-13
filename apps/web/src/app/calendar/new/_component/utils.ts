@@ -71,7 +71,10 @@ export function groupAppointmentsForDay(
 
   // 3. Sort by startMin asc (stable)
   internal.sort(
-    (a, b) => a.startMin - b.startMin || a.endMin - b.endMin || a.id - b.id,
+    (a, b) =>
+      a.startMin - b.startMin ||
+      a.endMin - b.endMin ||
+      Number(a.id) - Number(b.id),
   );
 
   // 4. Iterate and group

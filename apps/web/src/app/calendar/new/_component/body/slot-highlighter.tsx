@@ -21,7 +21,7 @@ export function SlotHighlighter({
   currentDentistId,
 }: {
   currentDate: Date;
-  currentDentistId: string | number;
+  currentDentistId: string;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const startSlotRef = useRef<number | null>(null); // slot index (0..)
@@ -193,7 +193,7 @@ export function SlotHighlighter({
       style={{ touchAction: "none" }}
     >
       {/* Render highlight (only visible during dragging/armed) */}
-      {highlight && highlight.dentistId === currentDentistId && (
+      {highlight && highlight.dentistId == currentDentistId && (
         <div
           className="pointer-events-none absolute right-0 left-0 overflow-hidden rounded-sm bg-blue-500/70 p-2"
           style={{
