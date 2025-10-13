@@ -14,7 +14,7 @@ function main() {
     try {
       exec("docker volume create next-oral-pgdata");
       exec(
-        `docker run --name next-oral -e POSTGRES_PASSWORD=${env.DEV_PG_PASSWORD} -p ${env.DEV_PG_PORT}:5432 -v next-oral-pgdata:/var/lib/postgresql/data postgres -c wal_level=logical`,
+        `docker run --name next-oral -e POSTGRES_PASSWORD=${env.DEV_PG_PASSWORD} -p ${env.DEV_PG_PORT}:5432 -v next-oral:/var/lib/postgresql/data postgres -c wal_level=logical`,
       );
       // exec(
       //   `docker run --rm --name next-oral -e POSTGRES_PASSWORD=${env.DEV_PG_PASSWORD} -p ${env.DEV_PG_PORT}:5432 postgres -c wal_level=logical`,
