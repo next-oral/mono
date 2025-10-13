@@ -90,6 +90,7 @@ export function initAuth(options: InitAuthOptions) {
       // jwt(),
       emailOTP({
         async sendVerificationOTP({ email, otp }) {
+          console.log(otp);
           await actions.auth({
             template: "sign-up",
             data: {
