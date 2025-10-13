@@ -45,10 +45,10 @@ export function createMutators(_session: Session | null) {
         tx: Transaction<Schema>,
         apt: Omit<Appointment, "updatedAt" | "createdAt">,
       ) => {
-        const id = createId();
+        // const id = createId();
         await tx.mutate.appointment.upsert({
           ...apt,
-          id,
+          // id,
           updatedAt: Date.now(),
         });
       },
