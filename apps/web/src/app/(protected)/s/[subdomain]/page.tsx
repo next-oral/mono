@@ -1,7 +1,6 @@
 import { AppointmentCard } from "@repo/design/components/appointments/appointment-card";
 import { DashboardCard } from "@repo/design/components/dashboard/dashboard-card";
 import {
-  // PatientBarChart,
   PatientBarChart,
   PatientPieChart,
 } from "@repo/design/components/dashboard/patient-chart";
@@ -149,7 +148,7 @@ export default async function Page() {
   if (!session) return <div>Not authorized</div>;
 
   return (
-    <div>
+    <div className="px-5">
       <div className="flex flex-1 flex-col">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="my-2">

@@ -24,8 +24,8 @@ export const user = pgTable("user", {
     .$defaultFn(() => false)
     .notNull(),
   image: text("image"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at")
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
     .$defaultFn(() => new Date())
     .notNull(),
   role: text("role"),
@@ -40,8 +40,8 @@ export const session = pgTable("session", {
   id: text("id").primaryKey(),
   expiresAt: timestamp("expires_at").notNull(),
   token: text("token").notNull().unique(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
   userId: text("user_id")
@@ -66,8 +66,8 @@ export const account = pgTable("account", {
   refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
   scope: text("scope"),
   password: text("password"),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
 });
 
 export const verification = pgTable("verification", {
@@ -75,8 +75,10 @@ export const verification = pgTable("verification", {
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").$defaultFn(() => new Date()),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$defaultFn(
+    () => new Date(),
+  ),
 });
 
 // const organizationTypeEnum = pgEnum("organization_type", [
@@ -90,7 +92,7 @@ export const organization = pgTable("organization", {
   slug: text("slug").unique(),
   // type: organizationTypeEnum("type").default("Single Practice"),
   logo: text("logo"),
-  createdAt: timestamp("created_at").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
   metadata: text("metadata"),
 });
 
@@ -103,7 +105,7 @@ export const member = pgTable("member", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   role: text("role").default("member").notNull(),
-  createdAt: timestamp("created_at").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
 });
 
 export const invitation = pgTable("invitation", {
@@ -126,17 +128,26 @@ export const team = pgTable("team", {
   organizationId: text("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
   updatedAt: timestamp("updated_at"),
 });
 
 export const teamMember = pgTable("team_member", {
   id: text("id").primaryKey(),
-  teamId: text("team_id").notNull(),
+  teamId: text("team_id")
+    .notNull()
+    .references(() => team.id, { onDelete: "cascade" }),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at"),
+  createdAt: timestamp("created_at", { withTimezone: true }),
+});
+
+export const jwks = pgTable("jwks", {
+  id: text("id").primaryKey(),
+  publicKey: text("public_key").notNull(),
+  privateKey: text("private_key").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
 });
 
 export const waitlist = pgTable("waitlist", {
@@ -146,7 +157,7 @@ export const waitlist = pgTable("waitlist", {
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   email: text("email").notNull().unique(),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
 export const waitlistInsertSchema = createInsertSchema(waitlist).omit({
@@ -166,23 +177,30 @@ export const teamRelations = relations(team, ({ one, many }) => ({
     fields: [team.organizationId],
     references: [organization.id],
   }),
-  members: many(member),
+  teamMembers: many(teamMember),
 }));
 
-// export const memberRelations = relations(member, ({ one }) => ({
-//   organization: one(organization, {
-//     fields: [member.organizationId],
-//     references: [organization.id],
-//   }),
-//   user: one(user, {
-//     fields: [member.userId],
-//     references: [user.id],
-//   }),
-//   team: one(team, {
-//     fields: [member.teamId],
-//     references: [team.id],
-//   }),
-// }));
+export const teamMemberRelations = relations(teamMember, ({ one }) => ({
+  team: one(team, {
+    fields: [teamMember.teamId],
+    references: [team.id],
+  }),
+  user: one(user, {
+    fields: [teamMember.userId],
+    references: [user.id],
+  }),
+}));
+
+export const memberRelations = relations(member, ({ one }) => ({
+  organization: one(organization, {
+    fields: [member.organizationId],
+    references: [organization.id],
+  }),
+  user: one(user, {
+    fields: [member.userId],
+    references: [user.id],
+  }),
+}));
 
 export const userRelations = relations(user, ({ many }) => ({
   members: many(member),

@@ -1,5 +1,5 @@
 import type { TRPCRouterRecord } from "@trpc/server";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import { protocol, rootDomain } from "../lib/utils";
 import { protectedProcedure, publicProcedure } from "../trpc";
@@ -21,6 +21,10 @@ export const domainRouter = {
       }),
     )
     .query(async ({ input, ctx }) => {
+      return {
+        createdAt: Date.now(),
+        emoji: "ds",
+      } satisfies Subdomain;
       const sanitizedSubdomain = input.domain
         .toLowerCase()
         .replace(/[^a-z0-9-]/g, "");
@@ -28,6 +32,27 @@ export const domainRouter = {
       const data = await ctx.redis.get<Subdomain>(
         `subdomain:${sanitizedSubdomain}`,
       );
+      if (!data) {
+        const org = await ctx.db.query.organization.findFirst({
+          where: (organization, { eq }) =>
+            eq(organization.slug, sanitizedSubdomain),
+        });
+
+        if (org) {
+          const set = await ctx.redis.set<Subdomain>(
+            `subdomain:${sanitizedSubdomain}`,
+            {
+              createdAt: Date.now(),
+              emoji: "🌍",
+            },
+          );
+          return {
+            createdAt: Date.now(),
+            emoji: "ds",
+          } satisfies Subdomain;
+          if (set && typeof set === "object") return set;
+        }
+      }
 
       return data;
     }),

@@ -90,8 +90,10 @@ const customColumns: ColumnConfig[] = [
       const statusColors: Record<string, string> = {
         success:
           "bg-green-100 text-green-900 rounded-full py-1 px-2 capitalize text-xs",
-        inactive: "bg-red-100 text-red-900 rounded-full py-1 px-2 capitalize text-xs",
-        processing: "bg-orange-100 text-orange-900 rounded-full py-1 px-2 capitalize text-xs",
+        inactive:
+          "bg-red-100 text-red-900 rounded-full py-1 px-2 capitalize text-xs",
+        processing:
+          "bg-orange-100 text-orange-900 rounded-full py-1 px-2 capitalize text-xs",
       };
       return (
         <span className={statusColors[value] ?? "text-gray-500"}>{value}</span>

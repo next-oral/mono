@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import type { AnchorHTMLAttributes } from "react";
 import { Suspense } from "react";
 import { headers } from "next/headers";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AppSidebar } from "@repo/design/components/sidebar/sidebar";
@@ -96,7 +98,6 @@ export async function SubdomainLayoutWithAuth({
   //   headers: heads,
   // });
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   await auth.api.listOrganizations({
     headers: heads,
   });
@@ -118,7 +119,10 @@ export async function SubdomainLayoutWithAuth({
         }}
       /> */}
 
-      <AppSidebar user={session.user} />
+      <AppSidebar
+        user={session.user}
+        Link={Link as AnchorHTMLAttributes<HTMLAnchorElement>}
+      />
 
       <SidebarInset>
         <div className="flex">
@@ -146,7 +150,7 @@ export async function SubdomainLayoutWithAuth({
                 <Plus />
               </Button>
             </header>
-            <div className="p-5">{children}</div>
+            <div className="py-5">{children}</div>
           </div>
         </div>
       </SidebarInset>

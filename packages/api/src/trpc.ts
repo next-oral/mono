@@ -1,6 +1,6 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
-import { ZodError } from "zod";
+import { ZodError } from "zod/v4";
 
 import type { Auth } from "@repo/auth";
 import { db, redis } from "@repo/database/client";

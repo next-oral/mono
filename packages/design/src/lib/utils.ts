@@ -1,5 +1,6 @@
 import type { ClassValue } from "clsx";
 import { clsx } from "clsx";
+import { getHours, getMinutes } from "date-fns";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
 
@@ -125,7 +126,7 @@ export const handleClipBoardCopy = async (text: string): Promise<boolean> => {
   }
 };
 
-export const truncateText = (text: string, maxLength?: number): string => {
+export const truncateText = (text: string, maxLength = 10): string => {
   // function to truncate texts
   if (!maxLength || text.length <= maxLength) return text;
   return text.substring(0, maxLength) + "...";
@@ -145,19 +146,44 @@ export const truncateFileName = (fileName: string, maxLength: number) => {
   return `${truncatedName}...${extension}`;
 };
 
-// lib/utils.ts
+/**
+ * Parses a time string (e.g., "9:30 AM") into total minutes since midnight.
+ * NOTE: This relies on the JS Date object's ability to parse the time string
+ * correctly within a standard date context.
+ */
 export function parseTimeToMinutes(timeStr: string): number {
-  const match = /^(\d{1,2}):(\d{2})\s?(AM|PM)$/i.exec(timeStr);
-  if (!match) throw new Error(`Invalid time format: ${timeStr}`);
-  const [, hoursStr, minutesStr, meridian] = match;
-  let hours = parseInt(String(hoursStr), 10);
-  const minutes = parseInt(String(minutesStr), 10);
+  // 1. Parse the string into a Date object.
+  // We prepend a dummy date ("2000/01/01") to ensure the time is parsed
+  // relative to a known day, preventing issues with the current date/time.
+  const date = new Date(`2000/01/01 ${timeStr}`);
 
-  // Handle 12-hour format
-  if (meridian) {
-    if (meridian.toUpperCase() === "PM" && hours !== 12) hours += 12;
-    else if (meridian.toUpperCase() === "AM" && hours === 12) hours = 0;
+  // 2. Validate if the parsing was successful.
+  if (isNaN(date.getTime())) {
+    throw new Error(`Invalid time format: ${timeStr}`);
   }
 
+  // 3. Use date-fns functions to get the components.
+  const hours = getHours(date);
+  const minutes = getMinutes(date);
+
+  // 4. Calculate total minutes.
   return hours * 60 + minutes;
+}
+
+/**
+ * Formats a name string to its possessive form by adding 's or just '.
+ * Follows the standard rule: add 's unless the name already ends in 's'.
+ *
+ * @param name The name to format (e.g., "John", "James").
+ * @returns The possessive form (e.g., "John's", "James'").
+ */
+export function formatPossessiveName(name: string): string {
+  // Check if the name ends with 's' (case-insensitive)
+  if (name.toLowerCase().endsWith("s")) {
+    // If it ends in 's' (e.g., "James", "Charles"), add only an apostrophe.
+    return name + "'";
+  } else {
+    // Otherwise (e.g., "John", "Mary"), add apostrophe and 's'.
+    return name + "'s";
+  }
 }

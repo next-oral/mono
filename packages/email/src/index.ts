@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import VerifyEmail from "@repo/email/templates/verify-email";
 

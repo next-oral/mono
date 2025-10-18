@@ -18,6 +18,7 @@
   "dependencies": {
     "@repo/database": "workspace:*",
     "@repo/email": "workspace:*",
+    "@repo/validators": "workspace:*",
     "@t3-oss/env-nextjs": "^0.13.4",
     "better-auth": "catalog:"
   },

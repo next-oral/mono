@@ -5,7 +5,6 @@ import { includeIgnoreFile } from "@eslint/compat";
 import eslint from "@eslint/js";
 import importPlugin from "eslint-plugin-import";
 import turboPlugin from "eslint-plugin-turbo";
-import eslintPluginUnicorn from "eslint-plugin-unicorn";
 import tseslint from "typescript-eslint";
 
 /**
@@ -47,7 +46,6 @@ export default tseslint.config(
     plugins: {
       import: importPlugin,
       turbo: turboPlugin,
-      unicorn: eslintPluginUnicorn,
     },
     extends: [
       eslint.configs.recommended,
@@ -77,13 +75,13 @@ export default tseslint.config(
       ],
       "@typescript-eslint/no-non-null-assertion": "error",
       "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
-      "unicorn/filename-case": [
+      "no-restricted-imports": [
         "error",
         {
-          case: "kebabCase",
+          name: "zod",
+          message: "Use `import { z } from 'zod/v4'` instead to ensure v4.",
         },
       ],
-      quotes: ["error", "double", { avoidEscape: true }],
     },
   },
   {

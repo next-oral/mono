@@ -1,9 +1,14 @@
 import { authRouter } from "./router/auth";
 import { domainRouter } from "./router/domain";
 import { organizationRouter } from "./router/organization";
-import { createTRPCRouter } from "./trpc";
+import { createTRPCRouter, publicProcedure } from "./trpc";
 
 export const appRouter = createTRPCRouter({
+  healthCheck: publicProcedure.query(() => {
+    return {
+      message: "OK",
+    };
+  }),
   auth: authRouter,
   domain: domainRouter,
   organization: organizationRouter,

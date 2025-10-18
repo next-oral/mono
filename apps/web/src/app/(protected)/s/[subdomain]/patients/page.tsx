@@ -1,5 +1,44 @@
-import { PatientsTable } from "./table";
+"use client";
+
+import type { SortingState, Updater } from "@tanstack/react-table";
+import { useCallback } from "react";
+import { parseAsJson, useQueryState } from "nuqs";
+import { z } from "zod";
+
+import { getSortingStateParser } from "@repo/design/src/lib/parsers";
+
+import type { PatientRow } from "./table/_components/patients-table";
+import type { FiltersState } from "~/components/data-table-filter/core/types";
+import { patientColumnDefs } from "./table/_components/columns";
+import { PatientsTable } from "./table/_components/patients-table";
 
 export default function Page() {
-  return <PatientsTable />;
+  const [filters, setFilters] = useQueryState(
+    "filters",
+    parseAsJson(z.custom<FiltersState>()).withDefault([]),
+  );
+  const [sorting, setSorting] = useQueryState(
+    "sort",
+    getSortingStateParser<PatientRow>(
+      patientColumnDefs.map((column) => column.id).filter(Boolean) as string[],
+    ).withDefault([]),
+  );
+  const onSortingChange = useCallback(
+    (updaterOrValue: Updater<SortingState>) => {
+      if (typeof updaterOrValue === "function") {
+        const newSorting = updaterOrValue(sorting);
+        void setSorting(newSorting);
+      } else {
+        void setSorting(updaterOrValue);
+      }
+    },
+    [sorting, setSorting],
+  );
+  return (
+    <div className="flex h-full flex-col overflow-hidden px-5">
+      <PatientsTable
+        state={{ filters, setFilters, sorting, setSorting: onSortingChange }}
+      />
+    </div>
+  );
 }

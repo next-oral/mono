@@ -48,7 +48,20 @@ export function initAuth(options: InitAuthOptions) {
         },
       },
     },
-
+    // databaseHooks: {
+    //   session: {
+    //     create: {
+    //       before: async (session) => {
+    //         return {
+    //           data: {
+    //             ...session,
+    //             activeOrganizationId: organization.id,
+    //           },
+    //         };
+    //       },
+    //     },
+    //   },
+    // },
     advanced: {
       cookiePrefix: "nextoral",
       crossSubDomainCookies: {
@@ -63,16 +76,21 @@ export function initAuth(options: InitAuthOptions) {
       },
     },
     trustedOrigins: [
-      `https://*.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
-      "https://*.nextoral.org",
+      `https://${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+      `https://www.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+      `https://golden.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+      "https://nextoral.org",
       "https://nextoral.com",
       "*.localhost:3000",
+      "http://localhost:3001",
       "expo://",
     ],
+
     plugins: [
-      nextCookies(),
+      // jwt(),
       emailOTP({
         async sendVerificationOTP({ email, otp }) {
+          console.log(otp);
           await actions.auth({
             template: "sign-up",
             data: {
@@ -110,6 +128,7 @@ export function initAuth(options: InitAuthOptions) {
           });
         },
       }),
+      nextCookies(),
     ],
     emailAndPassword: {
       enabled: true,

@@ -1,0 +1,69 @@
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:17
+    command: |
+      postgres 
+      -c wal_level=logical
+      -d 1
+    volumes:
+      - nextoral_data:/var/lib/postgresql/data
+    ports:
+      - ${DEV_PG_PORT}:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DEV_PG_PASSWORD}
+      - POSTGRES_DB=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  neon-proxy:
+    container_name: neon-proxy
+    image: ghcr.io/timowilhelm/local-neon-http-proxy:main
+    environment:
+      - PG_CONNECTION_STRING=postgres://postgres:postgres@postgres:5432/main
+    ports:
+      - "4444:4444"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  redis:
+    container_name: redis
+    image: redis
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - "6379:6379"
+    volumes:
+      - "redis_data:/bitnami/redis/data"
+
+  redis-proxy:
+    container_name: redis-proxy
+    ports:
+      - "8079:80"
+    image: hiett/serverless-redis-http:latest
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: example_token
+      SRH_CONNECTION_STRING: "redis://redis:6379"
+
+  minio:
+    container_name: minio
+    image: elestio/minio
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      - MINIO_ROOT_USER=minio-root-user
+      - MINIO_ROOT_PASSWORD=minio-root-password
+
+volumes:
+  nextoral_data:
+  redis_data:
+    driver: local
