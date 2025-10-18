@@ -1,5 +1,5 @@
+import type { Zero } from "@rocicorp/zero";
 import { useMemo } from "react";
-import { Zero } from "@rocicorp/zero";
 import { ZeroProvider } from "@rocicorp/zero/react";
 import { useRouter } from "@tanstack/react-router";
 

@@ -21,7 +21,8 @@
   "scripts": {
     "build": "tsc",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "dev": "tsc && pnpm with-env tsx src/scripts/exec.ts",
+    "dev": "tsc && pnpm with-env tsx src/scripts/dev.ts",
+    "db:up": "tsc && pnpm with-env tsx src/scripts/db.ts",
     "generate-zero-schema": "pnpm with-env drizzle-zero generate -o ../zero/src/schema/schema.gen.ts",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",

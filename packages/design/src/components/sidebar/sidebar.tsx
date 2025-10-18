@@ -1,8 +1,9 @@
 "use client";
 
+import type { AnchorHTMLAttributes } from "react";
 import * as React from "react";
 import { useState } from "react";
-import Image from "next/image";
+// import Image from "next/image";
 import { GalleryVerticalEnd } from "lucide-react";
 
 import {
@@ -21,7 +22,7 @@ import { cn } from "@repo/design/lib/utils";
 
 import type { Clinic } from "./org-switcher";
 import { CommandSearch } from "./command-search";
-import { NavSecondary } from "./nav-secondary";
+// import { NavSecondary } from "./nav-secondary";
 import { OrgSwitcher } from "./org-switcher";
 import { NavItems } from "./sidebar-items";
 
@@ -113,8 +114,12 @@ export interface User {
 
 export function AppSidebar({
   user,
+  Link,
   ...props
-}: React.ComponentProps<typeof Sidebar> & { user: User }) {
+}: React.ComponentProps<typeof Sidebar> & {
+  user: User;
+  Link: AnchorHTMLAttributes<HTMLAnchorElement>;
+}) {
   const { state } = useSidebar();
 
   const [activeClinic, setActiveClinic] = useState<Clinic | undefined>(
@@ -130,13 +135,13 @@ export function AppSidebar({
               <a href="/">
                 <div className="bg-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <GalleryVerticalEnd className="size-4" />
-                  <Image
+                  {/* <Image
                     src="/next-oral.svg"
                     width="40"
                     height="40"
                     className="size-10"
                     alt="Next oral"
-                  />
+                  /> */}
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">Next Oral</span>
@@ -154,12 +159,10 @@ export function AppSidebar({
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <NavItems items={data.navMain} />
-        <NavItems items={data.others} />
+        <NavItems items={data.navMain} Link={Link as any} />
+        <NavItems items={data.others} Link={Link as any} />
       </SidebarContent>
       <SidebarFooter className={cn("p-0", { "p-0": state === "collapsed" })}>
-        <NavSecondary items={data.navSecondary} />
-
         <div className="p-2">
           <OrgSwitcher
             user={user}

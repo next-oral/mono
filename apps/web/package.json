@@ -21,7 +21,7 @@
     "@repo/design": "workspace:*",
     "@repo/validators": "workspace:*",
     "@repo/zero": "workspace:*",
-    "@rocicorp/zero": "^0.23.2025090100",
+    "@rocicorp/zero": "catalog:",
     "@t3-oss/env-nextjs": "^0.13.4",
     "@tailwindcss/postcss": "^4.1.6",
     "@tanstack/react-query": "catalog:",

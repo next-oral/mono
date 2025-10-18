@@ -37,7 +37,7 @@
   "dependencies": {
     "@repo/auth": "workspace:*",
     "@repo/database": "workspace:*",
-    "@rocicorp/zero": "^0.23.2025090100",
+    "@rocicorp/zero": "catalog:",
     "concurrently": "^9.2.1",
     "wait-on": "^9.0.1"
   },

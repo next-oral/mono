@@ -4,10 +4,11 @@ import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { z } from "zod/v4";
 
+import { Button } from "@repo/design/components/ui/button";
+import { Input } from "@repo/design/components/ui/input";
+import { Label } from "@repo/design/components/ui/label";
+
 import Loader from "./loader";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 
 export default function SignUpForm({
   onSwitchToSignIn,
@@ -33,8 +34,8 @@ export default function SignUpForm({
           name: value.name,
         },
         {
-          onSuccess: () => {
-            navigate({
+          onSuccess: async () => {
+            await navigate({
               to: "/dashboard",
             });
             toast.success("Sign up successful");
@@ -66,7 +67,7 @@ export default function SignUpForm({
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          form.handleSubmit();
+          void form.handleSubmit();
         }}
         className="space-y-4"
       >

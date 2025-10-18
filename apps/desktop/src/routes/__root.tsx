@@ -1,10 +1,9 @@
 import type { trpc } from "@/utils/trpc";
+import type { Zero } from "@rocicorp/zero";
 import type { QueryClient } from "@tanstack/react-query";
 import Header from "@/components/header";
 import Loader from "@/components/loader";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
-import { Zero } from "@rocicorp/zero";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
@@ -13,8 +12,11 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { CookiesProvider } from "react-cookie";
 
-import "../index.css";
+import { Toaster } from "@repo/design/components/ui/sonner";
+
+import "@repo/design/globals.css";
 
 import { ZeroInit } from "@/components/zero-init";
 
@@ -32,11 +34,11 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
   head: () => ({
     meta: [
       {
-        title: "my-better-t-app",
+        title: "Next Oral Desktop",
       },
       {
         name: "description",
-        content: "my-better-t-app is a web application",
+        content: "Next Oral Desktop is a desktop application",
       },
     ],
     links: [
@@ -54,22 +56,25 @@ function RootComponent() {
   });
 
   return (
-    <ZeroInit>
-      <HeadContent />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        disableTransitionOnChange
-        storageKey="vite-ui-theme"
-      >
-        <div className="grid h-svh grid-rows-[auto_1fr]">
-          <Header />
-          {isFetching ? <Loader /> : <Outlet />}
-        </div>
-        <Toaster richColors />
-      </ThemeProvider>
-      <TanStackRouterDevtools position="bottom-left" />
-      <ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
-    </ZeroInit>
+    <CookiesProvider>
+      <ZeroInit>
+        <HeadContent />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          disableTransitionOnChange
+          storageKey="vite-ui-theme"
+        >
+          <div className="grid h-svh grid-rows-[auto_1fr]">
+            <Header />
+            {isFetching ? <Loader /> : <Outlet />}
+          </div>
+          <Toaster richColors />
+          <Outlet />
+        </ThemeProvider>
+        <TanStackRouterDevtools position="bottom-left" />
+        <ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
+      </ZeroInit>
+    </CookiesProvider>
   );
 }

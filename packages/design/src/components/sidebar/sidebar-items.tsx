@@ -1,8 +1,8 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+// import Link from "next/link";
+// import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 
 import {
@@ -30,10 +30,12 @@ interface NavItem {
 
 interface NavItemsProps {
   items: NavItem[];
+  Link: React.ReactElement<React.HTMLAttributes<HTMLAnchorElement>>;
 }
 
-export const NavItems = ({ items }: NavItemsProps) => {
-  const pathname = usePathname();
+export const NavItems = ({ items, Link }: NavItemsProps) => {
+  // const pathname = usePathname();
+  const pathname = "/";
 
   const isActiveRoute = (url: string) =>
     url === "/" ? pathname === "/" : pathname.startsWith(url);
@@ -72,7 +74,7 @@ export const NavItems = ({ items }: NavItemsProps) => {
                           "**:text-primary": isActive,
                         })}
                       >
-                        <Link href={subItem.url ?? ""}>
+                        <Link to={subItem.url ?? ""} href={subItem.url ?? ""}>
                           {subItem.icon && <subItem.icon />}
                           <span>{subItem.title}</span>
                         </Link>
