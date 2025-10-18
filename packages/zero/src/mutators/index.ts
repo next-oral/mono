@@ -1,5 +1,4 @@
 import type { CustomMutatorDefs, Transaction } from "@rocicorp/zero";
-import { createId } from "@paralleldrive/cuid2";
 
 import type { Session } from "@repo/auth";
 import type { AddressInsertSchema } from "@repo/database/schema";
@@ -30,17 +29,6 @@ export function createMutators(_session: Session | null) {
     },
 
     appointment: {
-      // create: async (
-      //   tx: Transaction<Schema>,
-      //   apt: AppointmentInsertSchema & { id: string },
-      // ) => {
-      //   await tx.mutate.appointment.upsert({
-      //     ...apt,
-      //     start: new Date(apt.start).getTime(),
-      //     end: new Date(apt.end).getTime(),
-      //     updatedAt: Date.now(),
-      //   });
-      // },
       create: async (
         tx: Transaction<Schema>,
         apt: Omit<Appointment, "updatedAt" | "createdAt">,
@@ -58,17 +46,6 @@ export function createMutators(_session: Session | null) {
       ) => {
         await tx.mutate.appointment.update(apt);
       },
-      // update: async (
-      //   tx: Transaction<Schema>,
-      //   apt: AppointmentInsertSchema & { id: string; updatedAt: number },
-      // ) => {
-      //   await tx.mutate.appointment.update({
-      //     ...apt,
-      //     start: new Date(apt.start).getTime(),
-      //     end: new Date(apt.end).getTime(),
-      //     updatedAt: Date.now(),
-      //   });
-      // },
       delete: async (tx: Transaction<Schema>, apt: { id: string }) => {
         await tx.mutate.appointment.delete({
           id: apt.id,

@@ -101,6 +101,7 @@ export type TOrderFn<TVal = unknown> = (
  */
 export interface ColumnConfig<
   TData,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TType extends ColumnDataType = any,
   TVal = unknown,
   TId extends string = string,
@@ -124,8 +125,10 @@ export interface ColumnConfig<
 
 export type OptionColumnId<T> =
   T extends ColumnConfig<
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     infer TData,
     "option" | "multiOption",
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     infer TVal,
     infer TId
   >
@@ -133,17 +136,20 @@ export type OptionColumnId<T> =
     : never;
 
 export type OptionColumnIds<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   T extends readonly ColumnConfig<any, any, any, any>[],
 > = {
   [K in keyof T]: OptionColumnId<T[K]>;
 }[number];
 
 export type NumberColumnId<T> =
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   T extends ColumnConfig<infer TData, "number", infer TVal, infer TId>
     ? TId
     : never;
 
 export type NumberColumnIds<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   T extends readonly ColumnConfig<any, any, any, any>[],
 > = {
   [K in keyof T]: NumberColumnId<T[K]>;
@@ -168,7 +174,7 @@ export interface DataTableFilterConfig<TData> {
   columns: ColumnConfig<TData>[];
 }
 
-export interface ColumnProperties<TData, TVal> {
+export interface ColumnProperties<_, TVal> {
   getOptions: () => ColumnOption[];
   getValues: () => ElementType<NonNullable<TVal>>[];
   getFacetedUniqueValues: () => Map<string, number> | undefined;
@@ -179,7 +185,7 @@ export interface ColumnProperties<TData, TVal> {
   prefetchFacetedMinMaxValues: () => Promise<void>; // Prefetch faceted min/max values
 }
 
-export interface ColumnPrivateProperties<TData, TVal> {
+export interface ColumnPrivateProperties<_, TVal> {
   _prefetchedOptionsCache: ColumnOption[] | null;
   _prefetchedValuesCache: ElementType<NonNullable<TVal>>[] | null;
   _prefetchedFacetedUniqueValuesCache: Map<string, number> | null;
@@ -188,6 +194,7 @@ export interface ColumnPrivateProperties<TData, TVal> {
 
 export type Column<
   TData,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TType extends ColumnDataType = any,
   TVal = unknown,
 > = ColumnConfig<TData, TType, TVal> &
@@ -281,6 +288,7 @@ export interface FilterOperators {
  * - Values: An array of values to be used for the filter.
  *
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface FilterModel<TType extends ColumnDataType = any> {
   columnId: string;
   type: TType;

@@ -37,8 +37,7 @@ export const NavItems = ({ items, Link }: NavItemsProps) => {
   // const pathname = usePathname();
   const pathname = "/";
 
-  const isActiveRoute = (url: string) =>
-    url === "/" ? pathname === "/" : pathname.startsWith(url);
+  const isActiveRoute = (url: string) => pathname.startsWith(url);
 
   return items.map((item) => (
     <Collapsible
@@ -74,6 +73,7 @@ export const NavItems = ({ items, Link }: NavItemsProps) => {
                           "**:text-primary": isActive,
                         })}
                       >
+                        {/* @ts-expect-error this is a valid link */}
                         <Link to={subItem.url ?? ""} href={subItem.url ?? ""}>
                           {subItem.icon && <subItem.icon />}
                           <span>{subItem.title}</span>

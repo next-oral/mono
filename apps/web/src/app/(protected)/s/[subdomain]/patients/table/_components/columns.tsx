@@ -15,7 +15,7 @@ import {
 import { MoreVertical, Pencil, Trash2 } from "@repo/design/src/icons";
 
 import { DataTableColumnHeader } from "./column-header";
-import { PatientRow } from "./patients-table";
+import type { PatientRow } from "./patients-table";
 
 const columnHelper = createColumnHelper<PatientRow>();
 

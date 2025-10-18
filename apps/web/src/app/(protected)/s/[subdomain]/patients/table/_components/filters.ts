@@ -1,7 +1,7 @@
 import { Cake, MailIcon, MapPinIcon, UserIcon } from "@repo/design/src/icons";
 
 import type { ColumnConfig } from "~/components/data-table-filter/core/types";
-import { PatientRow as Patient } from "./patients-table";
+import type { PatientRow as Patient } from "./patients-table";
 
 export const columnsConfig = [
   {
@@ -35,4 +35,4 @@ export const columnsConfig = [
     type: "date",
     accessor: (row) => row.dob ?? "",
   },
-] satisfies ReadonlyArray<ColumnConfig<Patient, any, any, any>>;
+] satisfies readonly ColumnConfig<Patient, any, any, any>[];

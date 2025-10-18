@@ -11,7 +11,7 @@ import type { FilterModel } from "../core/types";
 import { dateFilterOperators } from "../core/operators";
 import { intersection } from "./array";
 
-export function optionFilterFn<TData>(
+export function optionFilterFn<_>(
   inputData: string,
   filterValue: FilterModel<"option">,
 ) {
@@ -36,8 +36,6 @@ export function multiOptionFilterFn(
   inputData: string[],
   filterValue: FilterModel<"multiOption">,
 ) {
-  if (!inputData) return false;
-
   if (
     filterValue.values.length === 0 ||
     !filterValue.values[0] ||
@@ -65,11 +63,11 @@ export function multiOptionFilterFn(
   }
 }
 
-export function dateFilterFn<TData>(
+export function dateFilterFn<_>(
   inputData: Date,
   filterValue: FilterModel<"date">,
 ) {
-  if (!filterValue || filterValue.values.length === 0) return true;
+  if (filterValue.values.length === 0) return true;
 
   if (
     dateFilterOperators[filterValue.operator].target === "single" &&
@@ -117,18 +115,18 @@ export function dateFilterFn<TData>(
   }
 }
 
-export function textFilterFn<TData>(
+export function textFilterFn<_>(
   inputData: string,
   filterValue: FilterModel<"text">,
 ) {
-  if (!filterValue || filterValue.values.length === 0) return true;
+  if (filterValue.values.length === 0) return true;
 
   const value = inputData.toLowerCase().trim();
   const filterStr = filterValue.values[0]?.toLowerCase().trim();
 
   if (filterStr === "") return true;
 
-  const found = value.includes(filterStr ?? "");
+  const found = value.includes(filterStr);
 
   switch (filterValue.operator) {
     case "contains":
@@ -138,11 +136,11 @@ export function textFilterFn<TData>(
   }
 }
 
-export function numberFilterFn<TData>(
+export function numberFilterFn<_>(
   inputData: number,
   filterValue: FilterModel<"number">,
 ) {
-  if (!filterValue || !filterValue.values || filterValue.values.length === 0) {
+  if (filterValue.values.length === 0) {
     return true;
   }
 

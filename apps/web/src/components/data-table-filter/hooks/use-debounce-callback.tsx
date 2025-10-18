@@ -3,17 +3,17 @@ import { useEffect, useMemo, useRef } from "react";
 import { debounce } from "../lib/debounce";
 import { useUnmount } from "./use-unmount";
 
-type DebounceOptions = {
+interface DebounceOptions {
   leading?: boolean;
   trailing?: boolean;
   maxWait?: number;
-};
+}
 
-type ControlFunctions = {
+interface ControlFunctions {
   cancel: () => void;
   flush: () => void;
   isPending: () => boolean;
-};
+}
 
 export type DebouncedState<T extends (...args: any) => ReturnType<T>> = ((
   ...args: Parameters<T>

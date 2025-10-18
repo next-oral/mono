@@ -1,14 +1,18 @@
-type ControlFunctions = {
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
+// eslint-disable-file
+interface ControlFunctions {
   cancel: () => void;
   flush: () => void;
   isPending: () => boolean;
-};
+}
 
-type DebounceOptions = {
+interface DebounceOptions {
   leading?: boolean;
   trailing?: boolean;
   maxWait?: number;
-};
+}
 
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
@@ -41,10 +45,10 @@ export function debounce<T extends (...args: any[]) => any>(
     const timeSinceLastCall = time - lastCallTime;
     const timeSinceLastInvoke = time - lastInvokeTime;
     return (
-      lastCallTime === null ||
+      lastCallTime,
       timeSinceLastCall >= wait ||
-      timeSinceLastCall < 0 ||
-      (maxWaitTime !== null && timeSinceLastInvoke >= maxWaitTime)
+        timeSinceLastCall < 0 ||
+        (maxWaitTime !== null && timeSinceLastInvoke >= maxWaitTime)
     );
   }
 

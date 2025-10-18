@@ -332,7 +332,7 @@ export function FilterValueNumberDisplay<TData>({
   actions,
   locale = "en",
 }: FilterValueDisplayProps<TData, "number">) {
-  if (!filter || !filter.values || filter.values.length === 0) return null;
+  if (!filter?.values || filter.values.length === 0) return null;
 
   if (
     filter.operator === "is between" ||
@@ -646,7 +646,7 @@ export function FilterValueDateController<TData>({
   function changeDateRange(value: DateRange | undefined) {
     const start = value?.from;
     const end =
-      start && value && value.to && !isEqual(start, value.to)
+      start && value?.to && !isEqual(start, value.to)
         ? value.to
         : undefined;
 
