@@ -17,7 +17,7 @@ import {
 import { dateFilterFn, numberFilterFn, textFilterFn } from "./filter-fns";
 
 interface CreateTSTColumns<TData> {
-  columns: ColumnDef<TData, any>[];
+  columns: ColumnDef<TData, unknown>[];
   configs: Column<TData>[];
 }
 
@@ -70,7 +70,7 @@ export function createTSTColumns<TData>({
           return optionFilterFn(value.value, filterValue);
         }
 
-        const sanitizedValue = config.transformOptionFn!(value as never);
+        const sanitizedValue = config.transformOptionFn!.(value as unknown);
         return optionFilterFn(sanitizedValue.value, filterValue);
       };
     }

@@ -104,44 +104,6 @@ const appointments = [
   },
 ];
 
-const doctors = [
-  {
-    id: "1",
-    name: "Dr. Sally Wokman",
-    title: "Chief Surgeon",
-    avatarUrl: "https://randomuser.me/api/portraits/women/12.jpg",
-    status: "online" as const,
-  },
-  {
-    id: "2",
-    name: "Dr. Sally Wokman",
-    title: "Chief Surgeon",
-    avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg",
-    status: "offline" as const,
-  },
-  {
-    id: "3",
-    name: "Dr. Sally Wokman",
-    title: "Chief Surgeon",
-    avatarUrl: "https://randomuser.me/api/portraits/women/68.jpg",
-    status: "offline" as const,
-  },
-  {
-    id: "4",
-    name: "Dr. Sally Wokman",
-    title: "Chief Surgeon",
-    avatarUrl: "https://randomuser.me/api/portraits/women/65.jpg",
-    status: "online" as const,
-  },
-  {
-    id: "5",
-    name: "Dr. Sally Wokman",
-    title: "Chief Surgeon",
-    avatarUrl: "https://randomuser.me/api/portraits/women/12.jpg",
-    status: "busy" as const,
-  },
-];
-
 export default async function Page() {
   const session = await getSession();
 
@@ -183,7 +145,7 @@ export default async function Page() {
             <PatientPieChart duration="January - June 2024" />
           </div>
           <div className="col-span-1 overflow-hidden rounded-xl border bg-blue-50 px-4 md:col-span-4">
-            <DoctorsListCard doctors={doctors} />
+            <DoctorsListCard doctors={[]} />
           </div>
 
           <div className="bg-muted/50 col-span-1 h-96 rounded-xl md:col-span-8">
