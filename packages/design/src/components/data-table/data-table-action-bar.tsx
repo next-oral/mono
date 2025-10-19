@@ -4,8 +4,6 @@ import type { Table } from "@tanstack/react-table";
 import type { motion } from "motion/react";
 import * as React from "react";
 import { Loader, X } from "lucide-react";
-import { AnimatePresence } from "motion/react";
-import * as ReactDOM from "react-dom";
 
 import { Button } from "@repo/design/components/ui/button";
 import { Separator } from "@repo/design/components/ui/separator";

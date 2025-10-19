@@ -18,7 +18,7 @@ export function textFilterFn<TData>(
   columnId: string,
   filterValue: FilterModel<"text">,
 ): boolean {
-  const value = row.getValue<string>(columnId) ?? "";
+  const value = row.getValue<string | undefined>(columnId) ?? "";
 
   return f.textFilterFn(value, filterValue);
 }

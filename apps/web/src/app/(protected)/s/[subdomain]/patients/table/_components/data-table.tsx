@@ -1,8 +1,13 @@
 import type { Row, Table as TanStackTable } from "@tanstack/react-table";
 import { flexRender } from "@tanstack/react-table";
-import { XIcon } from "lucide-react";
+import { SearchIcon, XIcon } from "lucide-react";
 
 import { Button } from "@repo/design/components/ui/button";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@repo/design/components/ui/input-group";
 import {
   Table,
   TableBody,
@@ -23,22 +28,29 @@ export function DataTable({
   actions,
   isLoading,
   onRowClick,
+  searchPlaceholder = "Search...",
 }: {
   table: TanStackTable<any>;
   isLoading?: boolean;
   actions?: DataTableFilterActions;
   onRowClick?: (row: Row<{ id: string }>) => void;
+  searchPlaceholder?: string;
 }) {
   return (
     <div className="flex flex-col gap-2.5 rounded-lg border bg-slate-50 p-2">
-      <div>
-        Header
+      <div className="flex items-center justify-between">
+        <InputGroup className="w-full max-w-sm border-none shadow-none">
+          <InputGroupInput placeholder={searchPlaceholder} />
+          <InputGroupAddon>
+            <SearchIcon />
+          </InputGroupAddon>
+        </InputGroup>
         <DataTableViewOptions table={table} />
       </div>
       <div className="w-full">
-        <div className="rounded-md border bg-white dark:bg-inherit">
+        <div className="overflow-hidden rounded-md border bg-white dark:bg-inherit">
           <Table className="min-w-max">
-            <TableHeader>
+            <TableHeader className="bg-muted-foreground/10">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {

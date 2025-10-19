@@ -1,8 +1,8 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-// import Link from "next/link";
-// import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 
 import {
@@ -17,6 +17,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@repo/design/components/ui/sidebar";
 import { cn } from "@repo/design/lib/utils";
 
@@ -34,14 +35,16 @@ interface NavItemsProps {
 }
 
 export const NavItems = ({ items, Link }: NavItemsProps) => {
-  // const pathname = usePathname();
-  const pathname = "/";
+  const pathname = usePathname();
 
-  const isActiveRoute = (url: string) => pathname.startsWith(url);
+  const isActiveRoute = (url: string) =>
+    url === "/" ? pathname === "/" : pathname.startsWith(url);
+  const { state } = useSidebar();
 
   return items.map((item) => (
     <Collapsible
       key={item.title}
+      open={state === "collapsed" ? true : undefined}
       defaultOpen={item.isActive}
       className="group/collapsible"
     >
@@ -50,7 +53,7 @@ export const NavItems = ({ items, Link }: NavItemsProps) => {
           asChild
           className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm"
         >
-          <CollapsibleTrigger>
+          <CollapsibleTrigger className="hover:bg-transparent hover:no-underline">
             {item.title}
             <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
           </CollapsibleTrigger>
@@ -61,34 +64,11 @@ export const NavItems = ({ items, Link }: NavItemsProps) => {
               {item.items?.map((subItem) => {
                 const isActive = isActiveRoute(subItem.url ?? "");
                 return (
-                  <div
+                  <SidebarItem
                     key={subItem.title}
-                    className="flex items-center justify-between gap-2"
-                  >
-                    <SidebarMenuItem className="flex-1">
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        className={cn({
-                          "**:text-primary": isActive,
-                        })}
-                      >
-                        {/* @ts-expect-error this is a valid link */}
-                        <Link to={subItem.url ?? ""} href={subItem.url ?? ""}>
-                          {subItem.icon && <subItem.icon />}
-                          <span>{subItem.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <span
-                      className={cn(
-                        "border-primary h-4 rounded-l-lg border-r-4 opacity-0",
-                        {
-                          "opacity-100": isActive,
-                        },
-                      )}
-                    />
-                  </div>
+                    item={subItem}
+                    isActive={isActive}
+                  />
                 );
               })}
             </SidebarMenu>
@@ -97,4 +77,37 @@ export const NavItems = ({ items, Link }: NavItemsProps) => {
       </SidebarGroup>
     </Collapsible>
   ));
+};
+
+export const SidebarItem = ({
+  item,
+  isActive,
+}: {
+  item: NavItem;
+  isActive: boolean;
+}) => {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <SidebarMenuItem className="flex-1">
+        <SidebarMenuButton
+          asChild
+          tooltip={item.title}
+          isActive={isActive}
+          className={cn({
+            "**:text-primary": isActive,
+          })}
+        >
+          <Link href={item.url ?? ""}>
+            {item.icon && <item.icon />}
+            <span>{item.title}</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <span
+        className={cn("border-primary h-4 rounded-l-lg border-r-4 opacity-0", {
+          "opacity-100": isActive,
+        })}
+      />
+    </div>
+  );
 };

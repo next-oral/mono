@@ -70,8 +70,8 @@ export function createTSTColumns<TData>({
           return optionFilterFn(value.value, filterValue);
         }
 
-        const sanitizedValue = config.transformOptionFn!.(value as unknown);
-        return optionFilterFn(sanitizedValue.value, filterValue);
+        const sanitizedValue = config.transformOptionFn?.(value);
+        return optionFilterFn(sanitizedValue?.value ?? "", filterValue);
       };
     }
 

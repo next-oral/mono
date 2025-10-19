@@ -4,13 +4,15 @@ import {
   PatientBarChart,
   PatientPieChart,
 } from "@repo/design/components/dashboard/patient-chart";
-import { Badge } from "@repo/design/src/components/ui/badge";
-import { Button } from "@repo/design/src/components/ui/button";
-import { HugeIcons } from "@repo/design/src/icons";
+import { Badge } from "@repo/design/components/ui/badge";
+import { Button } from "@repo/design/components/ui/button";
+import { FilterIcon, HugeIcons } from "@repo/design/icons";
+import { ActionMenu } from "@repo/design/src/components/action-menu";
 
 import { getSession } from "~/auth/server";
 import { DateFilter } from "./date-filter";
 import { DoctorsListCard } from "./doctor";
+import { menuData } from "./kitchen-sink-01";
 
 const stats = [
   {
@@ -130,7 +132,15 @@ export default async function Page() {
               <DashboardCard key={stat.id} {...stat} />
             ))}
           </div>
-
+          <ActionMenu
+            trigger={
+              <Button variant="ghost" size="sm" className="w-fit">
+                <FilterIcon />
+                Filter
+              </Button>
+            }
+            menu={menuData}
+          />
           {/* Patient Chart */}
           <div className="bg-muted/50 col-span-1 min-h-96 rounded-xl md:col-span-12">
             <PatientBarChart

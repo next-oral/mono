@@ -28,7 +28,7 @@ export function TableSkeleton({ numRows, numCols }: TableSkeletonProps) {
             <TableRow>
               {cols.map((_, index) => (
                 <TableHead key={index}>
-                  <Skeleton className="h-[20px] w-[75px]" />
+                  <Skeleton className="h-4 w-[75px]" />
                 </TableHead>
               ))}
             </TableRow>
@@ -48,8 +48,8 @@ export function TableSkeleton({ numRows, numCols }: TableSkeletonProps) {
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex flex-1 items-center gap-2">
-          <Skeleton className="h-[20px] w-[200px]" />
-          <Skeleton className="h-[20px] w-[150px]" />
+          <Skeleton className="h-4 w-[200px]" />
+          <Skeleton className="h-4 w-[150px]" />
         </div>
         <div className="space-x-2">
           <Button variant="outline" size="sm" disabled>
