@@ -35,6 +35,8 @@ import {
 import { patientColumnDefs } from "./columns";
 import { DataTable } from "./data-table";
 import { columnsConfig } from "./filters";
+import { AddManually } from "@repo/design/src/components/patients/add-manually";
+import { AddCsv } from "@repo/design/src/components/patients/add-csv";
 
 function baseQuery(zero: Zero<Schema, Mutators>, orgId: string) {
   return zero.query.patient.where("orgId", "=", orgId).related("address");
@@ -197,18 +199,8 @@ export function PatientsTable({
           </PopoverTrigger>
           <PopoverContent className="bg-background w-fit overflow-hidden rounded-xl p-0">
             <div className="flex flex-col">
-              <Button
-                variant="outline"
-                className="justify-start border-none shadow-none"
-              >
-                Add Manually
-              </Button>
-              <Button
-                variant="outline"
-                className="justify-start border-none shadow-none"
-              >
-                Upload CSV
-              </Button>
+              <AddManually />
+              <AddCsv />
             </div>
           </PopoverContent>
         </Popover>
