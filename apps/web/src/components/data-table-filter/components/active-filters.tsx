@@ -34,14 +34,13 @@ export function ActiveFilters<TData>({
   locale = "en",
 }: ActiveFiltersProps<TData>) {
   return (
-    <>
+    <span className="no-scrollbar flex max-w-[60vw] scroll-pe-4 gap-2 overflow-x-auto scroll-smooth">
       {filters.map((filter) => {
         const id = filter.columnId;
 
         const column = getColumn(columns, id);
 
         // Skip if no filter value
-        if (!filter.values) return null;
 
         return (
           <ActiveFilter
@@ -54,7 +53,7 @@ export function ActiveFilters<TData>({
           />
         );
       })}
-    </>
+    </span>
   );
 }
 

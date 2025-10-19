@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import type { PaginationState, Updater } from "@tanstack/react-table";
 import type React from "react";
 import { useMemo, useState } from "react";
@@ -11,6 +9,7 @@ import type {
   ColumnOption,
   DataTableFilterActions,
   FilterModel,
+  FilterOperators,
   FiltersState,
   FilterStrategy,
   NumberColumnIds,
@@ -288,9 +287,8 @@ export function useDataTableFilters<
                 ? {
                     columnId: column.id,
                     type: column.type,
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     operator:
-                      newOperator as unknown as FilterOperators[typeof column.type],
+                      newOperator as FilterOperators[typeof column.type],
                     values: newValues,
                   }
                 : f,
@@ -343,7 +341,7 @@ export function useDataTableFilters<
           const newFilter = {
             columnId: column.id,
             type: column.type,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
             operator: newOperator as FilterOperators[typeof column.type],
             values: newValues,
           } satisfies FilterModel<TType>;

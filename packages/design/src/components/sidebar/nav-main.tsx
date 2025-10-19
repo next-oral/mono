@@ -51,7 +51,7 @@ export function NavMain({
               <AccordionTrigger
                 showChevron={state === "expanded"}
                 data-slot="collapsible-trigger"
-                className="hover:bg-sidebar-accent items-center justify-center p-0 hover:no-underline"
+                className="hover:bg-sidebar-accent items-center justify-center p-0 hover:bg-transparent hover:no-underline"
               >
                 <SidebarMenuButton
                   className="m-0 p-0 group-data-[collapsible=icon]:hidden hover:bg-transparent"

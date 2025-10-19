@@ -25,17 +25,17 @@ export function DebouncedInput({
 
   // Define the debounced function with useCallback
   const debouncedOnChange = useCallback(
-    () =>
-      debounce((newValue: string | number) => {
-        onChange(newValue);
-      }, debounceMs), // Pass the wait time here
+    // eslint-disable-next-line react-hooks/react-compiler
+    debounce((newValue: string | number) => {
+      onChange(newValue);
+    }, debounceMs), // Pass the wait time here
     [debounceMs, onChange], // Dependencies
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setValue(newValue); // Update local state immediately
-    debouncedOnChange()(newValue); // Call debounced version
+    debouncedOnChange(newValue); // Call debounced version
   };
 
   return <Input {...props} value={value} onChange={handleChange} />;

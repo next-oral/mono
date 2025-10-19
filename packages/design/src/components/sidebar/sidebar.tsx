@@ -3,8 +3,6 @@
 import type { AnchorHTMLAttributes } from "react";
 import * as React from "react";
 import { useState } from "react";
-// import Image from "next/image";
-import { GalleryVerticalEnd } from "lucide-react";
 
 import {
   Sidebar,
@@ -21,12 +19,12 @@ import { HugeIcons } from "@repo/design/icons";
 import { cn } from "@repo/design/lib/utils";
 
 import type { Clinic } from "./org-switcher";
+import { Separator } from "../ui/separator";
 import { CommandSearch } from "./command-search";
 // import { NavSecondary } from "./nav-secondary";
 import { OrgSwitcher } from "./org-switcher";
-import { NavItems } from "./sidebar-items";
+import { NavItems, SidebarItem } from "./sidebar-items";
 
-// This is sample data.
 const data = {
   navMain: [
     {
@@ -40,19 +38,24 @@ const data = {
           url: "/",
         },
         {
+          title: "Chart",
+          icon: HugeIcons.Chart,
+          url: "/chart",
+        },
+        {
           title: "Patients",
           icon: HugeIcons.Patients,
           url: "/patients",
         },
         {
-          icon: HugeIcons.Calendar,
-          title: "Appointments",
-          url: "/appointments",
-        },
-        {
           title: "Treatments",
           icon: HugeIcons.Stethoscope,
           url: "/treatments",
+        },
+        {
+          icon: HugeIcons.Calendar,
+          title: "Appointments",
+          url: "/appointments",
         },
       ],
     },
@@ -133,16 +136,7 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="/">
-                <div className="bg-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <GalleryVerticalEnd className="size-4" />
-                  {/* <Image
-                    src="/next-oral.svg"
-                    width="40"
-                    height="40"
-                    className="size-10"
-                    alt="Next oral"
-                  /> */}
-                </div>
+                <div className="bg-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"></div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">Next Oral</span>
                 </div>
@@ -152,14 +146,23 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="gap-4">
-        <SidebarMenu>
-          <SidebarMenuItem className="w-full px-2">
+        <SidebarMenu className="pl-2">
+          <SidebarMenuItem className="w-full pr-2">
             <SidebarMenuButton asChild>
               <CommandSearch />
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarItem
+            item={{
+              title: "Notifications",
+              url: "/notifications",
+              icon: HugeIcons.Notifications,
+            }}
+            isActive={false}
+          />
         </SidebarMenu>
         <NavItems items={data.navMain} Link={Link as any} />
+        <Separator className="" />
         <NavItems items={data.others} Link={Link as any} />
       </SidebarContent>
       <SidebarFooter className={cn("p-0", { "p-0": state === "collapsed" })}>

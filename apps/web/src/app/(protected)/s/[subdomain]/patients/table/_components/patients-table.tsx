@@ -10,16 +10,20 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { ChevronDownIcon, Table } from "lucide-react";
 
 import type { Mutators } from "@repo/zero/src/mutators";
 import type { Schema } from "@repo/zero/src/schema";
-import { Button } from "@repo/design/src/components/ui/button";
+import { Button } from "@repo/design/components/ui/button";
+import { ButtonGroup } from "@repo/design/components/ui/button-group";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@repo/design/src/components/ui/popover";
-import { Plus } from "@repo/design/src/icons";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@repo/design/components/ui/dropdown-menu";
+import { Plus } from "@repo/design/icons";
 
 import type { FiltersState } from "~/components/data-table-filter/core/types";
 import { authClient } from "~/auth/client";
@@ -27,6 +31,7 @@ import {
   DataTableFilter,
   useDataTableFilters,
 } from "~/components/data-table-filter";
+import { QuickSearchFilters } from "~/components/data-table-filter/components/filter-selector";
 import { useZeroQuery } from "~/providers/zero";
 import {
   createTSTColumns,
@@ -57,16 +62,12 @@ export function PatientsTable({
   const { data: organizations } = authClient.useListOrganizations();
   const orgId = activeOrganization?.id ?? organizations?.[0]?.id ?? "";
 
-  // const { data: patients } = useZeroQuery(
-  //   z.query.patient.where("orgId", "=", orgId),
-  // );
-
   function buildQuery(zero: Zero<Schema, Mutators>) {
     let query = baseQuery(zero, orgId);
 
     for (const f of state.filters) {
       if (f.type !== "text") continue;
-      const value = (f.values?.[0] ?? "").toString().trim();
+      const value = (f.values?.[0] as string | undefined)?.trim() ?? "";
       if (value.length === 0) continue;
 
       const op =
@@ -180,7 +181,6 @@ export function PatientsTable({
     <div>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-muted-foreground border-r pr-2">Filters</span>
           <DataTableFilter
             filters={filters}
             columns={columns}
@@ -188,30 +188,29 @@ export function PatientsTable({
             strategy={strategy}
           />
         </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button className="ml-auto">
-              <Plus className="size-4" />
-              Add Patient
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="bg-background w-fit overflow-hidden rounded-xl p-0">
-            <div className="flex flex-col">
-              <Button
-                variant="outline"
-                className="justify-start border-none shadow-none"
-              >
-                Add Manually
+
+        <ButtonGroup>
+          <Button className="border-secondary/40 border-r">Add Patient</Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="!pl-2">
+                <ChevronDownIcon />
               </Button>
-              <Button
-                variant="outline"
-                className="justify-start border-none shadow-none"
-              >
-                Upload CSV
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="[--radius:1rem]">
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <Plus />
+                  Add Manually
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Table />
+                  Upload CSV
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </ButtonGroup>
       </div>
       <DataTable table={table} actions={actions} isLoading={isPending} />
     </div>
