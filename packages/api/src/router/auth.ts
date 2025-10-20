@@ -13,6 +13,15 @@ export const authRouter = {
   joinWaitlist: publicProcedure
     .input(waitlistInsertSchema)
     .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.db.query.waitlist.findFirst({
+        where: (waitlist, { eq }) => eq(waitlist.email, input.email),
+      });
+      if (existing) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You're already on the waitlist",
+        });
+      }
       const [entry] = await ctx.db.insert(waitlist).values(input).returning();
       if (!entry) {
         throw new TRPCError({
