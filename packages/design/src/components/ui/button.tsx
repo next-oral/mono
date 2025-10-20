@@ -57,7 +57,11 @@ function Button({
 
   if (isLoading) {
     return (
-      <Button className="cursor-not-allowed" disabled {...props}>
+      <Button
+        className={cn("cursor-not-allowed", className)}
+        disabled
+        {...props}
+      >
         <Spinner />
         <span>{loadingMessage}</span>
       </Button>
