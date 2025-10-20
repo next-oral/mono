@@ -1,5 +1,6 @@
+"use client";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 
 import {
   Card,
@@ -10,25 +11,41 @@ import {
 import { Separator } from "@repo/design/components/ui/separator";
 
 import { getSession } from "~/auth/server";
+import { useZero } from "@rocicorp/zero/react";
+import type { Mutators } from "@repo/zero/src/mutators";
+import type { Schema } from "@repo/zero/src/schema";
+import { useZeroQuery } from "~/providers/zero";
 
-export default async function PatientDetailsPage({
+export default function PatientDetailsPage({
   params,
 }: {
   params: Promise<{ subdomain: string; id: string }>;
 }) {
-  const { id } = await params;
+  // const { id } = await params;
 
-  const session = await getSession();
-  if (!session) return notFound();
+  const parameters = useParams();
+  const { id } = parameters;
+
+  // const session = await getSession();
+  // if (!session) return notFound();
+  const z = useZero<Schema, Mutators>();
+
+  const { data: patient } = useZeroQuery(
+    z.query.patient.where("id", "=", id).related("address").one(),
+  )
+  console.log("Params", patient);
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-6">
-      <div className="text-muted-foreground mb-4 text-sm">
+    <div className="w-full">
+
+      fdscgfs
+
+      {/* <div className="text-muted-foreground mb-4 text-sm">
         <Link href="../patients" className="hover:underline">
           ← Back to patients
         </Link>
-      </div>
-      <Card>
+      </div> */}
+      {/* <Card>
         <CardHeader>
           <CardTitle>Patient {id}</CardTitle>
         </CardHeader>
@@ -46,7 +63,7 @@ export default async function PatientDetailsPage({
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }
