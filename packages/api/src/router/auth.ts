@@ -4,7 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { waitlist, waitlistInsertSchema } from "@repo/database/schema";
 import { actions } from "@repo/email";
 
-import { protectedProcedure, publicProcedure } from "../trpc";
+import { publicProcedure } from "../trpc";
 
 export const authRouter = {
   getSession: publicProcedure.query(({ ctx }) => {
@@ -40,7 +40,4 @@ export const authRouter = {
           "Thank you for joining the waitlist! We'll be in touch soon." as const,
       };
     }),
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can see this secret message!";
-  }),
 } satisfies TRPCRouterRecord;
