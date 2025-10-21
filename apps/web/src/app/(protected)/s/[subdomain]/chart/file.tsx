@@ -28,10 +28,10 @@ async function hashString(contents: string | ArrayBuffer) {
 
 export function OPFSUploader() {
   const [files, setFiles] = useState<StoredFile[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
 
   const { data: session } = authClient.useSession();
-  const { data: organizations } = authClient.useListOrganizations();
+  // const { data: organizations } = authClient.useListOrganizations();
 
   // 🔹 Initialize OPFS and list files
   const listFiles = useCallback(async () => {
@@ -60,7 +60,7 @@ export function OPFSUploader() {
     } catch (err) {
       console.error("Error listing OPFS files:", err);
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   }, [session?.user.id]);
   useEffect(() => {
@@ -134,9 +134,7 @@ export function OPFSUploader() {
         className="block w-full rounded border p-2"
       />
 
-      {isLoading ? (
-        <p>Loading files...</p>
-      ) : files.length === 0 ? (
+      {files.length === 0 ? (
         <p className="text-gray-500">No files uploaded yet.</p>
       ) : (
         <ul className="divide-y">
