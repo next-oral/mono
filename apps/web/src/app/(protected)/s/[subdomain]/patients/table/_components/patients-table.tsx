@@ -57,7 +57,7 @@ export function PatientsTable({
   const z = useZero<Schema, Mutators>();
   const { data: activeOrganization } = authClient.useActiveOrganization();
   const { data: organizations } = authClient.useListOrganizations();
-  const orgId = activeOrganization?.id ?? organizations?.[0]?.id ?? "";
+  const orgId = activeOrganization?.id ?? organizations?.[0]?.id ?? "1XZ05MqVgRLxglUuMK";
 
   // const { data: patients } = useZeroQuery(
   //   z.query.patient.where("orgId", "=", orgId),
@@ -65,6 +65,8 @@ export function PatientsTable({
 
   function buildQuery(zero: Zero<Schema, Mutators>) {
     let query = baseQuery(zero, orgId);
+
+    console.log(orgId);
 
     for (const f of state.filters) {
       if (f.type !== "text") continue;
