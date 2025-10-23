@@ -5,7 +5,13 @@ import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 
 import { organization } from "../auth";
-import { aptStatusEnum, aptTypeEnum, colourEnum, patStatusEnum } from "./enums";
+import {
+  aptStatusEnum,
+  aptTypeEnum,
+  colourEnum,
+  genderEnum,
+  patStatusEnum,
+} from "./enums";
 
 // Core Tables
 export const patient = pgTable("patient", {
@@ -18,6 +24,9 @@ export const patient = pgTable("patient", {
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   middleName: text("middle_name"),
+  title: text("title"),
+  occupation: text("occupation"),
+  gender: genderEnum("gender").notNull(),
   email: text("email").unique(),
   phone: text("phone"),
   status: patStatusEnum("status").default("ACTIVE"),

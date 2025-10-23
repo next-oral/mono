@@ -3,10 +3,10 @@ import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 
-import { diagnosis, procedure, toothSurface } from ".";
 import { user } from "../auth";
 import { appointment, dentist, patient } from "./core";
 import { tiStatusEnum, tpStatusEnum, treatmentItemPriorityEnum } from "./enums";
+import { diagnosis, procedure, toothTypeSurface } from "./index";
 
 // Treatment Plan & Items
 export const treatmentPlan = pgTable("treatment_plan", {
@@ -38,7 +38,9 @@ export const treatmentItem = pgTable("treatment_item", {
     .references(() => treatmentPlan.id),
   appointmentId: text("appointment_id").references(() => appointment.id),
   dentistId: text("dentist_id").references(() => dentist.id),
-  toothSurfaceId: text("tooth_surface_id").references(() => toothSurface.id),
+  toothSurfaceId: text("tooth_surface_id").references(
+    () => toothTypeSurface.id,
+  ),
   diagnosisId: text("diagnosis_id").references(() => diagnosis.id),
   procedureId: text("procedure_id").references(() => procedure.id),
   status: tiStatusEnum("status"),

@@ -7,97 +7,6 @@ import * as z from "zod";
 import type { Patient } from "@repo/zero/src/schema";
 import { Button } from "@repo/design/components/ui/button";
 import { Calendar } from "@repo/design/components/ui/calendar";
-// const formSchema = z.object({
-//   language: z
-//     .string()
-//     .min(1, "Please select your spoken language.")
-//     .refine((val) => val !== "auto", {
-//       message:
-//         "Auto-detection is not allowed. Please select a specific language.",
-//     }),
-// });
-
-// function PrioritySelector() {
-//   const form = useForm({
-//     defaultValues: {
-//       language: "",
-//     },
-//     validators: {
-//       onSubmit: formSchema,
-//     },
-//     onSubmit: ({ value }) => {
-//       toast("You submitted the following values:", {
-//         description: (
-//           <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-//             <code>{JSON.stringify(value, null, 2)}</code>
-//           </pre>
-//         ),
-//         position: "bottom-right",
-//         classNames: {
-//           content: "flex flex-col gap-2",
-//         },
-//         style: {
-//           "--border-radius": "calc(var(--radius)  + 4px)",
-//         } as React.CSSProperties,
-//       });
-//     },
-//   });
-
-//   return (
-//     <form
-//       id="form-tanstack-select"
-//       onSubmit={async (e) => {
-//         e.preventDefault();
-//         await form.handleSubmit();
-//       }}
-//     >
-//       <FieldGroup>
-//         <form.Field
-//           name="language"
-//           children={(field) => {
-//             const isInvalid =
-//               field.state.meta.isTouched && !field.state.meta.isValid;
-//             return (
-//               <Field orientation="responsive" data-invalid={isInvalid}>
-//                 <FieldContent>
-//                   <FieldLabel htmlFor="form-tanstack-select-language">
-//                     Priority
-//                   </FieldLabel>
-//                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
-//                 </FieldContent>
-//                 <Select
-//                   name={field.name}
-//                   value={field.state.value}
-//                   onValueChange={field.handleChange}
-//                 >
-//                   <SelectTrigger
-//                     id="form-tanstack-select-language"
-//                     aria-invalid={isInvalid}
-//                     className="min-w-[120px]"
-//                   >
-//                     <SelectValue placeholder="Select" />
-//                   </SelectTrigger>
-//                   <SelectContent position="item-aligned">
-//                     <SelectItem value="auto">Auto</SelectItem>
-//                     <SelectSeparator />
-//                     {priorities.map((priority) => (
-//                       <SelectItem key={priority.value} value={priority.value}>
-//                         {priority.label}
-//                       </SelectItem>
-//                     ))}
-//                   </SelectContent>
-//                 </Select>
-//               </Field>
-//             );
-//           }}
-//         />
-//       </FieldGroup>
-//     </form>
-//   );
-// }
-
-import { Card, CardContent, CardFooter } from "@repo/design/components/ui/card";
-import { Checkbox } from "@repo/design/components/ui/checkbox";
 import {
   Field,
   FieldContent,
@@ -106,17 +15,9 @@ import {
   FieldGroup,
   FieldLabel,
   FieldLegend,
-  FieldSeparator,
   FieldSet,
   FieldTitle,
 } from "@repo/design/components/ui/field";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemHeader,
-} from "@repo/design/components/ui/item";
 import { Label } from "@repo/design/components/ui/label";
 import {
   Popover,
@@ -131,11 +32,9 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@repo/design/components/ui/select";
-import { Switch } from "@repo/design/components/ui/switch";
 import {
   Tabs,
   TabsContent,
@@ -167,36 +66,6 @@ export function DentalChart({ patient }: { patient: Patient }) {
   );
 }
 
-function TreatmentItem({
-  title,
-  description,
-  actions,
-}: {
-  title: string;
-  description?: string | null;
-  actions: string[];
-}) {
-  return (
-    <Item>
-      <ItemHeader className="font-medium">{title}</ItemHeader>
-      <ItemContent>
-        <ItemDescription className="sr-only">{description}</ItemDescription>
-        <ItemActions>
-          {actions.map((action) => (
-            <Button
-              variant="slate"
-              size={title === "Treatment" ? "icon" : "default"}
-              key={action}
-            >
-              {action}
-            </Button>
-          ))}
-        </ItemActions>
-      </ItemContent>
-    </Item>
-  );
-}
-
 function ChartSection({ placement }: { placement: ChartPlacement }) {
   return (
     <div
@@ -209,9 +78,9 @@ function ChartSection({ placement }: { placement: ChartPlacement }) {
     >
       {[1, 2, 3, 4, 5, 6, 7, 8].map((num, colIdx) =>
         [0, 1, 2].map((rowIdx) => {
-          const showMidRow =
-            rowIdx === 1 &&
-            (placement.includes("left") ? colIdx < 5 : colIdx > 2);
+          const showMidRow = placement.includes("left")
+            ? colIdx < 5
+            : colIdx > 2;
           return (
             <div
               key={`${num}-${rowIdx}`}
@@ -221,11 +90,15 @@ function ChartSection({ placement }: { placement: ChartPlacement }) {
                 gridRow: rowIdx + 1,
               }}
             >
-              <div className="aspect-square h-6 w-6 rounded border border-gray-400 bg-white">
-                {/* Only show the tooth number label in the center row */}
-                {showMidRow && (
-                  <span className="text-xs font-semibold">{num}</span>
+              <div
+                className={cn(
+                  "aspect-square h-6 w-6 rounded border border-gray-400 bg-white",
+                  {
+                    hidden: !showMidRow && rowIdx === 1,
+                  },
                 )}
+              >
+                <span className="text-xs font-semibold">{num}</span>
               </div>
             </div>
           );
@@ -261,30 +134,16 @@ export function DentalChartConfigurator() {
         </TabsList>
       </div>
       <TabsContent value="treatments" className="w-full">
-        <TreatmentItem
-          title="Treatment"
-          description="Treatment"
-          actions={["B", "L", "M", "D", "O", "F", "I"]}
-        />
-        <TreatmentItem
-          title="Status"
-          description="Status"
-          actions={["TP", "Existing", "Referred", "Other"]}
-        />
-
-        {/* <Separator className="my-2" />
-        <div className="flex gap-2">
-          <DateSelector />
-          <PrioritySelector />
-        </div>
-        <FormTanstackSelect />  */}
-
-        <div className="w-full">
-          <FormTanstackComplex />
-        </div>
+        <FormTanstackComplex />
         <TabsFooter>
-          <Button className="flex-1">Cancel</Button>
-          <Button className="flex-1">Save</Button>
+          <Field orientation="horizontal">
+            <Button type="button" variant="outline" className="flex-1">
+              Cancel
+            </Button>
+            <Button type="submit" form="treatment-form" className="flex-1">
+              Save Preferences
+            </Button>
+          </Field>
         </TabsFooter>
       </TabsContent>
       <TabsContent value="missing">Missing</TabsContent>
@@ -334,22 +193,48 @@ const priorities = [
   { label: "Medium", value: "MEDIUM" },
   { label: "High", value: "HIGH" },
 ] as const;
-
-const addons = [
+const toothSurfaces = [
   {
-    id: "analytics",
-    title: "Analytics",
-    description: "Advanced analytics and reporting",
+    id: "buccal",
+    title: "Buccal",
+    description:
+      "The buccal surface is the surface of the tooth that faces the cheek.",
   },
   {
-    id: "backup",
-    title: "Backup",
-    description: "Automated daily backups",
+    id: "lingual",
+    title: "Lingual",
+    description:
+      "The lingual surface is the surface of the tooth that faces the tongue.",
   },
   {
-    id: "support",
-    title: "Priority Support",
-    description: "24/7 premium customer support",
+    id: "mesial",
+    title: "Mesial",
+    description:
+      "The mesial surface is the surface of the tooth that faces the mesial.",
+  },
+  {
+    id: "distal",
+    title: "Distal",
+    description:
+      "The distal surface is the surface of the tooth that faces the distal.",
+  },
+  {
+    id: "occlusal",
+    title: "Occlusal",
+    description:
+      "The occlusal surface is the surface of the tooth that faces the occlusal.",
+  },
+  {
+    id: "facial",
+    title: "Facial",
+    description:
+      "The facial surface is the surface of the tooth that faces the facial.",
+  },
+  {
+    id: "incisal",
+    title: "Incisal",
+    description:
+      "The incisal surface is the surface of the tooth that faces the incisal.",
   },
 ] as const;
 
@@ -366,23 +251,22 @@ const formSchema = z.object({
   procedure: z.string({
     error: "Please select a procedure",
   }),
-  // addons: z
-  //   .array(z.string())
-  //   .min(1, "Please select at least one add-on")
-  //   .max(3, "You can select up to 3 add-ons")
-  //   .refine(
-  //     (value) => value.every((addon) => addons.some((a) => a.id === addon)),
-  //     {
-  //       message: "You selected an invalid add-on",
-  //     },
-  //   ),
+
+  toothSurface: z.string({
+    error: "Please select a tooth surface",
+  }),
+  status: z.string({
+    error: "Please select a tooth surface",
+  }),
 });
 
 export function FormTanstackComplex() {
   const form = useForm({
     defaultValues: {
+      status: "",
       priority: "LOW",
       procedure: "",
+      toothSurface: "",
       date: new Date().toISOString(),
       diagnosis: "",
     },
@@ -410,12 +294,118 @@ export function FormTanstackComplex() {
 
   return (
     <form
-      id="subscription-form"
+      id="treatment-form"
       onSubmit={async (e) => {
         e.preventDefault();
         await form.handleSubmit();
       }}
     >
+      <FieldGroup className="p-4">
+        <form.Field
+          name="toothSurface"
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid;
+            return (
+              <FieldSet>
+                <FieldLegend className="!text-sm">Tooth Surface</FieldLegend>
+                <FieldDescription className="sr-only">
+                  Select the surface of the tooth.
+                </FieldDescription>
+                <RadioGroup
+                  name={field.name}
+                  value={field.state.value}
+                  onValueChange={field.handleChange}
+                  className="flex gap-1.5"
+                >
+                  {toothSurfaces.map((surface) => (
+                    <FieldLabel
+                      key={surface.id}
+                      htmlFor={surface.id}
+                      className="dark:bg-input/30 dark:border-input dark:hover:bg-input/50 has-data-[state=checked]:bg-primary/20 !w-fit gap-0 border bg-red-500 bg-slate-100 text-xs text-slate-500 shadow-xs hover:bg-slate-200 hover:text-slate-700"
+                    >
+                      <Field
+                        orientation="vertical"
+                        className="items-center justify-center gap-0 !px-4 !py-2"
+                        data-invalid={isInvalid}
+                      >
+                        <FieldContent className="flex w-full text-center">
+                          <FieldTitle className="sr-only">
+                            {surface.title}
+                          </FieldTitle>
+                          <FieldDescription className="sr-only">
+                            {surface.description}
+                          </FieldDescription>
+                          <RadioGroupItem
+                            value={surface.id}
+                            id={surface.id}
+                            className="sr-only"
+                            aria-invalid={isInvalid}
+                          />
+                          {surface.title.charAt(0)}
+                        </FieldContent>
+                      </Field>
+                    </FieldLabel>
+                  ))}
+                </RadioGroup>
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </FieldSet>
+            );
+          }}
+        />
+      </FieldGroup>
+      <FieldGroup className="p-4">
+        <form.Field
+          name="status"
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid;
+            return (
+              <FieldSet>
+                <FieldLegend className="!text-sm">Status</FieldLegend>
+                <FieldDescription className="sr-only">
+                  Select the status of the treatment item.
+                </FieldDescription>
+                <RadioGroup
+                  name={field.name}
+                  value={field.state.value}
+                  onValueChange={field.handleChange}
+                  className="flex gap-1.5"
+                >
+                  {["TP", "Existing", "Referred", "Other"].map((status) => (
+                    <FieldLabel
+                      key={status}
+                      htmlFor={status}
+                      className="dark:bg-input/30 dark:border-input dark:hover:bg-input/50 has-data-[state=checked]:bg-primary/20 !w-fit gap-0 border bg-red-500 bg-slate-100 text-xs text-slate-500 shadow-xs hover:bg-slate-200 hover:text-slate-700"
+                    >
+                      <Field
+                        orientation="vertical"
+                        className="items-center justify-center gap-0 !px-4 !py-2"
+                        data-invalid={isInvalid}
+                      >
+                        <FieldContent className="flex w-full text-center">
+                          <FieldTitle className="sr-only">{status}</FieldTitle>
+                          <FieldDescription className="sr-only">
+                            {status}
+                          </FieldDescription>
+                          <RadioGroupItem
+                            value={status}
+                            id={status}
+                            className="sr-only"
+                            aria-invalid={isInvalid}
+                          />
+                          {status}
+                        </FieldContent>
+                      </Field>
+                    </FieldLabel>
+                  ))}
+                </RadioGroup>
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </FieldSet>
+            );
+          }}
+        />
+      </FieldGroup>
       <div className="flex gap-2 p-4">
         <FieldGroup>
           <form.Field
@@ -434,22 +424,37 @@ export function FormTanstackComplex() {
                       <FieldError errors={field.state.meta.errors} />
                     )}
                   </FieldContent>
-                  <Select
-                    name={field.name}
-                    value={field.state.value}
-                    onValueChange={field.handleChange}
-                  >
-                    <SelectTrigger id={field.name} aria-invalid={isInvalid}>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {priorities.map((language) => (
-                        <SelectItem key={language.value} value={language.value}>
-                          {language.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        id="date"
+                        className="w-48 justify-between font-normal"
+                      >
+                        {field.state.value !== ""
+                          ? new Date(field.state.value).toLocaleDateString()
+                          : "Select date"}
+                        <ChevronDownIcon />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-auto overflow-hidden p-0"
+                      align="start"
+                    >
+                      <Calendar
+                        mode="single"
+                        selected={
+                          field.state.value
+                            ? new Date(field.state.value)
+                            : undefined
+                        }
+                        captionLayout="dropdown"
+                        onSelect={(date) => {
+                          field.handleChange(date?.toISOString() ?? "");
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </Field>
               );
             }}
@@ -486,9 +491,9 @@ export function FormTanstackComplex() {
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      {priorities.map((language) => (
-                        <SelectItem key={language.value} value={language.value}>
-                          {language.label}
+                      {priorities.map((priority) => (
+                        <SelectItem key={priority.value} value={priority.value}>
+                          {priority.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -573,12 +578,6 @@ export function FormTanstackComplex() {
           }}
         />
       </FieldGroup>
-
-      <Field orientation="horizontal" className="justify-end">
-        <Button type="submit" form="subscription-form">
-          Save Preferences
-        </Button>
-      </Field>
     </form>
   );
 }
