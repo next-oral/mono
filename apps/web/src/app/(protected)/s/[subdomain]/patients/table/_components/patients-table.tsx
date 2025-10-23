@@ -13,6 +13,8 @@ import {
 
 import type { Mutators } from "@repo/zero/src/mutators";
 import type { Schema } from "@repo/zero/src/schema";
+import { AddCsv } from "@repo/design/src/components/patients/add-csv";
+import { AddManually } from "@repo/design/src/components/patients/add-manually";
 import { Button } from "@repo/design/src/components/ui/button";
 import {
   Popover,
@@ -35,8 +37,6 @@ import {
 import { patientColumnDefs } from "./columns";
 import { DataTable } from "./data-table";
 import { columnsConfig } from "./filters";
-import { AddManually } from "@repo/design/src/components/patients/add-manually";
-import { AddCsv } from "@repo/design/src/components/patients/add-csv";
 
 function baseQuery(zero: Zero<Schema, Mutators>, orgId: string) {
   return zero.query.patient.where("orgId", "=", orgId).related("address");
@@ -57,7 +57,8 @@ export function PatientsTable({
   const z = useZero<Schema, Mutators>();
   const { data: activeOrganization } = authClient.useActiveOrganization();
   const { data: organizations } = authClient.useListOrganizations();
-  const orgId = activeOrganization?.id ?? organizations?.[0]?.id ?? "1XZ05MqVgRLxglUuMK";
+  const orgId =
+    activeOrganization?.id ?? organizations?.[0]?.id ?? "1XZ05MqVgRLxglUuMK";
 
   // const { data: patients } = useZeroQuery(
   //   z.query.patient.where("orgId", "=", orgId),
