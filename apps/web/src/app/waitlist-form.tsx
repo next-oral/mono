@@ -117,7 +117,7 @@ export function WaitlistForm({
           <DialogTrigger asChild>{children}</DialogTrigger>
           <DialogContent>
             <DialogHeader className="border-b py-3">
-              <DialogTitle className="text-center font-normal max-sm:text-sm">
+              <DialogTitle className="font-normal max-sm:text-sm">
                 Enter your details below to tag along with us
               </DialogTitle>
               <DialogDescription className="sr-only">

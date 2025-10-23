@@ -1,7 +1,8 @@
 import { addMinutes, format, startOfDay } from "date-fns";
 
 import type { Appointment } from "@repo/zero/src/schema";
-import { Button } from "@repo/design/src/components/ui/button";
+import { Button } from "@repo/design/components/ui/button";
+import { Separator } from "@repo/design/components/ui/separator";
 import {
   Sheet,
   SheetClose,
@@ -98,8 +99,8 @@ export function AppointmentCrudSheet(props: AppointmentCrudSheet) {
         </Button>
       </SheetTrigger>
       <SheetContent>
-        <SheetHeader>
-          <SheetTitle>
+        <SheetHeader className="px-0 pb-0">
+          <SheetTitle className="px-4 font-medium">
             {props.type === "new" ? "New Appointment" : "Edit Appointment"}
           </SheetTitle>
           <SheetDescription className="sr-only">
@@ -107,16 +108,16 @@ export function AppointmentCrudSheet(props: AppointmentCrudSheet) {
               ? "Create a new Appointment"
               : "Edit an Appointment"}
           </SheetDescription>
-          <hr />
+          <Separator />
         </SheetHeader>
 
         <AppointmentForm
           initialValues={initialValues}
           onSubmit={() => setShowAppointmentSheet(false)}
         >
-          {({ handleSubmit: onSubmit }) => (
+          {({ handleSubmit }) => (
             <SheetFooter className="flex flex-row gap-2">
-              <Button className="flex-1" onClick={onSubmit}>
+              <Button className="flex-1" onClick={handleSubmit}>
                 {props.type === "new"
                   ? "Create Appointment"
                   : "Update Appointment"}

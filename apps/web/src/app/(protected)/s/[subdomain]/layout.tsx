@@ -132,7 +132,7 @@ export async function SubdomainLayoutWithAuth({
                 <Plus />
               </Button>
             </header>
-            <div className="py-5">{children}</div>
+            <div className="py-0">{children}</div>
           </div>
         </div>
       </SidebarInset>
