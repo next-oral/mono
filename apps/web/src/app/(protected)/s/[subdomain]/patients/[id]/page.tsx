@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import { useParams } from "next/navigation";
 import { useZero } from "@rocicorp/zero/react";
 import { format, intervalToDuration } from "date-fns";
@@ -26,6 +26,10 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@repo/design/src/components/ui/dialog";
 import {
@@ -55,6 +59,12 @@ export default function PatientDetailsPage({
   const [isCarouselOpen, setIsCarouselOpen] = useState(false);
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+  const [patientImages, setPatientImages] = useState([image1, image2, image3]);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState<
+    string | StaticImageData | null
+  >(null);
+
   const parameters = useParams();
   const { id } = parameters;
 
@@ -66,8 +76,6 @@ export default function PatientDetailsPage({
   const { data: patientWithAppointments } = useZeroQuery(
     z.query.patient.where("id", "=", String(id)).related("appointments").one(),
   );
-
-  const patientImages = [image1, image2, image3];
 
   useEffect(() => {
     if (!api) {
@@ -293,17 +301,53 @@ export default function PatientDetailsPage({
                       >
                         <EyeIcon />
                       </Button>
-                      <Dialog>
+                      <Dialog
+                        open={isDeleteOpen}
+                        onOpenChange={setIsDeleteOpen}
+                      >
                         <DialogTrigger asChild>
                           <Button
                             size={"icon"}
                             className="bg-black/40 text-white hover:bg-black/70"
+                            onClick={() => setFileToDelete(image)}
                           >
                             <TrashIcon />
                           </Button>
                         </DialogTrigger>
 
-                        <DialogContent></DialogContent>
+                        <DialogContent className="w-[40%] px-0">
+                          <DialogHeader className="flex flex-col items-center justify-center gap-6 px-2 pt-6 sm:px-4">
+                            <div className="bg-destructive/10 text-destructive [&>svg]:fill-destructive rounded-xl px-4 py-3 [&>svg]:size-5">
+                              <TrashIcon />
+                            </div>
+                            <DialogTitle className="max-w-[80%] text-center text-sm font-medium">
+                              Are you sure you want to delete this document? It
+                              might be important for treatments and
+                              consultations
+                            </DialogTitle>
+                            <DialogDescription></DialogDescription>
+                          </DialogHeader>
+
+                          <DialogFooter className="border-t-1 px-0 py-0">
+                            <hr />
+                            <div className="flex w-full gap-2 px-2 pt-1 *:flex-1 *:text-sm sm:px-4">
+                              <Button
+                                variant={"destructive"}
+                                onClick={() => {
+                                  setPatientImages((prev) =>
+                                    prev.filter(
+                                      (image) => image != fileToDelete,
+                                    ),
+                                  );
+                                  setIsDeleteOpen(false);
+                                }}
+                              >
+                                Yes, Delete
+                              </Button>
+                              <Button variant={"secondary"}>No, Cancel</Button>
+                            </div>
+                          </DialogFooter>
+                        </DialogContent>
                       </Dialog>
                     </div>
                     <div className="flex items-center gap-0.5">
