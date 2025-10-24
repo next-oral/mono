@@ -48,8 +48,8 @@ export default function PatientDetailsPage({
   const { data: patientWithAddress } = useZeroQuery(
     z.query.patient.where("id", "=", String(id)).related("address").one(),
   );
-  const { data: patientWithAppointments } = useZeroQuery(
-    z.query.patient.where("id", "=", String(id)).related("appointments").one(),
+  const { data: dentists } = useZeroQuery(
+    z.query.dentist
   );
 
   return (
@@ -118,7 +118,7 @@ export default function PatientDetailsPage({
         </TabsContent>
 
         <TabsContent value="medical records" className="">
-          <MedicalRecords />
+          <MedicalRecords dentists={dentists} />
         </TabsContent>
       </Tabs>
 
