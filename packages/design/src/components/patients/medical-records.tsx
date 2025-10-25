@@ -1,6 +1,6 @@
-import { Suspense, useState } from "react";
+import { Suspense, useState, useRef, useEffect, useMemo } from "react";
 import { format } from "date-fns";
-import { Maximize2, Minimize2, ScrollTextIcon, UserSquare } from "lucide-react";
+import { Maximize2, Minimize2, OctagonX, ScrollTextIcon, UserSquare } from "lucide-react";
 
 import { cn } from "@repo/design/lib/utils";
 import { ToothTypes } from "@repo/design/types/tooth";
@@ -8,7 +8,6 @@ import { ToothTypes } from "@repo/design/types/tooth";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { ToothItem } from "./tooth-item";
-import { useZero } from "@rocicorp/zero/react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 type Appointment = {
@@ -371,6 +370,17 @@ interface MedicalRecordsProps {
 
 export function MedicalRecords({ dentists }: MedicalRecordsProps) {
     const [tooth, setTooth] = useState<ToothTypes | null>(null);
+    const targetDivRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!tooth) return;
+        if (targetDivRef.current) {
+            targetDivRef.current.scrollIntoView({
+                behavior: 'smooth', // For a smooth scrolling effect
+                block: 'start',      // Aligns the top of the element to the top of the viewport
+            });
+        }
+    }, [tooth]);
 
     function findDentist(dentistId: string) {
         const dentist = dentists.find((dentist) => dentist.id == dentistId);
@@ -388,25 +398,36 @@ export function MedicalRecords({ dentists }: MedicalRecordsProps) {
         )
     }
 
+    const filteredAppointments = useMemo(() => {
+        if (!tooth) {
+            return [];
+        }
+
+        // This filtering logic only runs when 'appointments' or 'tooth' changes.
+        return appointments.filter((appointment) => appointment.teeth.includes(tooth));
+    }, [appointments, tooth]);
+    const hasResults = filteredAppointments.length > 0;
+
     return (
         <div className="flex w-full max-lg:flex-wrap-reverse">
-            <div className={cn("w-full lg:basis-[80%] px-2 pt-5 sm:px-4")}>
+            <div ref={targetDivRef} className={cn("w-full lg:basis-[80%] px-2 pt-5 sm:px-4")}>
                 <h5 className="text-[10px] opacity-70">Treatment history</h5>
 
-                {!tooth && (
+                {(!tooth || !hasResults) && (
                     <div className="mt-[40%] flex h-full w-full justify-center">
                         <div className="relative flex flex-col items-center gap-3">
                             <div className="bg-background border-secondary-foreground/40 text-secondary-foreground rounded-xl border p-3 opacity-70 shadow-[7px_5px_0px_0px_rgba(0,_0,_0,_0.1)]">
-                                <UserSquare />
+                                {!tooth ? <UserSquare /> : <OctagonX />}
                             </div>
                             <p className="max-w-[170px] text-center text-sm opacity-70">
-                                Select a tooth to see the treatment history
+                                {!tooth ? "Select a tooth to see the treatment history" : "No appointment found for this tooth"
+                                }
                             </p>
                         </div>
                     </div>
                 )}
 
-                {tooth && (
+                {tooth && hasResults && (
                     <div className="w-full flex-col gap-8 mt-4 sticky top-20">
                         {appointments
                             .filter((appointment) => appointment.teeth.includes(tooth))
