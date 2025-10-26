@@ -10,21 +10,18 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDownIcon, Table } from "lucide-react";
 
 import type { Mutators } from "@repo/zero/src/mutators";
 import type { Schema } from "@repo/zero/src/schema";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@repo/design/components/ui/popover";
+import { Plus } from "@repo/design/icons";
 import { AddCsv } from "@repo/design/src/components/patients/add-csv";
 import { AddManually } from "@repo/design/src/components/patients/add-manually";
 import { Button } from "@repo/design/src/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@repo/design/components/ui/dropdown-menu";
-import { Plus } from "@repo/design/icons";
 
 import type { FiltersState } from "~/components/data-table-filter/core/types";
 import { authClient } from "~/auth/client";
@@ -32,7 +29,6 @@ import {
   DataTableFilter,
   useDataTableFilters,
 } from "~/components/data-table-filter";
-import { QuickSearchFilters } from "~/components/data-table-filter/components/filter-selector";
 import { useZeroQuery } from "~/providers/zero";
 import {
   createTSTColumns,
@@ -206,6 +202,29 @@ export function PatientsTable({
             </div>
           </PopoverContent>
         </Popover>
+
+        {/* <ButtonGroup>
+          <Button className="border-secondary/40 border-r">Add Patient</Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="!pl-2">
+                <ChevronDownIcon />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="[--radius:1rem]">
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <Plus />
+                  Add Manually
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Table />
+                  Upload CSV
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </ButtonGroup> */}
       </div>
       <DataTable table={table} actions={actions} isLoading={isPending} />
     </div>

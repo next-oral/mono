@@ -35,11 +35,7 @@ import { Ellipsis } from "@repo/design/src/icons";
 
 import { useZeroQuery } from "~/providers/zero";
 
-export default function PatientDetailsPage({
-  params,
-}: {
-  params: Promise<{ subdomain: string; id: string }>;
-}) {
+export default function PatientDetailsPage() {
   const parameters = useParams();
   const { id } = parameters;
 
@@ -48,9 +44,14 @@ export default function PatientDetailsPage({
   const { data: patientWithAddress } = useZeroQuery(
     z.query.patient.where("id", "=", String(id)).related("address").one(),
   );
-  const { data: dentists } = useZeroQuery(
-    z.query.dentist
-  );
+  const { data: dentists } = useZeroQuery(z.query.dentist);
+
+  if (!patientWithAddress)
+    return (
+      <div className="flex h-full items-center justify-center">
+        Patient not found
+      </div>
+    );
 
   return (
     <div className="w-full">
@@ -60,21 +61,21 @@ export default function PatientDetailsPage({
             <Avatar className="bg-secondary/70 size-20">
               <AvatarImage src={""} />
               <AvatarFallback className="text-2xl font-medium uppercase sm:text-3xl">
-                {patientWithAddress?.firstName.charAt(0)}
-                {patientWithAddress?.lastName.charAt(0)}
+                {patientWithAddress.firstName.charAt(0)}
+                {patientWithAddress.lastName.charAt(0)}
               </AvatarFallback>
             </Avatar>
           </Suspense>
 
           <div className="flex flex-col gap-0.5">
             <h2 className="text-sm font-medium sm:text-base">
-              {patientWithAddress?.firstName} {patientWithAddress?.lastName}
+              {patientWithAddress.firstName} {patientWithAddress.lastName}
             </h2>
             <Suspense>
               <p className="text-xs opacity-70 sm:text-sm">
                 Added{" "}
                 {format(
-                  new Date(patientWithAddress?.createdAt ?? "1111-05-17"),
+                  new Date(patientWithAddress.createdAt ?? "1111-05-17"),
                   "dd MMM, yyyy",
                 )}
               </p>
