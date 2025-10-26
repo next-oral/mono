@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { ArrowRightIcon, ChevronRightIcon, FilterIcon } from "lucide-react";
+import { ArrowRightIcon, ChevronRightIcon, ListFilterIcon } from "lucide-react";
 
 import { Button } from "@repo/design/components/ui/button";
 import { Checkbox } from "@repo/design/components/ui/checkbox";
@@ -25,6 +25,7 @@ import {
   PopoverTrigger,
 } from "@repo/design/components/ui/popover";
 import { cn } from "@repo/design/lib/utils";
+import { Separator } from "@repo/design/src/components/ui/separator";
 
 import type {
   Column,
@@ -139,13 +140,15 @@ function __FilterSelector<TData>({
       }}
     >
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          className={cn("h-7", hasFilters && "w-fit !px-2")}
-        >
-          <FilterIcon className="size-4" />
-          {!hasFilters && <span>{t("filter", locale)}</span>}
-        </Button>
+        <div className="border-r pr-1">
+          <Button
+            variant="ghost"
+            className={cn("h-7", hasFilters && "w-fit !px-2")}
+          >
+            <ListFilterIcon className="size-4" />
+            {!hasFilters && <span>{t("filter", locale)}</span>}
+          </Button>
+        </div>
       </PopoverTrigger>
       <PopoverContent
         align="start"

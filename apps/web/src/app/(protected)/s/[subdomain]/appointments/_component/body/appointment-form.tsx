@@ -93,8 +93,6 @@ const appointmentFormSchema = z.object({
   type: z.enum(aptTypeEnum.enumValues),
   date: z.string().min(1, "Please select a date"),
   time: timeFieldSchema,
-  // startTime: z.string().min(1, "Please select a start time"),
-  // endTime: z.string().min(1, "Please select an end time"),
   description: z
     .string()
     .max(150, "Description must be 150 characters or less")
@@ -118,7 +116,7 @@ interface AppointmentFormProps {
   submitLabel?: string;
   showCancelButton?: boolean;
   maxNotesLength?: number;
-  children: (props: { onSubmit: () => void }) => React.ReactNode;
+  children: (props: { handleSubmit: () => void }) => React.ReactNode;
 }
 
 function parseTimeFromMeridianTo24h(timeString?: string) {
@@ -176,6 +174,7 @@ export function AppointmentForm({
       note: data.notes ?? data.description ?? null,
       status: "PENDING",
       description: null,
+      updatedAt: Date.now(),
     } as Appointment;
     z.mutate.appointment.create(ap);
   };
@@ -352,7 +351,7 @@ export function AppointmentForm({
           </ScrollArea>
         </form>
       </Form>
-      {children({ onSubmit: () => handleSubmit(form.getValues()) })}
+      {children({ handleSubmit: () => handleSubmit(form.getValues()) })}
     </>
   );
 }
@@ -438,7 +437,7 @@ export default function CustomComboboxField<T extends FieldValues>({
     return (
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {showAvatar && (
-          <Avatar className={cn("h-8 w-8 flex-shrink-0", avatarClassName)}>
+          <Avatar className={cn("size-4 flex-shrink-0", avatarClassName)}>
             <AvatarImage src={selected.image} alt={selected.name} />
             <AvatarFallback className="text-foreground bg-primary/70 text-xs font-semibold">
               {getInitials(selected.name)}
@@ -471,7 +470,7 @@ export default function CustomComboboxField<T extends FieldValues>({
     return (
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {showAvatar && (
-          <Avatar className={cn("h-8 w-8 flex-shrink-0", avatarClassName)}>
+          <Avatar className={cn("size-6 flex-shrink-0", avatarClassName)}>
             <AvatarImage src={option.image} alt={option.name} />
             <AvatarFallback
               className={cn(
@@ -550,7 +549,7 @@ export default function CustomComboboxField<T extends FieldValues>({
             </PopoverTrigger>
             <PopoverContent
               className={cn(
-                "popover-content-width-full w-full bg-red-500 p-0",
+                "popover-content-width-full w-full p-0",
                 contentClassName,
               )}
               align="start"

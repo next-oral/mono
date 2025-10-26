@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import * as motion from "motion/react-client";
 
-import { Button } from "@repo/design/src/components/ui/button";
+import { Button } from "@repo/design/components/ui/button";
 
 import {
   CalendarImg,

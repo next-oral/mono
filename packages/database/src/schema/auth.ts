@@ -2,6 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { relations } from "drizzle-orm";
 import { boolean, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod/v4";
 
 const UserPositions = [
   "Dentist",
@@ -160,11 +161,22 @@ export const waitlist = pgTable("waitlist", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
-export const waitlistInsertSchema = createInsertSchema(waitlist).omit({
+export const waitlistInsertSchema = createInsertSchema(waitlist, {
+  firstName: z.string().min(1, {
+    message: "First name is required",
+  }),
+  lastName: z.string().min(1, {
+    message: "Last name is required",
+  }),
+  email: z
+    .email({
+      error: "Invalid email address",
+    })
+    .describe("The email address of the waitlist entry"),
+}).omit({
   id: true,
   createdAt: true,
 });
-
 // Relations
 export const organizationRelations = relations(organization, ({ many }) => ({
   teams: many(team),

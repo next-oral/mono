@@ -4,7 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { waitlist, waitlistInsertSchema } from "@repo/database/schema";
 import { actions } from "@repo/email";
 
-import { protectedProcedure, publicProcedure } from "../trpc";
+import { publicProcedure } from "../trpc";
 
 export const authRouter = {
   getSession: publicProcedure.query(({ ctx }) => {
@@ -13,6 +13,15 @@ export const authRouter = {
   joinWaitlist: publicProcedure
     .input(waitlistInsertSchema)
     .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.db.query.waitlist.findFirst({
+        where: (waitlist, { eq }) => eq(waitlist.email, input.email),
+      });
+      if (existing) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You're already on the waitlist",
+        });
+      }
       const [entry] = await ctx.db.insert(waitlist).values(input).returning();
       if (!entry) {
         throw new TRPCError({
@@ -31,7 +40,4 @@ export const authRouter = {
           "Thank you for joining the waitlist! We'll be in touch soon." as const,
       };
     }),
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can see this secret message!";
-  }),
 } satisfies TRPCRouterRecord;
