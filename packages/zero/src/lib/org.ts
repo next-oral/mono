@@ -34,5 +34,3 @@
 // >(q: Query<Schema, TTable, TReturn>, orgId: string) {
 //   return scopeToOrg(q, orgId, { field: "organizationId" });
 // }
-
-

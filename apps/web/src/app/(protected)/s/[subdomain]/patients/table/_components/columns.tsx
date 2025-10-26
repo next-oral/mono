@@ -14,8 +14,8 @@ import {
 } from "@repo/design/src/components/ui/dropdown-menu";
 import { MoreVertical, Pencil, Trash2 } from "@repo/design/src/icons";
 
-import { DataTableColumnHeader } from "./column-header";
 import type { PatientRow } from "./patients-table";
+import { DataTableColumnHeader } from "./column-header";
 
 const columnHelper = createColumnHelper<PatientRow>();
 

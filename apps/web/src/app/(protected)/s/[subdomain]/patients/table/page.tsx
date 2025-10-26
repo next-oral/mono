@@ -1,15 +1,15 @@
 "use client";
 
-import { useCallback } from "react";
 import type { SortingState, Updater } from "@tanstack/react-table";
+import { useCallback } from "react";
 import { parseAsJson, useQueryState } from "nuqs";
 import { z } from "zod";
 
 import { getSortingStateParser } from "@repo/design/src/lib/parsers";
 
+import type { PatientRow } from "./_components/patients-table";
 import type { FiltersState } from "~/components/data-table-filter/core/types";
 import { patientColumnDefs } from "./_components/columns";
-import type { PatientRow} from "./_components/patients-table";
 import { PatientsTable } from "./_components/patients-table";
 
 const filtersSchema = z.custom<FiltersState>();

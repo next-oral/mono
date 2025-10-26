@@ -1,7 +1,7 @@
 import { Cake, MailIcon, MapPinIcon, UserIcon } from "@repo/design/src/icons";
 
-import type { ColumnConfig } from "~/components/data-table-filter/core/types";
 import type { PatientRow as Patient } from "./patients-table";
+import type { ColumnConfig } from "~/components/data-table-filter/core/types";
 
 export const columnsConfig = [
   {
