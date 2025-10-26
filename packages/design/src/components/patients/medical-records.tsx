@@ -1,14 +1,20 @@
-import { Suspense, useState, useRef, useEffect, useMemo } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
-import { Maximize2, Minimize2, OctagonX, ScrollTextIcon, UserSquare } from "lucide-react";
+import {
+    Maximize2,
+    Minimize2,
+    OctagonX,
+    ScrollTextIcon,
+    UserSquare,
+} from "lucide-react";
 
 import { cn } from "@repo/design/lib/utils";
 import { ToothTypes } from "@repo/design/types/tooth";
 
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { ToothItem } from "./tooth-item";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 type Appointment = {
     id: string;
@@ -352,7 +358,6 @@ const appointments: Appointment[] = [
     },
 ];
 
-
 interface MedicalRecordsProps {
     dentists: {
         readonly id: string;
@@ -366,9 +371,9 @@ interface MedicalRecordsProps {
         readonly createdAt: number | null;
         readonly updatedAt: number;
     }[];
-};
+}
 
-export function MedicalRecords({ dentists }: MedicalRecordsProps) {
+export function MedicalRecords({ dentists = [] }: MedicalRecordsProps) {
     const [tooth, setTooth] = useState<ToothTypes | null>(null);
     const targetDivRef = useRef<HTMLDivElement>(null);
 
@@ -376,8 +381,8 @@ export function MedicalRecords({ dentists }: MedicalRecordsProps) {
         if (!tooth) return;
         if (targetDivRef.current) {
             targetDivRef.current.scrollIntoView({
-                behavior: 'smooth', // For a smooth scrolling effect
-                block: 'start',      // Aligns the top of the element to the top of the viewport
+                behavior: "smooth", // For a smooth scrolling effect
+                block: "start", // Aligns the top of the element to the top of the viewport
             });
         }
     }, [tooth]);
@@ -387,15 +392,19 @@ export function MedicalRecords({ dentists }: MedicalRecordsProps) {
 
         return (
             <Suspense>
-                <div className="flex gap-1 items-center">
+                <div className="flex items-center gap-1">
                     <Avatar>
                         {/* <AvatarImage src={dentist.} /> */}
-                        <AvatarFallback className="bg-secondary/70">{dentist?.firstName.charAt(0)}</AvatarFallback>
+                        <AvatarFallback className="bg-secondary/70">
+                            {dentist?.firstName.charAt(0)}
+                        </AvatarFallback>
                     </Avatar>
-                    <h4 className="capitalize">dr. {dentist?.firstName} {" "} {dentist?.lastName}</h4>
+                    <h4 className="capitalize">
+                        dr. {dentist?.firstName} {dentist?.lastName}
+                    </h4>
                 </div>
             </Suspense>
-        )
+        );
     }
 
     const filteredAppointments = useMemo(() => {
@@ -404,13 +413,18 @@ export function MedicalRecords({ dentists }: MedicalRecordsProps) {
         }
 
         // This filtering logic only runs when 'appointments' or 'tooth' changes.
-        return appointments.filter((appointment) => appointment.teeth.includes(tooth));
+        return appointments.filter((appointment) =>
+            appointment.teeth.includes(tooth),
+        );
     }, [appointments, tooth]);
     const hasResults = filteredAppointments.length > 0;
 
     return (
         <div className="flex w-full max-lg:flex-wrap-reverse">
-            <div ref={targetDivRef} className={cn("w-full lg:basis-[80%] px-2 pt-5 sm:px-4")}>
+            <div
+                ref={targetDivRef}
+                className={cn("w-full px-2 pt-5 sm:px-4 lg:basis-[80%]")}
+            >
                 <h5 className="text-[10px] opacity-70">Treatment history</h5>
 
                 {(!tooth || !hasResults) && (
@@ -420,28 +434,32 @@ export function MedicalRecords({ dentists }: MedicalRecordsProps) {
                                 {!tooth ? <UserSquare /> : <OctagonX />}
                             </div>
                             <p className="max-w-[170px] text-center text-sm opacity-70">
-                                {!tooth ? "Select a tooth to see the treatment history" : "No appointment found for this tooth"
-                                }
+                                {!tooth
+                                    ? "Select a tooth to see the treatment history"
+                                    : "No appointment found for this tooth"}
                             </p>
                         </div>
                     </div>
                 )}
 
                 {tooth && hasResults && (
-                    <div className="w-full flex-col gap-8 mt-4 sticky top-20">
+                    <div className="sticky top-20 mt-4 w-full flex-col gap-8">
                         {appointments
                             .filter((appointment) => appointment.teeth.includes(tooth))
                             .map((appointment, index) => (
-                                <div key={index} className="flex flex-col mt-4">
+                                <div key={index} className="mt-4 flex flex-col">
                                     <div className="flex items-center">
-                                        <Badge variant={"secondary"} className="invert opacity-60 h-5 min-w-5 rounded-full border-2 px-1 font-mono text-[9px] tabular-nums">
+                                        <Badge
+                                            variant={"secondary"}
+                                            className="h-5 min-w-5 rounded-full border-2 px-1 font-mono text-[9px] tabular-nums opacity-60 invert"
+                                        >
                                             {index + 1}
                                         </Badge>
                                         <span className="h-[1px] w-full border-t-2 border-dashed opacity-50" />
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                        <div className="flex flex-col gap-2 h-auto">
+                                    <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                                        <div className="flex h-auto flex-col gap-2">
                                             <div className="flex flex-col gap-0.5">
                                                 <h4 className="text-xs opacity-70">Date and Time</h4>
                                                 <Suspense>
@@ -466,19 +484,20 @@ export function MedicalRecords({ dentists }: MedicalRecordsProps) {
                                         </div>
 
                                         <div className="flex flex-col gap-2">
-                                            <div className="flex flex-col gap-0.5 h-full">
+                                            <div className="flex h-full flex-col gap-0.5">
                                                 <h4 className="text-xs opacity-70">Dentist</h4>
                                                 <Suspense>
-                                                    <h2 className="text-sm font-medium">{
-                                                        findDentist(appointment.dentistId)
-                                                    }</h2>
+                                                    <h2 className="text-sm font-medium">
+                                                        {findDentist(appointment.dentistId)}
+                                                    </h2>
                                                 </Suspense>
                                             </div>
-                                            <div className="flex flex-col gap-0.5 h-full">
+                                            <div className="flex h-full flex-col gap-0.5">
                                                 <h4 className="text-xs opacity-70">Procedures</h4>
                                                 <Suspense>
                                                     <h2 className="text-sm font-medium">
-                                                        {appointment.numberOfProcedure} Procedure{appointment.numberOfProcedure != 1 && 's'}
+                                                        {appointment.numberOfProcedure} Procedure
+                                                        {appointment.numberOfProcedure != 1 && "s"}
                                                     </h2>
                                                 </Suspense>
                                             </div>
@@ -856,22 +875,25 @@ export function MedicalRecords({ dentists }: MedicalRecordsProps) {
 function Note({ note, type }: { note: string; type: "patient" | "doctor" }) {
     const [isExpanded, setIsExpanded] = useState(false);
     return (
-        <div className="bg-secondary/60 rounded-md w-full p-2">
+        <div className="bg-secondary/60 w-full rounded-md p-2">
             <header className="relative flex items-center justify-between font-light">
-                <div className="flex gap-0.5 items-center">
+                <div className="flex items-center gap-0.5">
                     <ScrollTextIcon className="size-3" />
                     <h4 className="text-xs">
                         {type === "patient" ? "Patient Note" : "Doctor Note"}
                     </h4>
                 </div>
 
-                <Button variant="ghost" className="font-light" onClick={() => setIsExpanded((prev) => !prev)}>
+                <Button
+                    variant="ghost"
+                    className="font-light"
+                    onClick={() => setIsExpanded((prev) => !prev)}
+                >
                     {isExpanded ? <Minimize2 /> : <Maximize2 />}
                 </Button>
             </header>
 
             <div className="relative">
-
                 <p className="text-sm">
                     {isExpanded
                         ? note

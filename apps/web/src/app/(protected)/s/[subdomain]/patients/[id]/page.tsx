@@ -48,9 +48,7 @@ export default function PatientDetailsPage({
   const { data: patientWithAddress } = useZeroQuery(
     z.query.patient.where("id", "=", String(id)).related("address").one(),
   );
-  const { data: dentists } = useZeroQuery(
-    z.query.dentist
-  );
+  const { data: dentists } = useZeroQuery(z.query.dentist);
 
   return (
     <div className="w-full">
@@ -60,8 +58,8 @@ export default function PatientDetailsPage({
             <Avatar className="bg-secondary/70 size-20">
               <AvatarImage src={""} />
               <AvatarFallback className="text-2xl font-medium uppercase sm:text-3xl">
-                {patientWithAddress?.firstName.charAt(0)}
-                {patientWithAddress?.lastName.charAt(0)}
+                {patientWithAddress?.firstName?.charAt(0)}
+                {patientWithAddress?.lastName?.charAt(0)}
               </AvatarFallback>
             </Avatar>
           </Suspense>

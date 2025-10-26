@@ -228,8 +228,7 @@ export function PatientInformation({ patient }: PatientInformationProps) {
                     className="bg-black/40 text-white hover:bg-black/70"
                     onClick={() => {
                       setIsCarouselOpen(true);
-                      api?.scrollTo(index + 1, true);
-                      console.log("Dig");
+                      api?.scrollTo(index, true);
                     }}
                   >
                     <EyeIcon />
@@ -391,8 +390,8 @@ function FilePreview({ uri }: FilePreviewProps) {
           size: size ? parseInt(size, 10) : undefined,
           type: type ?? undefined,
         });
-      } catch (e: Error) {
-        setError(e.message);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : String(e));
       } finally {
         setLoading(false);
       }

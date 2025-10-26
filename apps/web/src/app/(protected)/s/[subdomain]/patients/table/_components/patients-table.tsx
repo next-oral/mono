@@ -67,8 +67,6 @@ export function PatientsTable({
   function buildQuery(zero: Zero<Schema, Mutators>) {
     let query = baseQuery(zero, orgId);
 
-    console.log(orgId);
-
     for (const f of state.filters) {
       if (f.type !== "text") continue;
       const value = (f.values?.[0] ?? "").toString().trim();
