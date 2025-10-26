@@ -4,6 +4,7 @@ import { reset as drizzleReset, seed as drizzleSeed } from "drizzle-seed";
 
 import { db } from "./client";
 import * as drizzleSchema from "./schema";
+import { surfaces } from "./schema";
 
 // Tooth type definitions
 const toothTypes = [
@@ -14,18 +15,6 @@ const toothTypes = [
   },
   { name: "Incisor" as const, description: "Front teeth used for cutting" },
   { name: "Canine" as const, description: "Pointed teeth used for tearing" },
-];
-
-// Surface definitions
-const surfaces = [
-  { name: "Buccal" as const, description: "Cheek side of the tooth" },
-  { name: "Lingual" as const, description: "Tongue side of the tooth" },
-  { name: "Mesial" as const, description: "Toward the midline of the mouth" },
-  {
-    name: "Distal" as const,
-    description: "Away from the midline of the mouth",
-  },
-  { name: "Occlusal" as const, description: "Biting surface of the tooth" },
 ];
 
 // Tooth type to surface mappings

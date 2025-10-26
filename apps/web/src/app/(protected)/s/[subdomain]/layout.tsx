@@ -108,10 +108,6 @@ export async function SubdomainLayoutWithAuth({
 
       <SidebarInset>
         <div className="flex">
-          {/* <div className="relative h-screen w-80 transition-all has-[div[data-notification-panel-state=closed]]:w-0">
-            <NotificationPanel />
-          </div> */}
-
           <div className="flex-1">
             <header className="bg-background/50 sticky top-0 z-50 flex h-14 shrink-0 items-center gap-2 border-b px-4 backdrop-blur-sm">
               <div className="flex items-center gap-2 px-0">

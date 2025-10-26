@@ -550,6 +550,7 @@ const Printer = createLucideIcon("huge-printer", [
     },
   ],
 ]);
+
 export const HugeIcons = {
   Dashboard,
   Patients,

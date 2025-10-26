@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { useZero } from "@rocicorp/zero/react";
 import { useForm } from "@tanstack/react-form";
+import { format } from "date-fns";
 import { motion } from "motion/react";
 import { parseAsString, useQueryState } from "nuqs";
 import { toast } from "sonner";
@@ -63,7 +64,7 @@ export default function ChartPage() {
   const z = useZero<Schema>();
 
   const [active, setActive] = useState("All");
-  const { data } = useZeroQuery(z.query.patient);
+  const { data } = useZeroQuery(z.query.patient.related("address"));
 
   const [patients, setPatients] = useState(data.slice(0, 3));
 
@@ -91,6 +92,15 @@ export default function ChartPage() {
     },
     [patients, patientId],
   );
+
+  const currentPatient = patients.find((patient) => patient.id === patientId);
+  if (!currentPatient) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <p className="text-muted-foreground text-sm">No patient found</p>
+      </div>
+    );
+  }
 
   return (
     <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -229,29 +239,37 @@ export default function ChartPage() {
                       >
                         <DataListItem>
                           <DataListLabel>First name</DataListLabel>
-                          <DataListValue>John</DataListValue>
+                          <DataListValue>
+                            {currentPatient.firstName}
+                          </DataListValue>
                         </DataListItem>
                         <DataListItem>
                           <DataListLabel>Last name</DataListLabel>
-                          <DataListValue>Doe</DataListValue>
+                          <DataListValue>
+                            {currentPatient.lastName}
+                          </DataListValue>
                         </DataListItem>
                         <DataListItem>
                           <DataListLabel>Phone</DataListLabel>
-                          <DataListValue>Doe</DataListValue>
+                          <DataListValue>{currentPatient.phone}</DataListValue>
                         </DataListItem>
                         <DataListItem>
                           <DataListLabel>Gender</DataListLabel>
-                          <DataListValue>Doe</DataListValue>
+                          <DataListValue>{currentPatient.gender}</DataListValue>
                         </DataListItem>
 
                         <DataListItem>
                           <DataListLabel>Date of Birth</DataListLabel>
-                          <DataListValue>1990-01-01</DataListValue>
+                          <DataListValue>
+                            {format(currentPatient.dob, "MMM d, yyyy")}
+                          </DataListValue>
                         </DataListItem>
                         <DataListItem>
                           <DataListLabel>Address</DataListLabel>
                           <DataListValue>
-                            123 Main St, Anytown, USA
+                            {currentPatient.address?.city ?? ""}{" "}
+                            {currentPatient.address?.state ?? ""}{" "}
+                            {currentPatient.address?.zipCode ?? ""}
                           </DataListValue>
                         </DataListItem>
                       </DataList>

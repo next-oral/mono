@@ -252,28 +252,40 @@ export const toothRelations = relations(tooth, ({ one, many }) => ({
   toothMovements: many(toothMovement),
 }));
 
+// Surface definitions
+export const surfaces = [
+  { name: "Buccal" as const, description: "Cheek side of the tooth" },
+  { name: "Lingual" as const, description: "Tongue side of the tooth" },
+  { name: "Mesial" as const, description: "Toward the midline of the mouth" },
+  {
+    name: "Distal" as const,
+    description: "Away from the midline of the mouth",
+  },
+  { name: "Occlusal" as const, description: "Biting surface of the tooth" },
+];
+
 // // export const diagnosisRelations = relations(diagnosis, () => ({}));
 
 // // export const procedureRelations = relations(procedure, () => ({}));
 
-// export const missingToothRelations = relations(missingTooth, ({ one }) => ({
-//   patient: one(patient, {
-//     fields: [missingTooth.patId],
-//     references: [patient.id],
-//   }),
-//   tooth: one(tooth, {
-//     fields: [missingTooth.toothId],
-//     references: [tooth.id],
-//   }),
-// }));
+export const missingToothRelations = relations(missingTooth, ({ one }) => ({
+  patient: one(patient, {
+    fields: [missingTooth.patId],
+    references: [patient.id],
+  }),
+  tooth: one(tooth, {
+    fields: [missingTooth.toothId],
+    references: [tooth.id],
+  }),
+}));
 
-// export const toothMovementRelations = relations(toothMovement, ({ one }) => ({
-//   patient: one(patient, {
-//     fields: [toothMovement.patId],
-//     references: [patient.id],
-//   }),
-//   tooth: one(tooth, {
-//     fields: [toothMovement.toothId],
-//     references: [tooth.id],
-//   }),
-// }));
+export const toothMovementRelations = relations(toothMovement, ({ one }) => ({
+  patient: one(patient, {
+    fields: [toothMovement.patId],
+    references: [patient.id],
+  }),
+  tooth: one(tooth, {
+    fields: [toothMovement.toothId],
+    references: [tooth.id],
+  }),
+}));
