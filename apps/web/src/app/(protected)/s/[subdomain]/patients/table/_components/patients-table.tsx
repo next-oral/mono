@@ -10,20 +10,18 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDownIcon, Table } from "lucide-react";
 
 import type { Mutators } from "@repo/zero/src/mutators";
 import type { Schema } from "@repo/zero/src/schema";
-import { Button } from "@repo/design/components/ui/button";
-import { ButtonGroup } from "@repo/design/components/ui/button-group";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@repo/design/components/ui/dropdown-menu";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@repo/design/components/ui/popover";
 import { Plus } from "@repo/design/icons";
+import { AddCsv } from "@repo/design/src/components/patients/add-csv";
+import { AddManually } from "@repo/design/src/components/patients/add-manually";
+import { Button } from "@repo/design/src/components/ui/button";
 
 import type { FiltersState } from "~/components/data-table-filter/core/types";
 import { authClient } from "~/auth/client";
@@ -31,7 +29,6 @@ import {
   DataTableFilter,
   useDataTableFilters,
 } from "~/components/data-table-filter";
-import { QuickSearchFilters } from "~/components/data-table-filter/components/filter-selector";
 import { useZeroQuery } from "~/providers/zero";
 import {
   createTSTColumns,
@@ -60,10 +57,13 @@ export function PatientsTable({
   const z = useZero<Schema, Mutators>();
   const { data: activeOrganization } = authClient.useActiveOrganization();
   const { data: organizations } = authClient.useListOrganizations();
-  const orgId = activeOrganization?.id ?? organizations?.[0]?.id ?? "";
+  const orgId =
+    activeOrganization?.id ?? organizations?.[0]?.id ?? "1XZ05MqVgRLxglUuMK";
 
   function buildQuery(zero: Zero<Schema, Mutators>) {
     let query = baseQuery(zero, orgId);
+
+    console.log(orgId);
 
     for (const f of state.filters) {
       if (f.type !== "text") continue;
@@ -188,8 +188,22 @@ export function PatientsTable({
             strategy={strategy}
           />
         </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button className="ml-auto">
+              <Plus className="size-4" />
+              Add Patient
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="bg-background w-fit overflow-hidden rounded-xl p-0">
+            <div className="flex flex-col">
+              <AddManually />
+              <AddCsv />
+            </div>
+          </PopoverContent>
+        </Popover>
 
-        <ButtonGroup>
+        {/* <ButtonGroup>
           <Button className="border-secondary/40 border-r">Add Patient</Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -210,7 +224,7 @@ export function PatientsTable({
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
-        </ButtonGroup>
+        </ButtonGroup> */}
       </div>
       <DataTable table={table} actions={actions} isLoading={isPending} />
     </div>
