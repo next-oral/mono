@@ -4,13 +4,15 @@ import {
   PatientBarChart,
   PatientPieChart,
 } from "@repo/design/components/dashboard/patient-chart";
-import { Badge } from "@repo/design/src/components/ui/badge";
-import { Button } from "@repo/design/src/components/ui/button";
-import { HugeIcons } from "@repo/design/src/icons";
+import { Badge } from "@repo/design/components/ui/badge";
+import { Button } from "@repo/design/components/ui/button";
+import { FilterIcon, HugeIcons } from "@repo/design/icons";
+import { ActionMenu } from "@repo/design/src/components/action-menu";
 
 import { getSession } from "~/auth/server";
 import { DateFilter } from "./date-filter";
 import { DoctorsListCard } from "./doctor";
+import { menuData } from "./kitchen-sink-01";
 
 const stats = [
   {
@@ -104,44 +106,6 @@ const appointments = [
   },
 ];
 
-const doctors = [
-  {
-    id: "1",
-    name: "Dr. Sally Wokman",
-    title: "Chief Surgeon",
-    avatarUrl: "https://randomuser.me/api/portraits/women/12.jpg",
-    status: "online" as const,
-  },
-  {
-    id: "2",
-    name: "Dr. Sally Wokman",
-    title: "Chief Surgeon",
-    avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg",
-    status: "offline" as const,
-  },
-  {
-    id: "3",
-    name: "Dr. Sally Wokman",
-    title: "Chief Surgeon",
-    avatarUrl: "https://randomuser.me/api/portraits/women/68.jpg",
-    status: "offline" as const,
-  },
-  {
-    id: "4",
-    name: "Dr. Sally Wokman",
-    title: "Chief Surgeon",
-    avatarUrl: "https://randomuser.me/api/portraits/women/65.jpg",
-    status: "online" as const,
-  },
-  {
-    id: "5",
-    name: "Dr. Sally Wokman",
-    title: "Chief Surgeon",
-    avatarUrl: "https://randomuser.me/api/portraits/women/12.jpg",
-    status: "busy" as const,
-  },
-];
-
 export default async function Page() {
   const session = await getSession();
 
@@ -168,7 +132,15 @@ export default async function Page() {
               <DashboardCard key={stat.id} {...stat} />
             ))}
           </div>
-
+          <ActionMenu
+            trigger={
+              <Button variant="ghost" size="sm" className="w-fit">
+                <FilterIcon />
+                Filter
+              </Button>
+            }
+            menu={menuData}
+          />
           {/* Patient Chart */}
           <div className="bg-muted/50 col-span-1 min-h-96 rounded-xl md:col-span-12">
             <PatientBarChart
@@ -183,7 +155,7 @@ export default async function Page() {
             <PatientPieChart duration="January - June 2024" />
           </div>
           <div className="col-span-1 overflow-hidden rounded-xl border bg-blue-50 px-4 md:col-span-4">
-            <DoctorsListCard doctors={doctors} />
+            <DoctorsListCard doctors={[]} />
           </div>
 
           <div className="bg-muted/50 col-span-1 h-96 rounded-xl md:col-span-8">

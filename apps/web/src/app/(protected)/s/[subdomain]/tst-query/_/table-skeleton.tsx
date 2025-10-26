@@ -27,19 +27,16 @@ export function TableSkeleton({ numRows, numCols }: TableSkeletonProps) {
           <TableHeader>
             <TableRow>
               {cols.map((_, index) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                 <TableHead key={index}>
-                  <Skeleton className="h-[20px] w-[75px]" />
+                  <Skeleton className="h-4 w-[75px]" />
                 </TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.map((_, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
               <TableRow key={index} className="h-12">
                 {cols.map((_, index2) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                   <TableCell key={index2}>
                     <Skeleton className="h-[30px] w-[140px]" />
                   </TableCell>
@@ -51,8 +48,8 @@ export function TableSkeleton({ numRows, numCols }: TableSkeletonProps) {
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex flex-1 items-center gap-2">
-          <Skeleton className="h-[20px] w-[200px]" />
-          <Skeleton className="h-[20px] w-[150px]" />
+          <Skeleton className="h-4 w-[200px]" />
+          <Skeleton className="h-4 w-[150px]" />
         </div>
         <div className="space-x-2">
           <Button variant="outline" size="sm" disabled>

@@ -206,38 +206,6 @@ const columns: ColumnDef<TableData>[] = [
       label: "Email",
     },
   },
-  // {
-  //   id: "treatments",
-  //   accessorKey: "treatments",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Treatment" />
-  //   ),
-  //   cell: ({ row }) => {
-  //     const treatments = row.original.treatments;
-
-  //     return (
-  //       <div className="flex min-w-64 flex-wrap gap-2">
-  //         {treatments.map((treatment) => (
-  //           <Badge key={treatment} variant="outline" className="capitalize">
-  //             {treatment}
-  //           </Badge>
-  //         ))}
-  //       </div>
-  //     );
-  //   },
-  //   meta: {
-  //     label: "Treatments",
-  //     variant: "multiSelect",
-  //     options: treatments.map((treatment) => ({
-  //       label: treatment,
-  //       value: treatment,
-  //     })),
-  //   },
-  //   filterFn: (row, id, value) => {
-  //     return Array.isArray(value) && value.includes(row.getValue(id));
-  //   },
-  //   enableColumnFilter: true,
-  // },
   {
     id: "address",
     accessorKey: "address",

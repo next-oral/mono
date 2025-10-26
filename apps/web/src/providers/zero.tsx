@@ -2,6 +2,7 @@
 
 import type { Query, Schema } from "@rocicorp/zero";
 import { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Zero } from "@rocicorp/zero";
 import { useQuery, ZeroProvider } from "@rocicorp/zero/react";
 
@@ -48,6 +49,7 @@ const _user = {
 };
 export function ZeroQueryProvider({ children }: { children: React.ReactNode }) {
   const { data: session, isPending } = authClient.useSession();
+  const pathname = usePathname();
 
   const zero = useMemo(
     () =>
@@ -60,7 +62,16 @@ export function ZeroQueryProvider({ children }: { children: React.ReactNode }) {
     [session],
   );
 
-  if (isPending) return <Loading />;
+  // Only show loading for protected routes, not for public pages
+  const isProtectedRoute =
+    pathname.startsWith("/s/") ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/appointments") ||
+    pathname.startsWith("/patients") ||
+    pathname.startsWith("/settings");
+
+  if (isPending && isProtectedRoute) return <Loading />;
+
   return (
     <ZeroProvider
       zero={zero}

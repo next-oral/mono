@@ -94,31 +94,13 @@ export async function SubdomainLayoutWithAuth({
   });
 
   if (!session) return null;
-  // const organization = await auth.api.getFullOrganization({
-  //   headers: heads,
-  // });
 
   await auth.api.listOrganizations({
     headers: heads,
   });
 
-  // const teams = organization?.teams ?? [];
-
   return (
     <SidebarProvider>
-      {/* <AppSidebar
-        teams={{
-          data: teams,
-          activeTeam: teams.pop(),
-        }}
-        organizations={a}
-        user={{
-          name: session.user.name,
-          email: session.user.email,
-          image: session.user.image ?? "",
-        }}
-      /> */}
-
       <AppSidebar
         user={session.user}
         Link={Link as AnchorHTMLAttributes<HTMLAnchorElement>}

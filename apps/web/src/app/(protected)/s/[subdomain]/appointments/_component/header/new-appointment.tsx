@@ -114,7 +114,7 @@ export function AppointmentCrudSheet(props: AppointmentCrudSheet) {
           initialValues={initialValues}
           onSubmit={() => setShowAppointmentSheet(false)}
         >
-          {({ onSubmit }) => (
+          {({ handleSubmit: onSubmit }) => (
             <SheetFooter className="flex flex-row gap-2">
               <Button className="flex-1" onClick={onSubmit}>
                 {props.type === "new"

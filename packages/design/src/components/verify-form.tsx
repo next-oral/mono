@@ -2,7 +2,7 @@ import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import {
   InputOTP,
@@ -103,12 +103,18 @@ export function VerifyForm({
                   {...field}
                 >
                   <InputOTPGroup className="w-full justify-center">
-                    <InputOTPSlot className="h-10 w-13.25" index={0} />
+                    <InputOTPSlot
+                      className="h-10 w-13.25 rounded-l-md"
+                      index={0}
+                    />
                     <InputOTPSlot className="h-10 w-13.25" index={1} />
                     <InputOTPSlot className="h-10 w-13.25" index={2} />
                     <InputOTPSlot className="h-10 w-13.25" index={3} />
                     <InputOTPSlot className="h-10 w-13.25" index={4} />
-                    <InputOTPSlot className="h-10 w-13.25" index={5} />
+                    <InputOTPSlot
+                      className="h-10 w-13.25 rounded-r-md"
+                      index={5}
+                    />
                   </InputOTPGroup>
                 </InputOTP>
               </FormControl>

@@ -31,13 +31,11 @@ export function createMutators(_session: Session | null) {
     appointment: {
       create: async (
         tx: Transaction<Schema>,
-        apt: Omit<Appointment, "updatedAt" | "createdAt">,
+        apt: Omit<Appointment, "createdAt">,
       ) => {
-        // const id = createId();
         await tx.mutate.appointment.upsert({
           ...apt,
-          // id,
-          updatedAt: Date.now(),
+          // updatedAt: Date.now(),
         });
       },
       update: async (
