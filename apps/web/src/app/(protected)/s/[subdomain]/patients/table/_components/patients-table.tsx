@@ -3,6 +3,7 @@
 import type { Row, Zero } from "@rocicorp/zero";
 import type { SortingState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useZero } from "@rocicorp/zero/react";
 import {
   getCoreRowModel,
@@ -14,14 +15,22 @@ import {
 import type { Mutators } from "@repo/zero/src/mutators";
 import type { Schema } from "@repo/zero/src/schema";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@repo/design/components/ui/dropdown-menu";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@repo/design/components/ui/popover";
-import { Plus } from "@repo/design/icons";
+import { ChevronDownIcon, Plus, Table } from "@repo/design/icons";
 import { AddCsv } from "@repo/design/src/components/patients/add-csv";
 import { AddManually } from "@repo/design/src/components/patients/add-manually";
 import { Button } from "@repo/design/src/components/ui/button";
+import { ButtonGroup } from "@repo/design/src/components/ui/button-group";
 
 import type { FiltersState } from "~/components/data-table-filter/core/types";
 import { authClient } from "~/auth/client";
@@ -63,11 +72,9 @@ export function PatientsTable({
   function buildQuery(zero: Zero<Schema, Mutators>) {
     let query = baseQuery(zero, orgId);
 
-    console.log(orgId);
-
     for (const f of state.filters) {
       if (f.type !== "text") continue;
-      const value = (f.values?.[0] as string | undefined)?.trim() ?? "";
+      const value = (f.values[0] as string | undefined)?.trim() ?? "";
       if (value.length === 0) continue;
 
       const op =
@@ -155,6 +162,8 @@ export function PatientsTable({
   );
   const tstFilters = useMemo(() => createTSTFilters(filters), [filters]);
 
+  const router = useRouter();
+
   const table = useReactTable<PatientRow>({
     data: patients,
     columns: tstColumns,
@@ -188,7 +197,7 @@ export function PatientsTable({
             strategy={strategy}
           />
         </div>
-        <Popover>
+        {/* <Popover>
           <PopoverTrigger asChild>
             <Button className="ml-auto">
               <Plus className="size-4" />
@@ -201,9 +210,9 @@ export function PatientsTable({
               <AddCsv />
             </div>
           </PopoverContent>
-        </Popover>
+        </Popover> */}
 
-        {/* <ButtonGroup>
+        <ButtonGroup>
           <Button className="border-secondary/40 border-r">Add Patient</Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -224,9 +233,14 @@ export function PatientsTable({
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
-        </ButtonGroup> */}
+        </ButtonGroup>
       </div>
-      <DataTable table={table} actions={actions} isLoading={isPending} />
+      <DataTable
+        table={table}
+        actions={actions}
+        isLoading={isPending}
+        // onRowClick={(row) => router.push(`/patients/${row.original.id}`)}
+      />
     </div>
   );
 }

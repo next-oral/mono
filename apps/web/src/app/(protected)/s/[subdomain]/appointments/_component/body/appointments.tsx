@@ -92,8 +92,6 @@ export function DayViewAppointmentCard({
           end: time.getTime(),
           updatedAt: Date.now(),
         };
-        console.log("updated appointment", newAppointment);
-
         z.mutate.appointment.update(newAppointment);
       }
       timeout = window.setTimeout(() => setIsResizing(false), 550);

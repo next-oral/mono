@@ -792,6 +792,37 @@ const Printer = createLucideIcon("huge-printer", [
   ],
 ]);
 
+const Chart = createLucideIcon("huge-chart", [
+  [
+    "path",
+    {
+      key: "huge-chart-1",
+      d: "M5.99805 15H9.99805M5.99805 10H13.998",
+      strokeWidth: "1.5",
+      strokeLinecap: "round",
+    },
+  ],
+  [
+    "path",
+    {
+      key: "huge-chart-2",
+      d: "M5.5 2.5C3.9442 2.54667 3.01661 2.71984 2.37477 3.36227C1.49609 4.24177 1.49609 5.6573 1.49609 8.48836L1.49609 14.9944C1.49609 17.8255 1.49609 19.241 2.37477 20.1205C3.25345 21 4.66767 21 7.49609 21L12.4961 21C15.3245 21 16.7387 21 17.6174 20.1205C18.4961 19.241 18.4961 17.8255 18.4961 14.9944V8.48836C18.4961 5.6573 18.4961 4.24177 17.6174 3.36228C16.9756 2.71984 16.048 2.54667 14.4922 2.5",
+      strokeWidth: "1.5",
+      strokeLinecap: "round",
+    },
+  ],
+  [
+    "path",
+    {
+      key: "huge-chart-3",
+      d: "M5.49609 2.75C5.49609 1.7835 6.2796 1 7.24609 1H12.7461C13.7126 1 14.4961 1.7835 14.4961 2.75C14.4961 3.7165 13.7126 4.5 12.7461 4.5H7.24609C6.2796 4.5 5.49609 3.7165 5.49609 2.75Z",
+      strokeWidth: "1.5",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+  ],
+]);
+
 export const HugeIcons = {
   Dashboard,
   Patients,
@@ -815,6 +846,7 @@ export const HugeIcons = {
   SecondMolar,
   ThirdMolar,
   Printer,
+  Chart,
 };
 
 export const AppleBrand = (props: SVGProps<SVGSVGElement>) => (
