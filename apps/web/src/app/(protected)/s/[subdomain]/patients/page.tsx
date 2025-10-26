@@ -35,7 +35,7 @@ export default function Page() {
     [sorting, setSorting],
   );
   return (
-    <div className="flex h-full flex-col overflow-hidden px-5">
+    <div className="flex h-full flex-col overflow-hidden p-5">
       <PatientsTable
         state={{ filters, setFilters, sorting, setSorting: onSortingChange }}
       />

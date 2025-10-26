@@ -54,7 +54,7 @@ export default function PatientDetailsPage() {
     );
 
   return (
-    <div className="w-full">
+    <div className="w-full py-5">
       <div className="flex flex-wrap-reverse items-center justify-between gap-3 px-2 sm:px-4">
         <div className="flex items-center gap-2">
           <Suspense>

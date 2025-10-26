@@ -1,5 +1,13 @@
 import { createId } from "@paralleldrive/cuid2";
-import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+import {
+  check,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  unique,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 
 import { patient } from "./core";
@@ -8,16 +16,16 @@ import {
   movementTypeEnum,
   toothNotationEnum,
   toothSurfaceEnum,
+  toothTypeEnum,
 } from "./enums";
 
-// Teeth & Surfaces
-export const tooth = pgTable("tooth", {
+// Tooth Types & Surfaces
+export const toothType = pgTable("tooth_type", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => createId()),
-  name: text("name"),
-  position: integer("position").unique(),
-  notation: toothNotationEnum("notation").default("UNS"), // 1–32 or ISO/FDI notation (11–48)
+  name: toothTypeEnum("name").unique().notNull(), // "Molar", "Premolar", "Incisor", "Canine"
+  description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")
     .$defaultFn(() => new Date())
@@ -28,15 +36,66 @@ export const toothSurface = pgTable("tooth_surface", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => createId()),
-  toothId: text("tooth_id")
-    .notNull()
-    .references(() => tooth.id),
-  surface: toothSurfaceEnum("surface").notNull(),
+  name: toothSurfaceEnum("name").notNull(), // "Buccal", "Lingual", "Mesial", "Distal", "Occlusal"
+  description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")
     .$defaultFn(() => new Date())
     .notNull(),
 });
+
+// Junction table: which surfaces are available for each tooth type
+export const toothTypeSurface = pgTable(
+  "tooth_type_surface_mapping",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    toothTypeId: text("tooth_type_id")
+      .notNull()
+      .references(() => toothType.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    surfaceId: text("surface_id")
+      .notNull()
+      .references(() => toothSurface.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique("unique_tooth_type_surface").on(table.toothTypeId, table.surfaceId),
+  ],
+);
+
+// Teeth
+export const tooth = pgTable(
+  "tooth",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    name: text("name"),
+    position: integer("position").unique(),
+    toothTypeId: text("tooth_type_id")
+      .notNull()
+      .references(() => toothType.id, {
+        onDelete: "restrict",
+        onUpdate: "cascade",
+      }),
+    notation: toothNotationEnum("notation").default("UNS"), // 1–32 or ISO/FDI notation (11–48)
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  () => [check("position_check", sql`"position" >= 1 AND "position" <= 32`)],
+);
 
 // Diagnoses & Procedures
 export const diagnosis = pgTable("diagnosis", {
@@ -78,7 +137,7 @@ export const missingTooth = pgTable("missing_tooth", {
     .references(() => patient.id),
   toothId: text("tooth_id")
     .notNull()
-    .references(() => tooth.id),
+    .references(() => tooth.id, { onDelete: "cascade", onUpdate: "cascade" }),
   reason: text("reason"),
   dateDetected: timestamp("date_detected", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
@@ -96,7 +155,7 @@ export const toothMovement = pgTable("tooth_movement", {
     .references(() => patient.id),
   toothId: text("tooth_id")
     .notNull()
-    .references(() => tooth.id),
+    .references(() => tooth.id, { onDelete: "cascade", onUpdate: "cascade" }),
   type: movementTypeEnum("type").notNull(),
   description: text("description"),
   startDate: timestamp("start_date", { withTimezone: true }),
@@ -108,12 +167,27 @@ export const toothMovement = pgTable("tooth_movement", {
 });
 
 // Insert Schemas
-export const toothInsertSchema = createInsertSchema(tooth).omit({
+export const toothTypeInsertSchema = createInsertSchema(toothType).omit({
+  id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const toothSurfaceInsertSchema = createInsertSchema(toothSurface).omit({
+export const surfaceInsertSchema = createInsertSchema(toothSurface).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const toothTypeSurfaceInsertSchema = createInsertSchema(
+  toothTypeSurface,
+).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const toothInsertSchema = createInsertSchema(tooth).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -146,41 +220,72 @@ export const toothMovementInsertSchema = createInsertSchema(toothMovement).omit(
 );
 
 // Relations
-// export const toothRelations = relations(tooth, ({ many }) => ({
-//   surfaces: many(toothSurface),
-//   missingTeeth: many(missingTooth),
-//   toothMovements: many(toothMovement),
-// }));
+export const toothTypeRelations = relations(toothType, ({ many }) => ({
+  teeth: many(tooth),
+  toothTypeSurfaces: many(toothTypeSurface),
+}));
 
-// export const toothSurfaceRelations = relations(toothSurface, ({ one }) => ({
-//   tooth: one(tooth, {
-//     fields: [toothSurface.toothId],
-//     references: [tooth.id],
-//   }),
-// }));
+export const surfaceRelations = relations(toothSurface, ({ many }) => ({
+  toothTypeSurfaces: many(toothTypeSurface),
+}));
+
+export const toothTypeSurfaceRelations = relations(
+  toothTypeSurface,
+  ({ one }) => ({
+    toothType: one(toothType, {
+      fields: [toothTypeSurface.toothTypeId],
+      references: [toothType.id],
+    }),
+    surface: one(toothSurface, {
+      fields: [toothTypeSurface.surfaceId],
+      references: [toothSurface.id],
+    }),
+  }),
+);
+
+export const toothRelations = relations(tooth, ({ one, many }) => ({
+  toothType: one(toothType, {
+    fields: [tooth.toothTypeId],
+    references: [toothType.id],
+  }),
+  missingTeeth: many(missingTooth),
+  toothMovements: many(toothMovement),
+}));
+
+// Surface definitions
+export const surfaces = [
+  { name: "Buccal" as const, description: "Cheek side of the tooth" },
+  { name: "Lingual" as const, description: "Tongue side of the tooth" },
+  { name: "Mesial" as const, description: "Toward the midline of the mouth" },
+  {
+    name: "Distal" as const,
+    description: "Away from the midline of the mouth",
+  },
+  { name: "Occlusal" as const, description: "Biting surface of the tooth" },
+];
 
 // // export const diagnosisRelations = relations(diagnosis, () => ({}));
 
 // // export const procedureRelations = relations(procedure, () => ({}));
 
-// export const missingToothRelations = relations(missingTooth, ({ one }) => ({
-//   patient: one(patient, {
-//     fields: [missingTooth.patId],
-//     references: [patient.id],
-//   }),
-//   tooth: one(tooth, {
-//     fields: [missingTooth.toothId],
-//     references: [tooth.id],
-//   }),
-// }));
+export const missingToothRelations = relations(missingTooth, ({ one }) => ({
+  patient: one(patient, {
+    fields: [missingTooth.patId],
+    references: [patient.id],
+  }),
+  tooth: one(tooth, {
+    fields: [missingTooth.toothId],
+    references: [tooth.id],
+  }),
+}));
 
-// export const toothMovementRelations = relations(toothMovement, ({ one }) => ({
-//   patient: one(patient, {
-//     fields: [toothMovement.patId],
-//     references: [patient.id],
-//   }),
-//   tooth: one(tooth, {
-//     fields: [toothMovement.toothId],
-//     references: [tooth.id],
-//   }),
-// }));
+export const toothMovementRelations = relations(toothMovement, ({ one }) => ({
+  patient: one(patient, {
+    fields: [toothMovement.patId],
+    references: [patient.id],
+  }),
+  tooth: one(tooth, {
+    fields: [toothMovement.toothId],
+    references: [tooth.id],
+  }),
+}));

@@ -15,10 +15,10 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@repo/design/src/components/ui/avatar";
-import { Badge } from "@repo/design/src/components/ui/badge";
-import { Button } from "@repo/design/src/components/ui/button";
-import { Calendar } from "@repo/design/src/components/ui/calendar";
+} from "@repo/design/components/ui/avatar";
+import { Badge } from "@repo/design/components/ui/badge";
+import { Button } from "@repo/design/components/ui/button";
+import { Calendar } from "@repo/design/components/ui/calendar";
 import {
   Command,
   CommandEmpty,
@@ -26,7 +26,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@repo/design/src/components/ui/command";
+} from "@repo/design/components/ui/command";
 import {
   Form,
   FormControl,
@@ -35,27 +35,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@repo/design/src/components/ui/form";
-import { Input } from "@repo/design/src/components/ui/input";
-import { Label } from "@repo/design/src/components/ui/label";
+} from "@repo/design/components/ui/form";
+import { Input } from "@repo/design/components/ui/input";
+import { Label } from "@repo/design/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/design/src/components/ui/popover";
-import { ScrollArea } from "@repo/design/src/components/ui/scroll-area";
-import { Textarea } from "@repo/design/src/components/ui/textarea";
-import {
-  CalendarIcon,
-  Check,
-  ChevronsUpDown,
-  User,
-} from "@repo/design/src/icons";
+} from "@repo/design/components/ui/popover";
+import { ScrollArea } from "@repo/design/components/ui/scroll-area";
+import { Textarea } from "@repo/design/components/ui/textarea";
+import { CalendarIcon, Check, ChevronsUpDown, User } from "@repo/design/icons";
 import {
   cn,
   parseTimeToMinutes,
   splitCamelCaseToWords,
-} from "@repo/design/src/lib/utils";
+} from "@repo/design/lib/utils";
 
 import type { Color } from "../types";
 import { authClient } from "~/auth/client";
@@ -88,10 +83,24 @@ const timeFieldSchema = z
   );
 
 const appointmentFormSchema = z.object({
-  patientId: z.string().min(1, "Please select a patient"),
-  dentistId: z.string().min(1, "Please select a dentist"),
-  type: z.enum(aptTypeEnum.enumValues),
-  date: z.string().min(1, "Please select a date"),
+  patientId: z
+    .string({
+      message: "Please select a patient",
+    })
+    .min(1, "Please select a patient"),
+  dentistId: z
+    .string({
+      message: "Please select a dentist",
+    })
+    .min(1, "Please select a dentist"),
+  type: z.enum(aptTypeEnum.enumValues, {
+    message: "Please select an appointment type",
+  }),
+  date: z
+    .string({
+      message: "Please select a date",
+    })
+    .min(1, "Please select a date"),
   time: timeFieldSchema,
   description: z
     .string()
@@ -116,7 +125,9 @@ interface AppointmentFormProps {
   submitLabel?: string;
   showCancelButton?: boolean;
   maxNotesLength?: number;
-  children: (props: { handleSubmit: () => void }) => React.ReactNode;
+  children: (props: {
+    handleSubmit: () => Promise<void> | void;
+  }) => React.ReactNode;
 }
 
 function parseTimeFromMeridianTo24h(timeString?: string) {
@@ -227,9 +238,7 @@ export function AppointmentForm({
                 showAvatar={false}
                 options={aptTypeEnum.enumValues
                   .filter((type) =>
-                    type === "NEW_PATIENT" && initialValues?.patientId
-                      ? false
-                      : true,
+                    initialValues?.patientId ? type !== "NEW_PATIENT" : true,
                   )
                   .map((type) => ({
                     id: type,
@@ -351,7 +360,11 @@ export function AppointmentForm({
           </ScrollArea>
         </form>
       </Form>
-      {children({ handleSubmit: () => handleSubmit(form.getValues()) })}
+      {children({
+        handleSubmit: async () => {
+          if (await form.trigger()) handleSubmit(form.getValues());
+        },
+      })}
     </>
   );
 }
@@ -445,7 +458,9 @@ export default function CustomComboboxField<T extends FieldValues>({
           </Avatar>
         )}
         <div className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-sm font-medium">{selected.name}</span>
+          <span className="truncate text-sm font-medium capitalize">
+            {selected.name}
+          </span>
           {showEmail && selected.email && (
             <span className="text-muted-foreground truncate text-xs">
               {selected.email}
@@ -532,7 +547,7 @@ export default function CustomComboboxField<T extends FieldValues>({
                   aria-expanded={open}
                   disabled={disabled || readOnly}
                   className={cn(
-                    "border-input bg-background hover:bg-background focus-visible:ring-ring w-full justify-between rounded-lg border px-3 py-6 text-left font-normal shadow-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                    "border-input bg-background hover:bg-background focus-visible:ring-ring h-10 w-full justify-between rounded-lg border text-left font-normal transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                     triggerClassName,
                     {
                       "border-destructive bg-destructive/5": fieldState.error,

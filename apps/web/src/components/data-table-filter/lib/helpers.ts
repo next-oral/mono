@@ -27,7 +27,7 @@ export function createDateFilterValue(
 ) {
   if (!values || values.length === 0) return [];
   if (values.length === 1) return [values[0]];
-  if (values.length === 2) return createDateRange(values);
+  return createDateRange(values);
   throw new Error("Cannot create date filter value from more than 2 values");
 }
 

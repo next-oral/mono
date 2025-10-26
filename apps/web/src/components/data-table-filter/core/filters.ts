@@ -75,7 +75,7 @@ class ColumnConfigBuilder<
     if (this.config.type !== "number") {
       throw new Error("min() is only applicable to number columns");
     }
-    const newInstance = this.clone() as any;
+    const newInstance = this.clone();
     newInstance.config.min = value;
     return newInstance;
   }

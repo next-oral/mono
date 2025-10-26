@@ -4,8 +4,11 @@ import type { Appointment } from "@repo/zero/src/schema";
 
 import type { DentistsWithAppointments } from "./query";
 import type { CalendarView } from "./types";
-import type { HighlightRect } from "~/app/calendar/new/_component/types";
 
+interface HighlightRect {
+  top: number;
+  height: number;
+}
 interface CalendarState {
   currentDate: Date;
   setCurrentDate: (date: Date) => void;
@@ -27,12 +30,12 @@ interface CalendarState {
   highlight: {
     dentistId: string;
     currentDate: Date;
-    rect: HighlightRect;
+    rect: HighlightRect | null;
   };
   setHighlight: (
     dentistId: string,
     currentDate: Date,
-    rect: HighlightRect,
+    rect: HighlightRect | null,
   ) => void;
 
   setHighlightBySlots: (

@@ -3,6 +3,7 @@ import { pgEnum } from "drizzle-orm/pg-core";
 // Patient Status
 export const patStatusEnum = pgEnum("pat_status", ["ACTIVE", "INACTIVE"]);
 
+export const genderEnum = pgEnum("gender", ["MALE", "FEMALE", "OTHER"]);
 // Appointment Status
 export const aptStatusEnum = pgEnum("apt_status", [
   "PENDING",
@@ -45,10 +46,17 @@ export const toothSurfaceEnum = pgEnum("tooth_surface_type", [
   "Mesial",
   "Distal",
   "Occlusal",
-  "Facial",
-  "Incisal",
+  // "Facial",
+  // "Incisal",
+  // "Labial",
 ]);
 
+export const toothTypeEnum = pgEnum("tooth_type_enum", [
+  "Molar",
+  "Premolar",
+  "Incisor",
+  "Canine",
+]);
 // Tooth Movement Types
 export const movementTypeEnum = pgEnum("movement_type", [
   "ROTATION",

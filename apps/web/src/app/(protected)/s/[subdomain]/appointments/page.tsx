@@ -156,7 +156,7 @@ function Calendar() {
   }
 
   return (
-    <div className="h-screen w-full overflow-hidden">
+    <div className="h-screen w-full overflow-hidden py-5">
       <CalendarHeader />
       <div className="border-b" />
       <DndContext

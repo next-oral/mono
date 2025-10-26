@@ -82,11 +82,6 @@ export const verification = pgTable("verification", {
   ),
 });
 
-// const organizationTypeEnum = pgEnum("organization_type", [
-//   "Single Practice",
-//   "Multi Location Practice",
-// ]);
-
 export const organization = pgTable("organization", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -162,12 +157,20 @@ export const waitlist = pgTable("waitlist", {
 });
 
 export const waitlistInsertSchema = createInsertSchema(waitlist, {
-  firstName: z.string().min(1, {
-    message: "First name is required",
-  }),
-  lastName: z.string().min(1, {
-    message: "Last name is required",
-  }),
+  firstName: z
+    .string({
+      error: "First name is required",
+    })
+    .min(1, {
+      error: "First name must be at least 1 character",
+    }),
+  lastName: z
+    .string({
+      error: "Last name is required",
+    })
+    .min(1, {
+      error: "Last name must be at least 1 character",
+    }),
   email: z
     .email({
       error: "Invalid email address",

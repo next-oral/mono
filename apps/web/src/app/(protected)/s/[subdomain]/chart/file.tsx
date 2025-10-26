@@ -29,6 +29,12 @@ async function hashString(contents: string | ArrayBuffer) {
 export function OPFSUploader() {
   const [files, setFiles] = useState<StoredFile[]>([]);
   // const [isLoading, setIsLoading] = useState(true);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewText, setPreviewText] = useState<string | null>(null);
+  const [previewKind, setPreviewKind] = useState<
+    "image" | "pdf" | "text" | "unsupported" | null
+  >(null);
+  const [previewName, setPreviewName] = useState<string | null>(null);
 
   const { data: session } = authClient.useSession();
   // const { data: organizations } = authClient.useListOrganizations();
@@ -123,6 +129,56 @@ export function OPFSUploader() {
     await listFiles();
   };
 
+  // 🔹 Preview file
+  const handlePreview = async (
+    fileHandle: FileSystemFileHandle,
+    name: string,
+  ) => {
+    // Cleanup previous preview
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setPreviewText(null);
+    setPreviewUrl(null);
+    setPreviewKind(null);
+    setPreviewName(name);
+
+    const file = await fileHandle.getFile();
+    const mime = file.type || "";
+
+    if (mime.startsWith("image/")) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      setPreviewKind("image");
+      return;
+    }
+
+    if (mime === "application/pdf") {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      setPreviewKind("pdf");
+      return;
+    }
+
+    if (mime.startsWith("text/") || name.toLowerCase().endsWith(".csv")) {
+      const text = await file.text();
+      setPreviewText(text);
+      setPreviewKind("text");
+      return;
+    }
+
+    // Many spreadsheet formats (xlsx) aren't previewable without extra libs
+    setPreviewKind("unsupported");
+  };
+
+  // Cleanup object URL on unmount or when preview changes
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
   return (
     <div className="mx-auto max-w-lg space-y-4 p-4">
       <h1 className="text-xl font-semibold">📁 OPFS File Uploader</h1>
@@ -148,6 +204,12 @@ export function OPFSUploader() {
               </div>
               <div className="flex gap-2">
                 <button
+                  onClick={() => handlePreview(handle, name)}
+                  className="text-green-600 hover:underline"
+                >
+                  Preview
+                </button>
+                <button
                   onClick={() => handleDownload(handle)}
                   className="text-blue-600 hover:underline"
                 >
@@ -163,6 +225,69 @@ export function OPFSUploader() {
             </li>
           ))}
         </ul>
+      )}
+
+      {previewKind && (
+        <div className="mt-4 rounded border p-3">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="font-medium">
+              Preview{previewName ? `: ${previewName}` : ""}
+            </p>
+            <button
+              className="text-sm text-gray-600 hover:underline"
+              onClick={() => {
+                if (previewUrl) URL.revokeObjectURL(previewUrl);
+                setPreviewUrl(null);
+                setPreviewText(null);
+                setPreviewKind(null);
+                setPreviewName(null);
+              }}
+            >
+              Close
+            </button>
+          </div>
+
+          {previewKind === "image" && previewUrl && (
+            <img
+              src={previewUrl}
+              alt={previewName ?? "Preview"}
+              className="max-h-[60vh] w-full object-contain"
+            />
+          )}
+
+          {previewKind === "pdf" && previewUrl && (
+            <iframe
+              src={(() => {
+                try {
+                  const url = new URL(previewUrl);
+                  // Append viewer params via hash to hint supported viewers to hide UI
+                  const base = `${url.toString().split("#")[0]}`;
+                  const hash = url.hash
+                    ? `${url.hash}&toolbar=0&navpanes=0&scrollbar=0`
+                    : `#toolbar=0&navpanes=0&scrollbar=0`;
+                  return `${base}${hash}`;
+                } catch {
+                  // Fallback for blob:/object URLs not parseable by URL()
+                  return `${previewUrl}${previewUrl.includes("#") ? "&" : "#"}toolbar=0&navpanes=0&scrollbar=0`;
+                }
+              })()}
+              title={previewName ?? "PDF Preview"}
+              className="h-[70vh] w-full"
+            />
+          )}
+
+          {previewKind === "text" && previewText !== null && (
+            <pre className="h-[60vh] w-full overflow-auto rounded bg-gray-50 p-3 text-sm">
+              {previewText}
+            </pre>
+          )}
+
+          {previewKind === "unsupported" && (
+            <div className="text-sm text-gray-600">
+              Preview not available for this file type. Please download to view.
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

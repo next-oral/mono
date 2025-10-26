@@ -12,7 +12,7 @@ function Tabs({
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
-      className={cn("flex flex-col gap-2", className)}
+      className={cn("relative flex flex-col gap-2", className)}
       {...props}
     />
   );
@@ -63,4 +63,17 @@ function TabsContent({
   );
 }
 
-export { Tabs, TabsList, TabsTrigger, TabsContent };
+function TabsFooter({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="tabs-footer"
+      className={cn(
+        "absolute bottom-0 mt-auto flex h-14 w-full flex-wrap items-center justify-between border-t px-2 outline-none",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+export { Tabs, TabsList, TabsTrigger, TabsContent, TabsFooter };
