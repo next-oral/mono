@@ -1,15 +1,15 @@
 import { HugeIcons } from "@repo/design/icons";
 import { cn } from "@repo/design/lib/utils";
-import { ToothTypes } from "@repo/design/types/tooth";
+import type { ToothTypes } from "@repo/design/types/tooth";
 
 import { Badge } from "../ui/badge";
 
-type ToothItemProps = {
+interface ToothItemProps {
   type: ToothTypes;
   tooth: ToothTypes | null;
   setTooth: (tooth: ToothTypes) => void;
   appointmentsCount: number;
-};
+}
 
 export function ToothItem({
   type,

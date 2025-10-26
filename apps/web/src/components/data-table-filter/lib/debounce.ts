@@ -14,7 +14,7 @@ interface DebounceOptions {
   maxWait?: number;
 }
 
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number,
   options: DebounceOptions = {},
@@ -22,7 +22,7 @@ export function debounce<T extends (...args: any[]) => any>(
   const { leading = false, trailing = true, maxWait } = options;
   let timeout: NodeJS.Timeout | null = null;
   let lastArgs: Parameters<T> | null = null;
-  let lastThis: any;
+  let lastThis: unknown;
   let result: ReturnType<T> | undefined;
   let lastCallTime: number | null = null;
   let lastInvokeTime = 0;
@@ -113,9 +113,7 @@ export function debounce<T extends (...args: any[]) => any>(
         return invokeFunc(lastCallTime);
       }
     }
-    if (timeout === null) {
-      timeout = startTimer(timerExpired, wait);
-    }
+    timeout ??= startTimer(timerExpired, wait);
     return result;
   }
 

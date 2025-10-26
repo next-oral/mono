@@ -15,13 +15,11 @@ function deepHash(value: any, cache = new WeakMap<object, string>()): string {
   if (value === undefined) return "undefined";
   const type = typeof value;
   if (type === "number" || type === "boolean" || type === "string") {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return `${type}:${value.toString()}`;
+    return `${type}:${String(value)}`;
   }
   if (type === "function") {
     // Note: using toString for functions.
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return `function:${value.toString()}`;
+    return `function:${String(value)}`;
   }
 
   // For objects and arrays, use caching to avoid repeated work.
@@ -47,14 +45,14 @@ function deepHash(value: any, cache = new WeakMap<object, string>()): string {
   }
 
   // Fallback if no case matched.
-  return `${type}:${value.toString()}`;
+  return `${type}:${String(value)}`;
 }
 
 /**
  * Performs deep equality check for any two values.
  * This recursively checks primitives, arrays, and plain objects.
  */
-function deepEqual(a: any, b: any): boolean {
+function deepEqual(a: unknown, b: unknown): boolean {
   // Check strict equality first.
   if (a === b) return true;
   // If types differ, they’re not equal.
@@ -104,7 +102,8 @@ export function uniq<T>(arr: T[]): T[] {
     const hash = deepHash(item);
     if (seen.has(hash)) {
       // There is a potential duplicate; check the stored items with the same hash.
-      const itemsWithHash = seen.get(hash)!;
+      const itemsWithHash = seen.get(hash);
+      if (!itemsWithHash) continue;
       let duplicateFound = false;
       for (const existing of itemsWithHash) {
         if (deepEqual(existing, item)) {

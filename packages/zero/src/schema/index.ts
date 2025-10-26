@@ -48,47 +48,50 @@ export interface AuthData {
   orgId: string;
 }
 
-export const permissions = definePermissions<{}, Schema>(schema, () => {
-  return {
-    // Minimal permissive config for development; scope down later
-    address: {
-      row: { select: ANYONE_CAN, insert: ANYONE_CAN },
-    },
-    patient: {
-      row: { select: ANYONE_CAN, insert: ANYONE_CAN },
-    },
-    dentist: {
-      row: { select: ANYONE_CAN, insert: ANYONE_CAN },
-    },
-    clinicalNote: {
-      row: { select: ANYONE_CAN },
-    },
-    appointment: {
-      row: { select: ANYONE_CAN, delete: ANYONE_CAN },
-    },
-    file: {
-      row: { select: ANYONE_CAN },
-    },
-    missingTooth: {
-      row: { select: ANYONE_CAN },
-    },
-    tooth: {
-      row: { select: ANYONE_CAN },
-    },
-    toothMovement: {
-      row: { select: ANYONE_CAN },
-    },
-    treatmentPlan: {
-      row: { select: ANYONE_CAN },
-    },
-    verification: {
-      row: { select: ANYONE_CAN },
-    },
-    form: {
-      row: { select: ANYONE_CAN },
-    },
-    formResponse: {
-      row: { select: ANYONE_CAN },
-    },
-  } satisfies PermissionsConfig<AuthData, Schema>;
-});
+export const permissions = definePermissions<Record<string, unknown>, Schema>(
+  schema,
+  () => {
+    return {
+      // Minimal permissive config for development; scope down later
+      address: {
+        row: { select: ANYONE_CAN, insert: ANYONE_CAN },
+      },
+      patient: {
+        row: { select: ANYONE_CAN, insert: ANYONE_CAN },
+      },
+      dentist: {
+        row: { select: ANYONE_CAN, insert: ANYONE_CAN },
+      },
+      clinicalNote: {
+        row: { select: ANYONE_CAN },
+      },
+      appointment: {
+        row: { select: ANYONE_CAN, delete: ANYONE_CAN },
+      },
+      file: {
+        row: { select: ANYONE_CAN },
+      },
+      missingTooth: {
+        row: { select: ANYONE_CAN },
+      },
+      tooth: {
+        row: { select: ANYONE_CAN },
+      },
+      toothMovement: {
+        row: { select: ANYONE_CAN },
+      },
+      treatmentPlan: {
+        row: { select: ANYONE_CAN },
+      },
+      verification: {
+        row: { select: ANYONE_CAN },
+      },
+      form: {
+        row: { select: ANYONE_CAN },
+      },
+      formResponse: {
+        row: { select: ANYONE_CAN },
+      },
+    } satisfies PermissionsConfig<AuthData, Schema>;
+  },
+);
