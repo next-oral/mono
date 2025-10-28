@@ -1,7 +1,7 @@
 import type { StaticImageData } from "next/image";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { intervalToDuration } from "date-fns";
+import { format } from "date-fns";
 import { EyeIcon, TrashIcon } from "lucide-react";
 
 import type { CarouselApi } from "../ui/carousel";
@@ -18,6 +18,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../ui/carousel";
+import {
+  DataList,
+  DataListItem,
+  DataListLabel,
+  DataListValue,
+} from "../ui/data-list";
 import {
   Dialog,
   DialogContent,
@@ -95,111 +101,70 @@ export function PatientInformation({ patient }: PatientInformationProps) {
       <div className="flex flex-col gap-5 px-2 py-5 sm:px-4">
         <h4 className="text-xs opacity-70">Details</h4>
 
-        <div className="mt-3 flex flex-wrap gap-5 *:min-w-[31%]">
-          <div className="flex flex-col gap-[0.2px]">
-            <legend className="text-xs opacity-70 sm:text-sm">
-              First name
-            </legend>
-            <p className="text-sm capitalize sm:text-base">
-              {patient?.firstName}
-            </p>
-          </div>
-          <div className="flex flex-col gap-[0.2px]">
-            <legend className="text-xs opacity-70 sm:text-sm">
-              Middle name
-            </legend>
-            <p className="text-sm capitalize sm:text-base">
-              {patient?.middleName}
-            </p>
-          </div>
-          <div className="flex flex-col gap-[0.2px]">
-            <legend className="text-xs opacity-70 sm:text-sm">Last name</legend>
-            <p className="text-sm capitalize sm:text-base">
-              {patient?.lastName}
-            </p>
-          </div>
-          <div className="flex flex-col gap-[0.2px]">
-            <legend className="text-xs opacity-70 sm:text-sm">
-              Phone number
-            </legend>
-            <p className="text-sm capitalize sm:text-base">
-              {patient?.phone ?? "-"}
-            </p>
-          </div>
-          <div className="flex flex-col gap-[0.2px]">
-            <legend className="text-xs opacity-70 sm:text-sm">Email</legend>
-            <p className="text-sm lowercase sm:text-base">
-              {patient?.email ?? "-"}
-            </p>
-          </div>
-          <div className="flex flex-col gap-[0.2px]">
-            <legend className="text-xs opacity-70 sm:text-sm">Address</legend>
-            <p className="text-sm capitalize sm:text-base">
-              {patient?.address?.street ?? "-"}
-            </p>
-          </div>
-          <div className="flex flex-col gap-[0.2px]">
-            <legend className="text-xs opacity-70 sm:text-sm">Gender</legend>
-            <p className="text-sm capitalize sm:text-base">-</p>
-          </div>
-          <div className="flex flex-col gap-[0.2px]">
-            <legend className="text-xs opacity-70 sm:text-sm">Age</legend>
-            <Suspense>
-              <p className="text-sm capitalize sm:text-base">
-                {
-                  intervalToDuration({
-                    start: new Date(String(patient?.dob)),
-                    end: new Date(),
-                  }).years
-                }
-              </p>
-            </Suspense>
-          </div>
-          <div className="flex flex-col gap-[0.2px]">
-            <legend className="text-xs opacity-70 sm:text-sm">
-              Last treatment
-            </legend>
-            <p className="text-sm capitalize sm:text-base">-</p>
-          </div>
-          <div className="flex flex-col gap-[0.2px]">
-            <legend className="text-xs opacity-70 sm:text-sm">
-              Date last treatment was gotten
-            </legend>
-            <p className="text-sm capitalize sm:text-base">-</p>
-          </div>
-        </div>
+        <DataList orientation="vertical" className="grid w-full grid-cols-3">
+          <DataListItem>
+            <DataListLabel>First name</DataListLabel>
+            <DataListValue>{patient?.firstName}</DataListValue>
+          </DataListItem>
+          <DataListItem>
+            <DataListLabel>Last name</DataListLabel>
+            <DataListValue>{patient?.lastName}</DataListValue>
+          </DataListItem>
+          <DataListItem>
+            <DataListLabel>Phone</DataListLabel>
+            <DataListValue>{patient?.phone}</DataListValue>
+          </DataListItem>
+          <DataListItem>
+            <DataListLabel>Gender</DataListLabel>
+            <DataListValue>{"-"}</DataListValue>
+          </DataListItem>
+
+          <DataListItem>
+            <DataListLabel>Date of Birth</DataListLabel>
+            <DataListValue>
+              {/* {format(new Date(patient?.dob), "MMM d, yyyy")} */}
+            </DataListValue>
+          </DataListItem>
+          <DataListItem>
+            <DataListLabel>Address</DataListLabel>
+            <DataListValue>
+              {patient?.address?.city ?? ""} {patient?.address?.state ?? ""}{" "}
+              {patient?.address?.zipCode ?? ""}
+            </DataListValue>
+          </DataListItem>
+          <DataListItem>
+            <DataListLabel>Last treatment</DataListLabel>
+            <DataListValue>{"-"}</DataListValue>
+          </DataListItem>
+          <DataListItem>
+            <DataListLabel>Date last treatment was gotten</DataListLabel>
+            <DataListValue>{format(new Date(), "MMM dd, yyyy")}</DataListValue>
+          </DataListItem>
+        </DataList>
       </div>
       <hr />
 
       <div className="flex flex-col gap-5 px-2 py-5 sm:px-4">
         <h4 className="text-xs opacity-70">Hygiene & Habits</h4>
 
-        <div className="mt-3 flex flex-wrap gap-5 *:min-w-[31%]">
-          <div className="flex flex-col gap-[0.2px]">
-            <legend className="text-xs opacity-70 sm:text-sm">
+        <DataList orientation="vertical" className="grid w-full grid-cols-3">
+          <DataListItem>
+            <DataListLabel>
               When did you make the latest dental visit?
-            </legend>
-            <p className="text-sm capitalize sm:text-base">
-              Less than 3 months ago
-            </p>
-          </div>
-          <div className="flex flex-col gap-[0.2px]">
-            <legend className="text-xs opacity-70 sm:text-sm">
-              What time did you start dental care?
-            </legend>
-            <p className="text-sm capitalize sm:text-base">
-              Less than 3 months ago
-            </p>
-          </div>
-          <div className="flex flex-col gap-[0.2px]">
-            <legend className="text-xs opacity-70 sm:text-sm">
+            </DataListLabel>
+            <DataListValue>Less than 3 months ago</DataListValue>
+          </DataListItem>
+          <DataListItem>
+            <DataListLabel>What time did you start dental care?</DataListLabel>
+            <DataListValue>Less than 3 months ago</DataListValue>
+          </DataListItem>
+          <DataListItem>
+            <DataListLabel>
               How many times in a day do you wash your teeth?
-            </legend>
-            <p className="text-sm capitalize sm:text-base">
-              Less than 3 times a day
-            </p>
-          </div>
-        </div>
+            </DataListLabel>
+            <DataListValue>Less than 3 times a day</DataListValue>
+          </DataListItem>
+        </DataList>
       </div>
       <hr />
 
@@ -350,61 +315,61 @@ export function PatientInformation({ patient }: PatientInformationProps) {
   );
 }
 
-interface FilePreviewProps {
-  uri: string;
-}
+// interface FilePreviewProps {
+//   uri: string;
+// }
 
-function FilePreview({ uri }: FilePreviewProps) {
-  const [fileInfo, setFileInfo] = useState<{
-    extension: string;
-    size?: number; // Size in bytes
-    type?: string; // MIME type
-  } | null>(null);
+// function FilePreview({ uri }: FilePreviewProps) {
+//   const [fileInfo, setFileInfo] = useState<{
+//     extension: string;
+//     size?: number; // Size in bytes
+//     type?: string; // MIME type
+//   } | null>(null);
 
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+//   const [loading, setLoading] = useState<boolean>(true);
+//   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const getFileProperties = async () => {
-      try {
-        // First, parse the URL to get the extension
-        const urlObject = new URL(uri);
-        const lastDotIndex = urlObject.pathname.lastIndexOf(".");
-        const extension =
-          lastDotIndex !== -1 ? urlObject.pathname.slice(lastDotIndex + 1) : "";
+//   useEffect(() => {
+//     const getFileProperties = async () => {
+//       try {
+//         // First, parse the URL to get the extension
+//         const urlObject = new URL(uri);
+//         const lastDotIndex = urlObject.pathname.lastIndexOf(".");
+//         const extension =
+//           lastDotIndex !== -1 ? urlObject.pathname.slice(lastDotIndex + 1) : "";
 
-        // Use fetch to get file data from the URL
-        const response = await fetch(uri);
+//         // Use fetch to get file data from the URL
+//         const response = await fetch(uri);
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+//         if (!response.ok) {
+//           throw new Error(`HTTP error! status: ${response.status}`);
+//         }
 
-        // Retrieve file properties from the response headers
-        const size = response.headers.get("Content-Length");
-        const type = response.headers.get("Content-Type");
+//         // Retrieve file properties from the response headers
+//         const size = response.headers.get("Content-Length");
+//         const type = response.headers.get("Content-Type");
 
-        console.log(response.blob(), urlObject);
+//         console.log(response.blob(), urlObject);
 
-        setFileInfo({
-          extension,
-          size: size ? parseInt(size, 10) : undefined,
-          type: type ?? undefined,
-        });
-      } catch (e: Error) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+//         setFileInfo({
+//           extension,
+//           size: size ? parseInt(size, 10) : undefined,
+//           type: type ?? undefined,
+//         });
+//       } catch (e: Error) {
+//         setError(e.message);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
 
-    // Intentionally don't await the async function here because
-    // useEffect callback cannot be async — the function handles
-    // its own errors and state. Use `void` to satisfy the
-    // `@typescript-eslint/no-floating-promises` rule.
-    void getFileProperties();
-  }, [uri]);
+//     // Intentionally don't await the async function here because
+//     // useEffect callback cannot be async — the function handles
+//     // its own errors and state. Use `void` to satisfy the
+//     // `@typescript-eslint/no-floating-promises` rule.
+//     void getFileProperties();
+//   }, [uri]);
 
-  console.log(fileInfo);
-  return <p></p>;
-}
+//   console.log(fileInfo);
+//   return <p></p>;
+// }

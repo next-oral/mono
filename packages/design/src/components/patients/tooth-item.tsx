@@ -1,6 +1,6 @@
+import type { ToothTypes } from "@repo/design/types/tooth";
 import { HugeIcons } from "@repo/design/icons";
 import { cn } from "@repo/design/lib/utils";
-import type { ToothTypes } from "@repo/design/types/tooth";
 
 import { Badge } from "../ui/badge";
 
@@ -58,7 +58,10 @@ export function ToothItem({
         onClick={() => setTooth(type)}
       >
         {appointmentsCount > 0 && (
-          <Badge className="border-background absolute -top-2 -right-2 h-5 min-w-5 rounded-full border-2 px-1 font-mono text-[7px] tabular-nums">
+          <Badge
+            variant="secondary"
+            className="border-foreground absolute -top-2 -right-2 inline-flex h-[24px] w-[24px] items-center justify-center rounded-full border-2 text-[7px] leading-none tabular-nums invert"
+          >
             {appointmentsCount}
           </Badge>
         )}

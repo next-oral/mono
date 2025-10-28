@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useZero } from "@rocicorp/zero/react";
 import { format } from "date-fns";
@@ -54,7 +55,12 @@ export default function PatientDetailsPage() {
     );
 
   return (
-    <div className="w-full py-5">
+    <div className="h-full w-full py-5">
+      <div className="text-muted-foreground mb-4 px-2 text-sm sm:px-4">
+        <Link href="../patients" className="hover:underline">
+          ← Back to patients
+        </Link>
+      </div>
       <div className="flex flex-wrap-reverse items-center justify-between gap-3 px-2 sm:px-4">
         <div className="flex items-center gap-2">
           <Suspense>
@@ -101,7 +107,7 @@ export default function PatientDetailsPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="patient information" className="mt-10 gap-0">
+      <Tabs defaultValue="patient information" className="mt-10 h-full gap-0">
         <TabsList className="*:text-muted-foreground mb-0 h-fit bg-transparent px-2 pb-0 *:rounded-b-none *:text-xs *:data-[state=active]:bg-blue-50 *:data-[state=active]:text-blue-700 *:data-[state=active]:shadow-none sm:px-4 *:sm:text-sm *:dark:data-[state=active]:bg-blue-950 *:dark:data-[state=active]:text-blue-400">
           <TabsTrigger value="patient information" className="px-3 py-2">
             Patient information
@@ -118,16 +124,10 @@ export default function PatientDetailsPage() {
           <PatientInformation patient={patientWithAddress} />
         </TabsContent>
 
-        <TabsContent value="medical records" className="">
+        <TabsContent value="medical records" className="h-full">
           <MedicalRecords dentists={dentists} />
         </TabsContent>
       </Tabs>
-
-      {/* <div className="text-muted-foreground mb-4 text-sm">
-        <Link href="../patients" className="hover:underline">
-          ← Back to patients
-        </Link>
-      </div> */}
     </div>
   );
 }

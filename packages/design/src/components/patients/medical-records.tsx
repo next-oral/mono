@@ -29,7 +29,8 @@ const appointments: Appointment[] = [
     dentistId: "0fgBBT3",
     treatment: "Filling",
     patientNote: "Pain when biting",
-    doctorNote: "Small occlusal caries",
+    doctorNote:
+      "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Esse error ea hic repellendus amet saepe quibusdam voluptas ab nesciunt quas. Et, autem. Aperiam eum ab asperiores numquam nobis reprehenderit sapiente nulla illo possimus distinctio voluptates quaerat est voluptatem quasi quo enim perspiciatis tempora aliquid necessitatibus iste repellat, voluptatum temporibus optio? Sapiente neque aliquam iusto quod cupiditate laudantium ullam repellendus, minima iste, ipsum maiores harum, eos fugiat autem temporibus sapiente provident deserunt saepe nam. Dolores, perspiciatis sapiente. Soluta placeat ullam qui tenetur saepe neque dolore consequuntur nihil voluptatem provident labore veritatis, assumenda aut nisi possimus suscipit! Officia nihil, magni possimus unde minima incidunt quasi beatae exercitationem atque rerum alias itaque ratione repellat consectetur placeat ab quia nobis quam ullam dicta natus suscipit perspiciatis. Neque animi sit esse sunt iure, maxime similique illum ullam expedita fuga accusantium ut illo laboriosam! Vitae repellat cupiditate nulla incidunt quis minus voluptatibus, architecto autem deleniti aspernatur. Ducimus dolores, nisi earum reprehenderit quis nostrum obcaecati unde, harum, hic atque esse est aspernatur. Sit optio quaerat quia numquam alias aspernatur a harum tenetur obcaecati corporis quas, esse aperiam reiciendis rerum illo ipsa eveniet sequi iste quibusdam? Possimus eaque ad fugit eos fuga, illum iusto temporibus. Iste saepe esse officiis et similique cupiditate ex explicabo odio consequatur iusto blanditiis dignissimos ducimus tenetur quas soluta laudantium accusamus, aut amet. Nam quisquam obcaecati blanditiis sequi illo recusandae, voluptates modi dignissimos sed incidunt, nostrum est autem vel explicabo sit nemo omnis quam iure exercitationem atque necessitatibus, iste fuga molestias fugiat. Vel, ad cum iste iure adipisci eligendi quod ex repudiandae, delectus id ducimus. Sunt perferendis ut ullam corrupti fugiat odit magni blanditiis et? Ea nam velit illum, assumenda perferendis quidem et repellendus nisi molestiae? Quae debitis, quaerat officia eum veniam quia incidunt earum. Laudantium ipsum expedita qui odit iure porro amet, recusandae dolorem facilis a. Sed pariatur illo illum dolorem eveniet ab modi consequatur dignissimos rem quo, ad fugiat quibusdam dolor maxime et doloribus! Aspernatur debitis exercitationem possimus nulla incidunt doloremque unde consequuntur dolore ad, quisquam molestiae, modi quidem, fuga deleniti aut magni quas et repellat accusamus beatae earum sed. Sint numquam voluptas sequi velit exercitationem aspernatur ipsam fugit officia adipisci quod perferendis earum porro error libero odit quia voluptatibus, harum reprehenderit voluptatum.",
     numberOfProcedure: 1,
     teeth: ["central incisor ul"],
     createdAt: "2025-10-01T09:15:00.000Z",
@@ -39,7 +40,7 @@ const appointments: Appointment[] = [
     dentistId: "1u7BnEn4NKmVjqAcrQ1",
     treatment: "Cleaning",
     patientNote: "Routine cleaning",
-    doctorNote: "Good oral hygiene",
+    doctorNote: "Lorem",
     numberOfProcedure: 1,
     teeth: ["lateral incisor ul"],
     createdAt: "2025-10-02T10:00:00.000Z",
@@ -374,6 +375,7 @@ export function MedicalRecords({ dentists }: MedicalRecordsProps) {
 
   useEffect(() => {
     if (!tooth) return;
+    if (window.window.innerWidth >= 1024) return; // only scroll on lg screens and up
     if (targetDivRef.current) {
       targetDivRef.current.scrollIntoView({
         behavior: "smooth", // For a smooth scrolling effect
@@ -411,14 +413,14 @@ export function MedicalRecords({ dentists }: MedicalRecordsProps) {
     return appointments.filter((appointment) =>
       appointment.teeth.includes(tooth),
     );
-  }, [appointments, tooth]);
+  }, [tooth]);
   const hasResults = filteredAppointments.length > 0;
 
   return (
-    <div className="flex w-full max-lg:flex-wrap-reverse">
+    <div className="flex h-full w-full max-lg:flex-wrap-reverse">
       <div
         ref={targetDivRef}
-        className={cn("w-full px-2 pt-5 sm:px-4 lg:basis-[80%]")}
+        className={cn("h-full w-full px-2 pt-5 sm:px-4 lg:basis-[80%]")}
       >
         <h5 className="text-[10px] opacity-70">Treatment history</h5>
 
@@ -446,7 +448,7 @@ export function MedicalRecords({ dentists }: MedicalRecordsProps) {
                   <div className="flex items-center">
                     <Badge
                       variant={"secondary"}
-                      className="h-5 min-w-5 rounded-full border-2 px-1 font-mono text-[9px] tabular-nums opacity-60 invert"
+                      className="border-foreground inline-flex h-[24px] w-[24px] items-center justify-center rounded-full border-2 text-[7px] leading-none tabular-nums invert"
                     >
                       {index + 1}
                     </Badge>
@@ -497,7 +499,7 @@ export function MedicalRecords({ dentists }: MedicalRecordsProps) {
                         </Suspense>
                       </div>
 
-                      <Note note={appointment.patientNote} type="doctor" />
+                      <Note note={appointment.doctorNote} type="doctor" />
                     </div>
                   </div>
                 </div>
@@ -506,7 +508,7 @@ export function MedicalRecords({ dentists }: MedicalRecordsProps) {
         )}
       </div>
 
-      <div className="flex flex-grow flex-col gap-3 bg-slate-50 px-2 py-2 sm:px-4 sm:py-4 dark:bg-slate-950">
+      <div className="flex h-full flex-grow flex-col gap-3 bg-slate-50 px-2 py-2 sm:px-4 sm:py-4 dark:bg-slate-950">
         {/* Upper Left (UL) Section */}
         <div className="flex flex-col gap-2">
           <h4 className="text-foreground/60 text-xs">
@@ -879,23 +881,25 @@ function Note({ note, type }: { note: string; type: "patient" | "doctor" }) {
           </h4>
         </div>
 
-        <Button
-          variant="ghost"
-          className="font-light"
-          onClick={() => setIsExpanded((prev) => !prev)}
-        >
-          {isExpanded ? <Minimize2 /> : <Maximize2 />}
-        </Button>
+        {note.length > 200 && (
+          <Button
+            variant="ghost"
+            className="font-light"
+            onClick={() => setIsExpanded((prev) => !prev)}
+          >
+            {isExpanded ? <Minimize2 /> : <Maximize2 />}
+          </Button>
+        )}
       </header>
 
-      <div className="relative">
-        <p className="text-sm">
+      <div className="relative h-full max-h-[200px] overflow-auto">
+        <p className="text-xs">
           {isExpanded
             ? note
-            : `${note.slice(0, 100)}${note.length > 100 ? "..." : ""}`}
+            : `${note.slice(0, 250)}${note.length > 100 ? "..." : ""}`}
         </p>
         {!isExpanded && (
-          <div className="absolute bottom-0 min-h-[40%] w-full bg-white/5 opacity-80 backdrop-blur-sm" />
+          <div className="absolute bottom-0 min-h-[40%] w-full bg-white/5 opacity-30 backdrop-blur-sm" />
         )}
       </div>
     </div>
